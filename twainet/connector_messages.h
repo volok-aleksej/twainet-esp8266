@@ -60,4 +60,14 @@ public:
 
 /******************************************************************/
 
+class ConnectErrorMessage : public ErrorMessage
+{
+public:
+        ConnectErrorMessage(const String& moduleName, const String& error, int errorCode);
+        static String GetMessageName();
+public:
+        String m_moduleName;
+};
+/******************************************************************/
+
 #endif/*CONNECTOR_MESSAGES_H*/

@@ -72,3 +72,16 @@ const char* ConnectedMessage::GetMessageName()
 {
 	return "ConnectedMessage";
 }
+
+/************************************************************************/
+/*                       ConnectErrorMessage                            */
+/************************************************************************/
+ConnectErrorMessage::ConnectErrorMessage(const String& moduleName, const String& error, int errorCode)
+: ErrorMessage(error, errorCode), m_moduleName(moduleName)
+{
+}
+
+String ConnectErrorMessage::GetMessageName()
+{
+        return "ConnectErrorMessage";
+}

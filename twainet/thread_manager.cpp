@@ -34,6 +34,7 @@ extern "C" void esp_yield();
 
 ThreadManager::ThreadManager()
 {
+    Serial.println("Thread Manager");
     for(uint8_t i = 0; i < THREAD_MAX; i++) {
         g_threadDesks[i].m_id = THREAD_START_ID + i;
         g_threadDesks[i].m_thread = 0;

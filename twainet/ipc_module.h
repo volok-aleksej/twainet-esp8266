@@ -5,11 +5,11 @@
 #include "ipc_object_name.h"
 #include "ipc_signal_handler.h"
 
-// #include "connector_factory.h"
 #include "connector_manager.h"
 #include "signal_owner.h"
 #include "std/list.hpp"
 #include "std/vector.hpp"
+#include "include/connector_factory.h"
 
 #include <string>
 #include <stdarg.h>
@@ -38,8 +38,7 @@ protected:
 	};
 
 public:
-// 	IPCModule(const IPCObjectName& moduleName, ConnectorFactory* factory, int ipv);
-    IPCModule(const IPCObjectName& moduleName);
+ 	IPCModule(const IPCObjectName& moduleName, ConnectorFactory* factory);
 	virtual ~IPCModule();
 
 	void DisconnectModule(const IPCObjectName& moduleName);
@@ -68,7 +67,8 @@ protected:
 	IPCObjectName m_moduleName;
 	twnstd::list<IPCObject> m_ipcObject;	// available modules
 	twnstd::list<IPCObject> m_modules;		// connected modules
-	ConnectorManager *m_manager;
+	ConnectorManager m_manager;
+    ConnectorFactory *m_factory;
 	bool m_isExit;
 	
 // 	std::map<std::string, std::vector<std::string> > m_connectors;

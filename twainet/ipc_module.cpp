@@ -60,13 +60,11 @@ bool IPCModule::IPCObject::operator==(const IPCObject& object)
 /*******************************************************************************/
 /*                               IPCModule                                     */
 /*******************************************************************************/
-// IPCModule::IPCModule(const IPCObjectName& moduleName, ConnectorFactory* factory, int ipv)
-IPCModule::IPCModule(const IPCObjectName& moduleName)
-: m_moduleName(moduleName)/*, m_factory(factory)*/
+IPCModule::IPCModule(const IPCObjectName& moduleName, ConnectorFactory* factory)
+: m_moduleName(moduleName), m_factory(factory)
 , m_ipcSignalHandler(this), m_isExit(false)
 {
-	m_manager = new ConnectorManager;
-	m_manager->addSubscriber(&m_ipcSignalHandler, SIGNAL_FUNC(&m_ipcSignalHandler, IPCSignalHandler, DisconnectedMessage, onDisconnected));
+	m_manager.addSubscriber(&m_ipcSignalHandler, SIGNAL_FUNC(&m_ipcSignalHandler, IPCSignalHandler, DisconnectedMessage, onDisconnected));
 }
 
 IPCModule::~IPCModule()
@@ -78,7 +76,7 @@ void IPCModule::DisconnectModule(const IPCObjectName& moduleName)
 {
 // 	LOG_INFO("Try disconnect from %s: m_moduleName - %s\n", const_cast<IPCObjectName&>(moduleName).GetModuleNameString().c_str(), m_moduleName.GetModuleNameString().c_str());
 	IPCObjectName module(moduleName);
-	m_manager->StopConnection(module.GetModuleNameString());
+	m_manager.StopConnection(module.GetModuleNameString());
 }
 
 void IPCModule::OnNewConnector(Connector* connector)
@@ -143,7 +141,7 @@ void IPCModule::AddConnector(Connector* conn)
         connector->addSubscriber(&m_ipcSignalHandler, SIGNAL_FUNC(&m_ipcSignalHandler, IPCSignalHandler, IPCSignalMessage, onIPCMessage));
 		
 		connector->SubscribeModule(dynamic_cast<SignalOwner*>(this));
-		m_manager->AddConnection(conn);
+		m_manager.AddConnection(conn);
 	}
 	else
 	{
