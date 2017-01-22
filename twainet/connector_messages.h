@@ -64,10 +64,20 @@ class ConnectErrorMessage : public ErrorMessage
 {
 public:
         ConnectErrorMessage(const String& moduleName, const String& error, int errorCode);
-        static String GetMessageName();
+        static const char* GetMessageName();
 public:
         String m_moduleName;
 };
+
+/******************************************************************/
+
+class ClientServerConnectedMessage : public ConnectedMessage
+{
+public:
+        ClientServerConnectedMessage(const String& id);
+        static const char* GetMessageName();
+};
+
 /******************************************************************/
 
 #endif/*CONNECTOR_MESSAGES_H*/

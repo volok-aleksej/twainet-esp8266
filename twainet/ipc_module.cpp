@@ -1,14 +1,7 @@
 #include <stdio.h>
 #include <time.h>
-// #include <algorithm>
-
 #include "ipc_module.h"
-
-// #include "common/common.h"
 #include "common_func.h"
-
-// #include "connector_lib/thread/connect_thread.h"
-// #include "connector_lib/socket/socket_factories.h"
 #include "thread_manager.h"
 
 /*******************************************************************************/

@@ -81,7 +81,20 @@ ConnectErrorMessage::ConnectErrorMessage(const String& moduleName, const String&
 {
 }
 
-String ConnectErrorMessage::GetMessageName()
+const char* ConnectErrorMessage::GetMessageName()
 {
         return "ConnectErrorMessage";
+}
+
+/************************************************************************/
+/*                    ClientServerConnectedMessage                      */
+/************************************************************************/
+ClientServerConnectedMessage::ClientServerConnectedMessage(const String& id)
+: ConnectedMessage(id, false)
+{
+}
+
+const char* ClientServerConnectedMessage::GetMessageName()
+{
+        return "ClientServerConnectedMessage";
 }

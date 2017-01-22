@@ -24,6 +24,10 @@ public:
     String GetHostName() const;
     String GetConnId() const;
     
+    void SetModuleName(const String& name);
+    void SetHostName(const String& name);
+    void SetConnId(const String& id);
+    
 	static IPCObjectName GetIPCName(const String& ipcName);
 protected:
 	void ModuleNameString();

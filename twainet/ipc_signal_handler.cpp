@@ -188,10 +188,12 @@ void IPCSignalHandler::onIPCObjectList(const IPCObjectListMessage& msg)
         char* dataPtr = (char*)const_cast<IPCObjectListMessage&>(msg).GetMessage()->ipc_object;
         const_cast<IPCObjectListMessage&>(msg).GetMessage()->ipc_object[i] = (Ipc__AddIPCObject*)(dataPtr + offsetobjects + sizeof(Ipc__AddIPCObject) * i);
         Ipc__AddIPCObject* addIPCObject = const_cast<IPCObjectListMessage&>(msg).GetMessage()->ipc_object[i];
+        ipc__add_ipcobject__init(addIPCObject);
  		addIPCObject->ip = (char*)it->m_ip.c_str();
  		addIPCObject->port = it->m_port;
  		addIPCObject->access_id = (char*)it->m_accessId.c_str();
         addIPCObject->ipc_name = (Ipc__IPCName*)(dataPtr + offsetnames + sizeof(Ipc__IPCName) * i);
+        ipc__ipcname__init(addIPCObject->ipc_name);
         addIPCObject->ipc_name->module_name = (char*)it->m_ipcName.GetModuleName().c_str();
         addIPCObject->ipc_name->host_name = (char*)it->m_ipcName.GetHostName().c_str();
         addIPCObject->ipc_name->conn_id = (char*)it->m_ipcName.GetConnId().c_str();

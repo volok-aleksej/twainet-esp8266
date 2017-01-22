@@ -91,6 +91,21 @@ String IPCObjectName::GetConnId() const
 {
     return m_connId;
 }
+
+void IPCObjectName::SetModuleName(const String& name)
+{
+    m_moduleName = name;
+}
+
+void IPCObjectName::SetHostName(const String& name)
+{
+    m_hostName = name;
+}
+
+void IPCObjectName::SetConnId(const String& id)
+{
+    m_connId = id;
+}
     
 IPCObjectName IPCObjectName::GetIPCName(const String& ipcName)
 {

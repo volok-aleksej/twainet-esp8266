@@ -17,6 +17,8 @@ public:
 	virtual void Stop();
 protected:
 	virtual void ThreadFunc();
+    virtual void OnStart(){}
+    virtual void OnStop(){}
 
 protected:
 	ConnectAddress m_address;
