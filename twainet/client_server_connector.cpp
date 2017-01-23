@@ -2,7 +2,7 @@
 #include "connector_messages.h"
 #include "client_module.h"
 #include "common_func.h"
-// #include "utils/logger.h"
+#include "Arduino.h"
 
 ClientServerConnector::ClientServerConnector(AnySocket* socket, const IPCObjectName& moduleName)
 : IPCConnector(socket, moduleName)
@@ -137,7 +137,8 @@ void ClientServerConnector::onMessage(const ClientServer__LoginResult& msg)
 	onSignal(lrMsg);
 	if(msg.login_result == CLIENT_SERVER__RESULT_CODE__LOGIN_FAILURE)
 	{
-// 		LOG_INFO("Login failed: m_moduleName - %s\n", GetModuleName().GetModuleNameString().c_str());
+        Serial.print("Login failed: m_moduleName - ");
+ 		Serial.println(GetModuleName().GetModuleNameString().c_str());
 		StopThread();
 		return;
 	}
@@ -149,7 +150,10 @@ void ClientServerConnector::onMessage(const ClientServer__LoginResult& msg)
 	SetId(name.GetModuleNameString());
 	IPCConnector::SetModuleName(IPCObjectName(GetModuleName().GetModuleName(), m_ownSessionId));
 	
-// 	LOG_INFO("Login succesful: m_id - %s, m_moduleName - %s\n", name.GetModuleNameString().c_str(), GetModuleName().GetModuleNameString().c_str());
+    Serial.print("Login succesful: m_id - ");
+    Serial.print(name.GetModuleNameString().c_str());
+    Serial.print(", m_moduleName - ");
+    Serial.println(GetModuleName().GetModuleNameString().c_str());
 
 	ModuleNameMessage mnMsg(&m_handler, ipc__module_name__descriptor);
     IPCNameMessage ipcname(&m_handler, ipc__ipcname__descriptor);
@@ -184,7 +188,8 @@ void ClientServerConnector::onMessage(const ClientServer__Login& msg)
 
 	if(loginMsg.GetMessage()->login_result == CLIENT_SERVER__RESULT_CODE__LOGIN_FAILURE)
 	{
-// 		LOG_INFO("Login failed: m_moduleName - %s\n", GetModuleName().GetModuleNameString().c_str());
+        Serial.print("Login failed: m_moduleName - ");
+        Serial.println(GetModuleName().GetModuleNameString().c_str());
 		StopThread();
 		return;
 	}
@@ -196,7 +201,10 @@ void ClientServerConnector::onMessage(const ClientServer__Login& msg)
 	SetId(name.GetModuleNameString());
 	IPCConnector::SetModuleName(IPCObjectName(GetModuleName().GetModuleName(), m_ownSessionId));
 	
-// 	LOG_INFO("Login succesful: m_id - %s, m_moduleName - %s\n", name.GetModuleNameString().c_str(), GetModuleName().GetModuleNameString().c_str());
+    Serial.print("Login succesful: m_id - ");
+    Serial.print(name.GetModuleNameString().c_str());
+    Serial.print(", m_moduleName - ");
+    Serial.println(GetModuleName().GetModuleNameString().c_str());
 
     ModuleNameMessage mnMsg(&m_handler, ipc__module_name__descriptor);
     IPCNameMessage ipcName(&m_handler, ipc__ipcname__descriptor);

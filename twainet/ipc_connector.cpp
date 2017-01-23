@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <WString.h>
+#include <Arduino.h>
 
 #include "ipc_connector.h"
 #include "include/proto_message.h"
@@ -251,7 +252,10 @@ void IPCConnector::onIPCSignal(const DataMessage& msg)
 
 bool IPCConnector::SetModuleName(const IPCObjectName& moduleName)
 {
-//	LOG_INFO("Set module name: old-%s, new-%s\n", m_moduleName.GetModuleNameString().c_str(), const_cast<IPCObjectName&>(moduleName).GetModuleNameString().c_str());
+    Serial.print("Set module name: old-");
+    Serial.print(m_moduleName.GetModuleNameString().c_str());
+    Serial.print(", new-");
+    Serial.println(const_cast<IPCObjectName&>(moduleName).GetModuleNameString().c_str());
 	m_moduleName = moduleName;
 	return true;
 }

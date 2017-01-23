@@ -5,7 +5,7 @@
 #include "socket_factories.h"
 #include "include/ipc_connector_factory.h"
 #include "thread_manager.h"
-// #include "utils/logger.h"
+#include <Arduino.h>
 
 const String ClientModule::m_serverIPCName = "Server";
 const String ClientModule::m_clientIPCName = "Client";
@@ -68,12 +68,14 @@ bool ClientModule::CheckFireConnector(const String& moduleName)
 
 void ClientModule::OnServerConnected()
 {
-// 	LOG_INFO("Client connected to server. sessionId: %s\n", m_ownSessionId.c_str());
+	Serial.print("Client connected to server. sessionId: ");
+    Serial.println(m_ownSessionId.c_str());
 }
 
 void ClientModule::OnAuthFailed()
 {
-// 	LOG_INFO("Client authorization failed. m_moduleName %s\n", m_moduleName.GetModuleNameString().c_str());
+	Serial.print("Client authorization failed. m_moduleName ");
+    Serial.println(m_moduleName.GetModuleNameString().c_str());
 }
 
 void ClientModule::FillIPCObjectList(twnstd::list<IPCObject>& ipcList)
@@ -93,7 +95,8 @@ void ClientModule::FillIPCObjectList(twnstd::list<IPCObject>& ipcList)
 	
 void ClientModule::Disconnect()
 {
-// 	LOG_INFO("Try client disconnect. sessionId %s\n", m_ownSessionId.c_str());
+    Serial.print("Try client disconnect. sessionId ");
+    Serial.println(m_ownSessionId.c_str());
 	IPCObjectName ipcName(m_serverIPCName, m_ownSessionId);
 	m_manager.StopConnection(ipcName.GetModuleNameString());
 	m_isStopConnect = true;

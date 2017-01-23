@@ -1,8 +1,6 @@
 #include "ipc_handler.h"
 #include "ipc_connector.h"
-//#include "utils/logger.h"
-//#include "include/ref.h"
-//#include "module/ipc_module.h"
+#include <Arduino.h>
 
 template<> const char* IPCNameMessage::messageName = ipc__ipcname__descriptor.name;
 template<> const char* IPCProtoMessage::messageName = ipc__ipcmessage__descriptor.name;
@@ -37,8 +35,10 @@ void IPCHandler::onMessage(const _Ipc__ModuleName& msg)
  	IPCObjectName ipcName(*msg.ipc_name);
  	m_connector->SetId(ipcName.GetModuleNameString());
 
-// 	LOG_INFO("ModuleName message: m_id-%s, m_module-%s\n",
-// 		 m_connector->m_id.c_str(), m_connector->m_moduleName.GetModuleNameString().c_str());
+    Serial.print("ModuleName message: m_id-");
+    Serial.print(m_connector->m_id.c_str());
+    Serial.print(", m_module-");
+    Serial.println(m_connector->m_moduleName.GetModuleNameString().c_str());
  
  	AddIPCObjectMessage aoMsg(this, ipc__add_ipcobject__descriptor);
     aoMsg.GetMessage()->ip = msg.ip;
@@ -72,7 +72,10 @@ void IPCHandler::onMessage(const _Ipc__ModuleName& msg)
  	
  	if(m_connector->m_isExist)
  	{
-// 		LOG_INFO("Module exists: m_id-%s, m_module-%s\n", m_connector->m_id.c_str(), m_connector->m_moduleName.GetModuleNameString().c_str());
+        Serial.print("Module exists: m_id-");
+        Serial.print(m_connector->m_id.c_str());
+        Serial.print(", m_module-");
+        Serial.println(m_connector->m_moduleName.GetModuleNameString().c_str());
  		return;
  	}
  
@@ -90,8 +93,10 @@ void IPCHandler::onMessage(const _Ipc__ModuleState& msg)
 {
  	if(msg.exist && m_connector->m_isExist)
  	{
-// 		LOG_INFO("Module exists: m_id-%s, m_module-%s\n",
-// 			 m_connector->m_id.c_str(), m_connector->m_moduleName.GetModuleNameString().c_str());
+        Serial.print("Module exists: m_id-");
+        Serial.print(m_connector->m_id.c_str());
+        Serial.print(", m_module-");
+        Serial.println(m_connector->m_moduleName.GetModuleNameString().c_str());
  		m_connector->StopThread();
  	}
  	else if(msg.exist && !m_connector->m_isExist)
@@ -104,14 +109,18 @@ void IPCHandler::onMessage(const _Ipc__ModuleState& msg)
  		if (msMsg.GetMessage()->exist && m_connector->m_rand > msMsg.GetMessage()->rndval
  			|| !msMsg.GetMessage()->exist)
  		{
-// 			LOG_INFO("Module exists: m_id-%s, m_module-%s\n",
-// 				 m_connector->m_id.c_str(), m_connector->m_moduleName.GetModuleNameString().c_str());
+            Serial.print("Module exists: m_id-");
+            Serial.print(m_connector->m_id.c_str());
+            Serial.print(", m_module-");
+            Serial.println(m_connector->m_moduleName.GetModuleNameString().c_str());
  			m_connector->StopThread();
  		}
  		else if(msMsg.GetMessage()->exist && m_connector->m_rand == msMsg.GetMessage()->rndval)
  		{
-// 			LOG_WARNING("Random values is equal: m_id-%s, m_module-%s\n",
-// 				    m_connector->m_id.c_str(), m_connector->m_moduleName.GetModuleNameString().c_str());
+            Serial.print("Random values is equal: m_id-");
+            Serial.print(m_connector->m_id.c_str());
+            Serial.print(", m_module-");
+            Serial.println(m_connector->m_moduleName.GetModuleNameString().c_str());
  		}
  		else
  		{
@@ -239,7 +248,10 @@ void IPCHandler::onMessage(const _Ipc__ChangeIPCName& msg)
  	IPCObjectName ipcName(*msg.ipc_name);
  	m_connector->m_id = ipcName.GetModuleNameString();
  	
-// 	LOG_INFO("Change connector id: m_id-%s, m_module-%s\n", m_connector->m_id.c_str(), m_connector->m_moduleName.GetModuleNameString().c_str());
+    Serial.print("Change connector id: m_id-");
+    Serial.print(m_connector->m_id.c_str());
+    Serial.print(", m_module-");
+    Serial.println(m_connector->m_moduleName.GetModuleNameString().c_str());
 }
 
 void IPCHandler::onMessage(const _Ipc__UpdateIPCObject& msg)
