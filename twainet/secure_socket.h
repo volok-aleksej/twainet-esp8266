@@ -1,8 +1,8 @@
 #ifndef SECURE_SOCKET_H
 #define SECURE_SOCKET_H
 
-#include <openssl/rsa.h>
-// #include "udt_socket.h"
+#include "ssl/ssl_crypto.h"
+#include "ssl/ssl_crypto_misc.h"
 #include "tcp_socket.h"
 
 class AnySocket;
@@ -29,24 +29,9 @@ protected:
 	unsigned char* m_recvdata;
     unsigned int m_recvSize;
 public:
-	static char m_ssl_header[];
+    static const char* startTls;
+    static const char* expecTls;
 };
-
-/*
-class SecureUDTSocket : public SecureSocket, public UDTSocket
-{
-public:
-	SecureUDTSocket(IPVersion ipv);
-	explicit SecureUDTSocket(int socket, IPVersion ipv, bool isUdp);
-	explicit SecureUDTSocket(int udpSocket, int socket);
-
-	virtual bool Connect(const std::string& host, int port);
-	virtual bool Send(char* data, int len);
-	virtual bool Recv(char* data, int len);
-protected:
-	virtual bool SendData(char* data, int len);
-	virtual bool RecvData(char* data, int len);
-};*/
 
 class SecureTCPSocket : public SecureSocket, public TCPSocket
 {
