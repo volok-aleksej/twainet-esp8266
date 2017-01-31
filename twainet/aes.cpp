@@ -1,26 +1,8 @@
 #include "aes.h"
-#include "openssl/aes.h"
-#include "openssl/rand.h"
+#include "ssl/ssl_crypto.h"
 #include <string.h>
 
-int AESGenerateKey(byte* key, int keylen)
-{
-	if(keylen > 32 || !key || keylen%8 != 0)
-	{
-		return -1;
-	}
-	for(int i = 0; i < keylen; i = i + 8)
-	{
-		if(!RAND_bytes(key, sizeof(key)))
-		{
-			return 0;
-		}
-
-		key = key + 8;
-	}
-
-	return keylen;
-}
+#define AES_BLOCK_SIZE 16
 
 int GetEncriptedDataLen(int datalen)
 {
@@ -48,24 +30,21 @@ int AESEncrypt(byte* key, int keylength,
 	{
 		return -2;
 	}
-	else if(keylength > 32 || !key || keylength%8 != 0)
+	else if(keylength != 32 || keylength != 16 || !key)
 	{
 		return -3;
 	}
+	
+	AES_MODE mode = (keylength*8 == 256) ? AES_MODE_256 : AES_MODE_128;
 
 	unsigned char tempdata[MAX_BUFFER_LEN] = {0};
 	memset(tempdata, 0, MAX_BUFFER_LEN);
 	memcpy(tempdata, data, datalen);
 
 	unsigned char iv[16] = "123456789abcdef";
-	AES_KEY aesKey = {0};
-	int keyCrypt = AES_set_encrypt_key(key, keylength*8, &aesKey);
-	if(keyCrypt)
-	{
-		return 0;
-	}
-	
-	AES_cbc_encrypt((unsigned char*)tempdata, (unsigned char*)encryptedData, realDataLen, &aesKey, iv, AES_ENCRYPT);
+	AES_CTX aesKey;
+	AES_set_key(&aesKey, key, iv, mode);
+	AES_cbc_encrypt(&aesKey, (unsigned char*)tempdata, (unsigned char*)encryptedData, realDataLen);
 
 	return realDataLen;
 }
@@ -82,25 +61,21 @@ int AESDecrypt(byte* key, int keylength,
 	{
 		return -2;
 	}
-	else if(keylength > 32 || !key || keylength%8 != 0)
-	{
-		return -3;
-	}
+    else if(keylength != 32 || keylength != 16 || !key)
+    {
+        return -3;
+    }
 	else if (datalen == 0)
 	{
 		return 0;
 	}
 
+    AES_MODE mode = (keylength*8 == 256) ? AES_MODE_256 : AES_MODE_128;
 	unsigned char iv[16] = "123456789abcdef";
-	AES_KEY aesKey = {0};
-	int keyCrypt = AES_set_decrypt_key(key, keylength*8, &aesKey);
-	if(keyCrypt)
-	{
-		return 0;
-	}
-
+	AES_CTX aesKey;
+    AES_set_key(&aesKey, key, iv, mode);
 	char decryptData[MAX_BUFFER_LEN] = {0};
-	AES_cbc_encrypt((unsigned char*)data, (unsigned char*)decryptData, datalen, &aesKey, iv, AES_DECRYPT);
+	AES_cbc_encrypt(&aesKey, (unsigned char*)data, (unsigned char*)decryptData, datalen);
 	memcpy(decryptedData, decryptData, decryptedDataLen);
 
 	return decryptedDataLen;

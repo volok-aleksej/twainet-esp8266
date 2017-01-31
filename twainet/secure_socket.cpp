@@ -1,4 +1,5 @@
 #include "secure_socket.h"
+#include "aes.h"
 #define RSA_DATA_BITS 2048
 #define RSA_DATA_BYTES RSA_DATA_BITS/8
 #define SSL_HEADER_SIZE	8
@@ -88,40 +89,40 @@ finish:
 
 bool SecureSocket::Recv(char* data, int len)
 {
-// 	int recvlen = 0;
-// 	while(!GetData(data, len))
-// 	{
-// 		if(!RecvData((char*)&recvlen, sizeof(int)))
-// 		{
-// 			return false;
-// 		}
-// 
-// 		int realDataLen = GetEncriptedDataLen(recvlen);
-// 		unsigned char* recvdata = new unsigned char[realDataLen];
-// 		if(!RecvData((char*)recvdata, realDataLen))
-// 		{
-// 			return false;
-// 		}
-// 		
-// 		unsigned char* decriptedData = new unsigned char[recvlen];
-// 		int decriptedLen = AESDecrypt(m_keyOwn, sizeof(m_keyOwn), recvdata, realDataLen, (byte*)decriptedData, recvlen);
-// 		if(decriptedLen == -1)
-// 		{
-// 			return false;
-// 		}
-// 
-// 		delete recvdata;
-// 		int newsize = (int)m_recvSize + decriptedLen;
-//         unsigned char* newdata = new unsigned char[newsize];
-//         memcpy(newdata, m_recvdata, m_recvSize);
-// 		memcpy(newdata + newsize - decriptedLen, decriptedData, decriptedLen);
-//         if(m_recvdata) {
-//             delete m_recvdata;
-//         }
-//         m_recvdata = newdata;
-//         m_recvSize = newsize;
-// 		delete decriptedData;
-// 	}
+ 	int recvlen = 0;
+ 	while(!GetData(data, len))
+ 	{
+ 		if(!RecvData((char*)&recvlen, sizeof(int)))
+ 		{
+ 			return false;
+ 		}
+ 
+ 		int realDataLen = GetEncriptedDataLen(recvlen);
+ 		unsigned char* recvdata = new unsigned char[realDataLen];
+ 		if(!RecvData((char*)recvdata, realDataLen))
+ 		{
+ 			return false;
+ 		}
+ 		
+ 		unsigned char* decriptedData = new unsigned char[recvlen];
+ 		int decriptedLen = AESDecrypt(m_keyOwn, sizeof(m_keyOwn), recvdata, realDataLen, (byte*)decriptedData, recvlen);
+ 		if(decriptedLen == -1)
+ 		{
+ 			return false;
+ 		}
+ 
+ 		delete recvdata;
+ 		int newsize = (int)m_recvSize + decriptedLen;
+        unsigned char* newdata = new unsigned char[newsize];
+        memcpy(newdata, m_recvdata, m_recvSize);
+		memcpy(newdata + newsize - decriptedLen, decriptedData, decriptedLen);
+        if(m_recvdata) {
+            delete m_recvdata;
+        }
+        m_recvdata = newdata;
+        m_recvSize = newsize;
+ 		delete decriptedData;
+ 	}
 	return true;
 }
 
@@ -145,36 +146,36 @@ bool SecureSocket::GetData(char* data, int len)
 
 bool SecureSocket::Send(char* data, int len)
 {
-// 	if(len > MAX_BUFFER_LEN)
-// 	{
-// 		int pos = 0, newlen = MAX_BUFFER_LEN;
-// 		while(pos < len)
-// 		{
-// 			if(!Send(data + pos, newlen))
-// 			{
-// 				return false;
-// 			}
-// 			pos += newlen;
-// 			(len - pos > MAX_BUFFER_LEN) ? (newlen = MAX_BUFFER_LEN) : (newlen = len - pos);
-// 		}
-// 		return true;
-// 	}
-// 	
-// 	unsigned char* encriptedData = new unsigned char[MAX_BUFFER_LEN];
-// 	int sendLen = AESEncrypt(m_keyOther, sizeof(m_keyOther), (byte*)data, len, encriptedData, MAX_BUFFER_LEN);
-// 	if(sendLen <= 0)
-// 	{
-// 		return false;
-// 	}
-// 
-// 	unsigned char* senddata = new unsigned char[sendLen + sizeof(int)];
-// 	memcpy(senddata + sizeof(int), encriptedData, sendLen);
-// 	memcpy(senddata, &len, sizeof(int));
-// 	sendLen += sizeof(int);
-// 	delete encriptedData;
-// 	bool bRet = SendData((char*)senddata, sendLen);
-// 	delete senddata;
-// 	return bRet;
+	if(len > MAX_BUFFER_LEN)
+	{
+		int pos = 0, newlen = MAX_BUFFER_LEN;
+		while(pos < len)
+		{
+			if(!Send(data + pos, newlen))
+			{
+				return false;
+			}
+			pos += newlen;
+			(len - pos > MAX_BUFFER_LEN) ? (newlen = MAX_BUFFER_LEN) : (newlen = len - pos);
+		}
+		return true;
+	}
+	
+	unsigned char* encriptedData = new unsigned char[MAX_BUFFER_LEN];
+	int sendLen = AESEncrypt(m_keyOther, sizeof(m_keyOther), (byte*)data, len, encriptedData, MAX_BUFFER_LEN);
+	if(sendLen <= 0)
+	{
+		return false;
+	}
+
+	unsigned char* senddata = new unsigned char[sendLen + sizeof(int)];
+	memcpy(senddata + sizeof(int), encriptedData, sendLen);
+	memcpy(senddata, &len, sizeof(int));
+	sendLen += sizeof(int);
+	delete encriptedData;
+	bool bRet = SendData((char*)senddata, sendLen);
+	delete senddata;
+	return bRet;
 }
 
 /*********************************************************************************/

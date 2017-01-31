@@ -5,11 +5,6 @@ typedef unsigned char byte;
 #define MAX_BUFFER_LEN		8192
 
 //datalen must be less MAX_BUFFER_LEN
-//return -1 - incorrect input data
-//return 0 - open ssl internal error
-int AESGenerateKey(byte* key, int keylen);
-
-//datalen must be less MAX_BUFFER_LEN
 //return size encripted data
 //return -3 - key is incorrect
 //return -2 - incorrect input data

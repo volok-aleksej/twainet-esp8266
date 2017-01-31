@@ -1,12 +1,18 @@
-#include <ESP8266TrueRandom.h>
+#include "ssl/ssl_crypto.h"
+#include "ssl/ssl_crypto_misc.h"
 #include "common_func.h"
 
-byte uuidNumber[16];
+static const char size = 16;
+static char uuidNumber[size];
     
 String CreateGUID()
 {
-    ESP8266TrueRandom.uuid(uuidNumber);
-    return ESP8266TrueRandom.uuidToString(uuidNumber);
+    get_random(size, (uint8_t*)uuidNumber);
+    int len = 0;
+    base64_decode(uuidNumber, size, 0, &len);
+    char* data = new char[len];
+    base64_decode(uuidNumber, size, (uint8_t*)data, &len);
+    return data;
 }
 
 String RandString(int size)
