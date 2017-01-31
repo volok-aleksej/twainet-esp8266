@@ -10,9 +10,11 @@ ThreadDescription g_threadDesks[THREAD_MAX];
 
 void thread_wrapper()
 {
+    Serial.printf("thread started %d\n", g_current_threadId);
     ThreadDescription& desk = g_threadDesks[g_current_threadId - THREAD_START_ID];
     Thread::ThreadFunc(desk.m_thread);
     desk.m_state = ThreadDescription::STOPPED;
+    Serial.printf("thread stoped %d\n", g_current_threadId);
 }
 
 static void thread_func(os_event_t *events)
@@ -20,7 +22,8 @@ static void thread_func(os_event_t *events)
     ThreadDescription& desk = g_threadDesks[events->sig - THREAD_START_ID];
     g_current_threadId = events->sig;
     if(desk.m_state == ThreadDescription::CREATED ||
-              desk.m_state == ThreadDescription::WAITING) {
+       desk.m_state == ThreadDescription::WAITING ||
+       desk.m_state == ThreadDescription::SUSPENDED) {
         desk.m_state = ThreadDescription::RUNNING;
         cont_run(&desk.m_cont, &thread_wrapper);
         if (cont_check(&desk.m_cont) != 0) {
@@ -55,7 +58,6 @@ ThreadManager::~ThreadManager()
 
 void ThreadManager::AddThread(Thread* thread)
 {
-    Serial.println("AddThread");
     for(uint8_t i = 0; i < THREAD_MAX; i++) {
         if(g_threadDesks[i].m_state == ThreadDescription::ABSENT) {
             g_threadDesks[i].m_thread = thread;

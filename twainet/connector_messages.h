@@ -64,6 +64,7 @@ class ConnectErrorMessage : public ErrorMessage
 {
 public:
         ConnectErrorMessage(const String& moduleName, const String& error, int errorCode);
+        virtual char* GetName()const;
         static const char* GetMessageName();
 public:
         String m_moduleName;
@@ -75,6 +76,7 @@ class ClientServerConnectedMessage : public ConnectedMessage
 {
 public:
         ClientServerConnectedMessage(const String& id);
+        virtual char* GetName()const;
         static const char* GetMessageName();
 };
 

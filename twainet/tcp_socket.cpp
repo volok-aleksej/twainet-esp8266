@@ -9,6 +9,8 @@
 
 void onError(void* arg, int8_t err)
 {
+    Serial.print("tcp error");
+    Serial.println(err);
     TCPSocket* socket = reinterpret_cast<TCPSocket*>(arg);
     if(socket) {
         socket->OnError(err);
@@ -36,6 +38,7 @@ int8_t onTcpAccept(void *arg, tcp_pcb* newpcb, int8_t err)
 
 int8_t onTcpConnect(void* arg, tcp_pcb* tpcb, int8_t err)
 {
+    Serial.println("tcp connected");
     TCPSocket* socket = reinterpret_cast<TCPSocket*>(arg);
     if(socket) {
         return socket->OnConnect(tpcb, err);
@@ -181,10 +184,11 @@ bool TCPSocket::Connect(const String& host, int port)
         }
     }
     
-	err_t err = tcp_connect(m_socket, &ipaddr, port, &onTcpConnect);
+    Serial.println("tcp connect");
+	tcp_connect(m_socket, &ipaddr, port, &onTcpConnect);
     m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
     ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
-    return err == ERR_OK;
+    return m_lastError == ERR_OK;
 }
 
 bool TCPSocket::Send(char* data, int len)
@@ -266,20 +270,21 @@ bool TCPSocket::Close()
 {
     if(m_listenSocket != INVALID_SOCKET)
     {
-        tcp_close(m_listenSocket);
+        tcp_abort(m_listenSocket);
     }
     
     if(m_acceptedSocket != INVALID_SOCKET)
     {
-        tcp_close(m_acceptedSocket);
+        tcp_abort(m_acceptedSocket);
     }
     
 	if(m_socket == INVALID_SOCKET)
 	{
 		return false;
 	}
-
-	return tcp_close(m_socket) == ERR_OK;
+	
+	tcp_abort(m_socket);	
+    return true;
 }
 
 void TCPSocket::GetIPPort(String& ip, int& port)
@@ -313,12 +318,13 @@ int TCPSocket::GetMaxBufferSize()
 
 void TCPSocket::OnError(uint8_t err)
 {
-    DEBUGV("TCPSocket:error:%d\r\n", err);
+    m_lastError = err;
+    ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
 }
 
 int8_t TCPSocket::OnAccept(tcp_pcb* newpcb, int8_t err)
 {
-    DEBUGV("TCPSocket:accept\r\n");
+    m_lastError = err;
     m_acceptedSocket = newpcb;
     tcp_accepted(m_listenSocket);
     m_listenSocket = INVALID_SOCKET;
@@ -332,7 +338,7 @@ int8_t TCPSocket::OnAccept(tcp_pcb* newpcb, int8_t err)
 
 int8_t TCPSocket::OnConnect(tcp_pcb* tpcb, int8_t err)
 {
-    DEBUGV("TCPSocket:connected\r\n");
+    m_lastError = err;
     m_socket = tpcb;
     tcp_setprio(m_socket, TCP_PRIO_MIN);
     tcp_arg(m_socket, this);
@@ -345,6 +351,7 @@ int8_t TCPSocket::OnConnect(tcp_pcb* tpcb, int8_t err)
 
 int8_t TCPSocket::OnTCPRecv(tcp_pcb* tpcb, pbuf* pb, err_t err)
 {
+    m_lastError = err;
     if(m_buf) {
         pbuf_cat(m_buf, pb);
     } else {
@@ -356,6 +363,7 @@ int8_t TCPSocket::OnTCPRecv(tcp_pcb* tpcb, pbuf* pb, err_t err)
 
 int8_t TCPSocket::OnTCPSent(tcp_pcb* tpcb, uint16_t len)
 {
+    m_lastError = ERR_OK;
     m_sentSize -= len;
     ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
     return ERR_OK;

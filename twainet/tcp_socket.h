@@ -45,6 +45,7 @@ private:
     uint32_t m_sentSize;
     pbuf* m_buf;
     uint32_t m_buf_offset;
+    int8_t m_lastError;
     
     uint32_t m_suspendedThread;
 };

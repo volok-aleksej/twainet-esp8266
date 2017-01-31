@@ -81,6 +81,11 @@ ConnectErrorMessage::ConnectErrorMessage(const String& moduleName, const String&
 {
 }
 
+char* ConnectErrorMessage::GetName()const
+{
+    return const_cast<char*>(GetMessageName());
+}
+    
 const char* ConnectErrorMessage::GetMessageName()
 {
         return "ConnectErrorMessage";
@@ -92,6 +97,11 @@ const char* ConnectErrorMessage::GetMessageName()
 ClientServerConnectedMessage::ClientServerConnectedMessage(const String& id)
 : ConnectedMessage(id, false)
 {
+}
+
+char* ClientServerConnectedMessage::GetName()const
+{
+    return const_cast<char*>(GetMessageName());
 }
 
 const char* ClientServerConnectedMessage::GetMessageName()

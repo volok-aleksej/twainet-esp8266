@@ -1,6 +1,8 @@
 #ifndef RECEIVER_FUNC_H
 #define RECEIVER_FUNC_H
 
+#include <Arduino.h>
+
 class SignalReceiver;
 
 class IReceiverFunc
@@ -27,12 +29,12 @@ public:
 protected:	
 	bool isSignal(const DataMessage& msg)
 	{
-		return m_typeSignal == msg.GetName();
+		return strcmp(m_typeSignal, msg.GetName()) == 0;
 	}
 
 	void onSignal(const DataMessage& msg)
 	{
-		if(m_typeSignal != msg.GetName())
+		if(strcmp(m_typeSignal, msg.GetName()) != 0)
 		{
 			return;
 		}
