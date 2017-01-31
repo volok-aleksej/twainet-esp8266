@@ -32,7 +32,8 @@ void ClientModule::Connect(const String& ip, int port)
 	m_ip = ip;
 	m_port = port;
 
-	SocketFactory* factory = new TCPSecureSocketFactory();
+//	SocketFactory* factory = new TCPSecureSocketFactory();
+    SocketFactory* factory = new TCPSocketFactory();
 
 	ConnectAddress address;
 	address.m_localIP = "";

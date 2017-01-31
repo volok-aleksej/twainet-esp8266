@@ -4,6 +4,9 @@
 #include "common_func.h"
 #include "Arduino.h"
 
+template<> const char* LoginMessage::messageName = client_server__login__descriptor.name;
+template<> const char* LoginResultMessage::messageName = client_server__login_result__descriptor.name;
+
 ClientServerConnector::ClientServerConnector(AnySocket* socket, const IPCObjectName& moduleName)
 : IPCConnector(socket, moduleName)
 {
