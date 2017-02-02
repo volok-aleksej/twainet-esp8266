@@ -108,17 +108,17 @@ bool TCPSocket::Bind(const String& host, int port)
 	}
 	else
 	{
-        IPAddress ipaddress(ThreadManager::GetInstance().GetCurrentThreadId());
-        if(!ipaddress.fromString(host)) {
-            err_t err = dns_gethostbyname(host.c_str(), &ipaddr, &dnsFoundCallback, &ipaddress);
-            if(err == ERR_INPROGRESS) {
-                ThreadManager::GetInstance().SuspendThread(ThreadManager::GetInstance().GetCurrentThreadId());
-                // will return here when dns_found_callback fires
-                ipaddr.addr = ipaddress;
-            } else if(err != ERR_OK) {
-                return false;
-            }
-        }
+       IPAddress ipaddress(ThreadManager::GetInstance().GetCurrentThreadId());
+       if(!ipaddress.fromString(host)) {
+           err_t err = dns_gethostbyname(host.c_str(), &ipaddr, &dnsFoundCallback, &ipaddress);
+          if(err == ERR_INPROGRESS) {
+               ThreadManager::GetInstance().SuspendThread(ThreadManager::GetInstance().GetCurrentThreadId());
+               // will return here when dns_found_callback fires
+               ipaddr.addr = ipaddress;
+           } else if(err != ERR_OK) {
+               return false;
+           }
+       }
 	}
 	
 	return tcp_bind(m_socket, &ipaddr, port) == ERR_OK;
@@ -270,12 +270,20 @@ bool TCPSocket::Close()
 {
     if(m_listenSocket != INVALID_SOCKET)
     {
-        tcp_abort(m_listenSocket);
+        Serial.println("close m_listenSocket");
+        tcp_arg(m_listenSocket, NULL);
+        tcp_sent(m_listenSocket, NULL);
+        tcp_recv(m_listenSocket, NULL);
+        tcp_close(m_listenSocket);
     }
     
     if(m_acceptedSocket != INVALID_SOCKET)
     {
-        tcp_abort(m_acceptedSocket);
+        Serial.println("close m_acceptedSocket");
+        tcp_arg(m_acceptedSocket, NULL);
+        tcp_sent(m_acceptedSocket, NULL);
+        tcp_recv(m_acceptedSocket, NULL);
+        tcp_close(m_acceptedSocket);
     }
     
 	if(m_socket == INVALID_SOCKET)
@@ -283,7 +291,11 @@ bool TCPSocket::Close()
 		return false;
 	}
 	
-	tcp_abort(m_socket);	
+    Serial.println("close m_socket");
+    tcp_arg(m_socket, NULL);
+    tcp_sent(m_socket, NULL);
+    tcp_recv(m_socket, NULL);
+    tcp_close(m_socket);	
     return true;
 }
 
@@ -319,6 +331,9 @@ int TCPSocket::GetMaxBufferSize()
 void TCPSocket::OnError(uint8_t err)
 {
     m_lastError = err;
+    m_acceptedSocket = 0;
+    m_listenSocket = 0;
+    m_socket = 0;
     ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
 }
 
