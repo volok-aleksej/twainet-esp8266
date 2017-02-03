@@ -57,8 +57,8 @@ const char* DisconnectedMessage::GetMessageName()
 /************************************************************************/
 /*                         ConnectedMessage                             */
 /************************************************************************/
-ConnectedMessage::ConnectedMessage(const String& id, bool bWithCoordinator)
-: m_id(id), m_bWithCoordinator(bWithCoordinator)
+ConnectedMessage::ConnectedMessage(const String& id)
+: m_id(id)
 {
 
 }
@@ -95,7 +95,7 @@ const char* ConnectErrorMessage::GetMessageName()
 /*                    ClientServerConnectedMessage                      */
 /************************************************************************/
 ClientServerConnectedMessage::ClientServerConnectedMessage(const String& id)
-: ConnectedMessage(id, false)
+: ConnectedMessage(id)
 {
 }
 

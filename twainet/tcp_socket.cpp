@@ -26,16 +26,6 @@ void dnsFoundCallback(const char *name, ip_addr_t *ipaddr, void *callback_arg)
     ThreadManager::GetInstance().ResumeThread(threadId);
 }
 
-int8_t onTcpAccept(void *arg, tcp_pcb* newpcb, int8_t err)
-{
-    TCPSocket* socket = reinterpret_cast<TCPSocket*>(arg);
-    if(socket) {
-        return socket->OnAccept(newpcb, err);
-    }
-    
-    return ERR_VAL;
-}
-
 int8_t onTcpConnect(void* arg, tcp_pcb* tpcb, int8_t err)
 {
     Serial.println("tcp connected");
@@ -68,25 +58,12 @@ int8_t onTCPSent(void *arg, struct tcp_pcb *tpcb, uint16_t len)
 }
 
 TCPSocket::TCPSocket()
-: m_listenSocket(INVALID_SOCKET)
-, m_acceptedSocket(INVALID_SOCKET)
-, m_buf_offset(0)
+: m_buf_offset(0)
 , m_buf(0)
 , m_sentSize(0)
 , m_suspendedThread(0)
 {
 	Initialize();
-}
-
-TCPSocket::TCPSocket(int socket)
-: m_socket(*(tcp_pcb**)&socket)
-, m_listenSocket(INVALID_SOCKET)
-, m_acceptedSocket(INVALID_SOCKET)
-, m_buf_offset(0)
-, m_buf(0)
-, m_sentSize(0)
-{
-    tcp_arg(m_socket, this);
 }
 
 TCPSocket::~TCPSocket()
@@ -124,39 +101,6 @@ bool TCPSocket::Bind(const String& host, int port)
 	return tcp_bind(m_socket, &ipaddr, port) == ERR_OK;
 }
 
-bool TCPSocket::Listen(int limit)
-{
-	if(m_socket == INVALID_SOCKET)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-int TCPSocket::Accept(String& ip, int& port)
-{
-	if(m_socket == INVALID_SOCKET)
-	{
-		return INVALID_SOCKET;
-	}
-
-	m_listenSocket = tcp_listen(m_socket);
-    if(m_listenSocket) {
-        tcp_accept(m_listenSocket, &onTcpAccept);
-        tcp_arg(m_listenSocket, this);
-        m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
-        ThreadManager::GetInstance().SuspendThread(ThreadManager::GetInstance().GetCurrentThreadId());
-    }
-    
-    int ret = *(int*)m_acceptedSocket;
-    m_acceptedSocket = INVALID_SOCKET;
-    IPAddress address(m_acceptedSocket->remote_ip.addr);
-    ip = address.toString();
-    port = m_acceptedSocket->remote_port;
-	return ret;
-}
-
 bool TCPSocket::Connect(const String& host, int port)
 {
 	if(m_socket == INVALID_SOCKET || host.length() == 0)
@@ -184,7 +128,6 @@ bool TCPSocket::Connect(const String& host, int port)
         }
     }
     
-    Serial.println("tcp connect");
 	tcp_connect(m_socket, &ipaddr, port, &onTcpConnect);
     m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
     ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
@@ -268,30 +211,11 @@ void TCPSocket::Consume(size_t size)
 
 bool TCPSocket::Close()
 {
-    if(m_listenSocket != INVALID_SOCKET)
-    {
-        Serial.println("close m_listenSocket");
-        tcp_arg(m_listenSocket, NULL);
-        tcp_sent(m_listenSocket, NULL);
-        tcp_recv(m_listenSocket, NULL);
-        tcp_close(m_listenSocket);
-    }
-    
-    if(m_acceptedSocket != INVALID_SOCKET)
-    {
-        Serial.println("close m_acceptedSocket");
-        tcp_arg(m_acceptedSocket, NULL);
-        tcp_sent(m_acceptedSocket, NULL);
-        tcp_recv(m_acceptedSocket, NULL);
-        tcp_close(m_acceptedSocket);
-    }
-    
 	if(m_socket == INVALID_SOCKET)
 	{
 		return false;
 	}
 	
-    Serial.println("close m_socket");
     tcp_arg(m_socket, NULL);
     tcp_sent(m_socket, NULL);
     tcp_recv(m_socket, NULL);
@@ -301,9 +225,9 @@ bool TCPSocket::Close()
 
 void TCPSocket::GetIPPort(String& ip, int& port)
 {
-    IPAddress address(m_acceptedSocket->remote_ip.addr);
+    IPAddress address(m_socket->remote_ip.addr);
     ip = address.toString();
-    port = m_acceptedSocket->remote_port;
+    port = m_socket->remote_port;
 }
 
 int TCPSocket::GetSocket()
@@ -331,24 +255,8 @@ int TCPSocket::GetMaxBufferSize()
 void TCPSocket::OnError(uint8_t err)
 {
     m_lastError = err;
-    m_acceptedSocket = 0;
-    m_listenSocket = 0;
     m_socket = 0;
     ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
-}
-
-int8_t TCPSocket::OnAccept(tcp_pcb* newpcb, int8_t err)
-{
-    m_lastError = err;
-    m_acceptedSocket = newpcb;
-    tcp_accepted(m_listenSocket);
-    m_listenSocket = INVALID_SOCKET;
-    tcp_setprio(m_acceptedSocket, TCP_PRIO_MIN);
-    tcp_recv(m_acceptedSocket, (tcp_recv_fn)&onTCPRecv);
-    tcp_sent(m_acceptedSocket, &onTCPSent);
-    tcp_err(m_acceptedSocket, &onError);
-    ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
-    return ERR_OK;
 }
 
 int8_t TCPSocket::OnConnect(tcp_pcb* tpcb, int8_t err)

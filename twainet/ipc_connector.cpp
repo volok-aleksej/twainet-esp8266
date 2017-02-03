@@ -14,10 +14,8 @@ char *IPCConnector::baseAccessId = "root";
 
 IPCConnector::IPCConnector(AnySocket* socket, const IPCObjectName& moduleName)
 : Connector(socket), m_handler(this), m_moduleName(moduleName)
-, m_bConnected(false), m_isExist(false)
-, m_rand(CreateGUID()), m_isSendIPCObjects(false)
-, m_isCoordinator(false), m_isNotifyRemove(false)
-, m_checker(0)
+, m_bConnected(false)
+, m_rand(CreateGUID()), m_checker(0)
 {
 	m_ipcSignal = new Signal(static_cast<SignalOwner*>(this));
 	addMessage(new ModuleNameMessage(&m_handler, ipc__module_name__descriptor));
@@ -64,8 +62,6 @@ void IPCConnector::ThreadFunc()
 void IPCConnector::OnStart()
 {
     m_checker = new IPCCheckerThread(this);
-    m_isNotifyRemove = m_isCoordinator;
-    m_isSendIPCObjects = m_isCoordinator;
     SetAccessId(baseAccessId);
 
     Ipc__IPCName* ipcName = new Ipc__IPCName;
@@ -106,7 +102,6 @@ void IPCConnector::SubscribeConnector(const IPCConnector* connector)
     {
         ipcSubscribe(conn, SIGNAL_FUNC(this, IPCConnector, IPCProtoMessage, onIPCMessage));
         ipcSubscribe(conn, SIGNAL_FUNC(this, IPCConnector, UpdateIPCObjectMessage, onUpdateIPCObjectMessage));
-        ipcSubscribe(conn, SIGNAL_FUNC(this, IPCConnector, ModuleStateMessage, onModuleStateMessage));
         ipcSubscribe(conn, SIGNAL_FUNC(this, IPCConnector, ModuleNameMessage, onModuleNameMessage));
         ipcSubscribe(conn, SIGNAL_FUNC(this, IPCConnector, RemoveIPCObjectMessage, onRemoveIPCObjectMessage));
     }
@@ -213,18 +208,6 @@ void IPCConnector::onModuleNameMessage(const ModuleNameMessage& msg)
 	toMessage(aoMsg);
 }
 
-void IPCConnector::onModuleStateMessage(const ModuleStateMessage& msg)
-{
-	if(m_id == const_cast<ModuleStateMessage&>(msg).GetMessage()->id)
-	{
-		const_cast<ModuleStateMessage&>(msg).GetMessage()->exist = true;
-		if(strcmp(m_rand.c_str(), const_cast<ModuleStateMessage&>(msg).GetMessage()->rndval) < 0)
-		{
-			const_cast<ModuleStateMessage&>(msg).GetMessage()->rndval = (char*)m_rand.c_str();
-		}
-	}
-}
-
 void IPCConnector::addIPCSubscriber(SignalReceiver* receiver, IReceiverFunc* func)
 {
 	receiver->addSignal(m_ipcSignal, func);
@@ -263,7 +246,7 @@ bool IPCConnector::SetModuleName(const IPCObjectName& moduleName)
 void IPCConnector::OnConnected()
 {
  	m_bConnected = true;
- 	ConnectedMessage msg(GetId(), !m_isCoordinator);
+ 	ConnectedMessage msg(GetId());
  	onSignal(msg);
 }
 

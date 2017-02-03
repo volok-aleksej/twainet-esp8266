@@ -57,75 +57,21 @@ void IPCHandler::onMessage(const _Ipc__ModuleName& msg)
  	m_connector->onSignal(mnMsg);
  
  	ModuleStateMessage msMsg(this, ipc__module_state__descriptor);
- 	msMsg.GetMessage()->exist = m_connector->m_isExist;
+ 	msMsg.GetMessage()->exist = false;
  	msMsg.GetMessage()->rndval = (char*)m_connector->m_rand.c_str();
  	m_connector->toMessage(msMsg);
- 
- 	if(m_connector->m_isSendIPCObjects)
- 	{
- 		IPCObjectListMessage ipcolMsg(this, ipc__ipcobject_list__descriptor);
- 		ipcolMsg.GetMessage()->access_id = msg.access_id;
- 		m_connector->onSignal(ipcolMsg);
- 		m_connector->toMessage(ipcolMsg);
-        free(ipcolMsg.GetMessage()->ipc_object);
- 	}
- 	
- 	if(m_connector->m_isExist)
- 	{
-        Serial.print("Module exists: m_id-");
-        Serial.print(m_connector->m_id.c_str());
-        Serial.print(", m_module-");
-        Serial.println(m_connector->m_moduleName.GetModuleNameString().c_str());
- 		return;
- 	}
- 
- 	//TODO: fix problem:
- 	//	if two modules with same names is trying to connect in same time to coordinator,
- 	//	another modules cann't get correct creadentials of new module.
- 	if(m_connector->m_isSendIPCObjects)
- 	{
- 		m_connector->onIPCSignal(mnMsg);
- 	}
- 	m_connector->OnConnected();
+  	m_connector->OnConnected();
 }
 
 void IPCHandler::onMessage(const _Ipc__ModuleState& msg)
 {
- 	if(msg.exist && m_connector->m_isExist)
+ 	if(msg.exist)
  	{
         Serial.print("Module exists: m_id-");
         Serial.print(m_connector->m_id.c_str());
         Serial.print(", m_module-");
         Serial.println(m_connector->m_moduleName.GetModuleNameString().c_str());
  		m_connector->StopThread();
- 	}
- 	else if(msg.exist && !m_connector->m_isExist)
- 	{
- 		ModuleStateMessage msMsg(this, ipc__module_state__descriptor);
- 		msMsg.GetMessage()->exist = false;
- 		msMsg.GetMessage()->id = (char*)m_connector->GetId().c_str();
- 		m_connector->onIPCSignal(msMsg);
- 
- 		if (msMsg.GetMessage()->exist && m_connector->m_rand > msMsg.GetMessage()->rndval
- 			|| !msMsg.GetMessage()->exist)
- 		{
-            Serial.print("Module exists: m_id-");
-            Serial.print(m_connector->m_id.c_str());
-            Serial.print(", m_module-");
-            Serial.println(m_connector->m_moduleName.GetModuleNameString().c_str());
- 			m_connector->StopThread();
- 		}
- 		else if(msMsg.GetMessage()->exist && m_connector->m_rand == msMsg.GetMessage()->rndval)
- 		{
-            Serial.print("Random values is equal: m_id-");
-            Serial.print(m_connector->m_id.c_str());
-            Serial.print(", m_module-");
-            Serial.println(m_connector->m_moduleName.GetModuleNameString().c_str());
- 		}
- 		else
- 		{
- 			m_connector->OnConnected();
- 		}
  	}
 }
 
@@ -264,12 +210,4 @@ void IPCHandler::onMessage(const _Ipc__UpdateIPCObject& msg)
  	IPCObjectName ipcNameOld(*msg.ipc_old_name);
  	IPCObjectName ipcNameNew(*msg.ipc_new_name);
  	m_connector->OnUpdateIPCObject(ipcNameOld.GetModuleNameString(), ipcNameNew.GetModuleNameString());
-}
-
-void IPCHandler::onMessage(const _Ipc__Ping& msg)
-{
-}
-
-void IPCHandler::onMessage(const _Ipc__IPCName& msg)
-{
 }

@@ -37,12 +37,11 @@ public:
 class ConnectedMessage : public DataMessage
 {
 public:
-	ConnectedMessage(const String& id, bool m_bWithCoordinator);
+	ConnectedMessage(const String& id);
     virtual char* GetName()const;
 	static const char* GetMessageName();
 public:
 	String m_id;
-	bool m_bWithCoordinator;
 };
 
 /******************************************************************/

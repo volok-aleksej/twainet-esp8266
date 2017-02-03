@@ -37,7 +37,6 @@ class SecureTCPSocket : public SecureSocket, public TCPSocket
 {
 public:
 	SecureTCPSocket();
-	explicit SecureTCPSocket(int socket);
 
 	virtual bool Connect(const String& host, int port);
 	virtual bool Send(char* data, int len);

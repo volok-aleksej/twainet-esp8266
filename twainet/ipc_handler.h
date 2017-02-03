@@ -34,8 +34,9 @@ public:
  	void onMessage(const _Ipc__IPCObjectList& msg);
 	void onMessage(const _Ipc__ChangeIPCName& msg);
 	void onMessage(const _Ipc__UpdateIPCObject& msg);
-	void onMessage(const _Ipc__Ping& msg);
-    void onMessage(const _Ipc__IPCName& msg);
+    //stubs
+	void onMessage(const _Ipc__Ping& msg){}
+    void onMessage(const _Ipc__IPCName& msg){}
 	
 private:
 	IPCConnector* m_connector;

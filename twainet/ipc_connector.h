@@ -27,7 +27,6 @@ protected:
     void onIPCMessage(const IPCSignalMessage& msg);
  	void onIPCMessage(const IPCProtoMessage& msg);
  	void onModuleNameMessage(const ModuleNameMessage& msg);
- 	void onModuleStateMessage(const ModuleStateMessage& msg);
  	void onChangeIPCNameMessage(const ChangeIPCNameMessage& msg);
     void onUpdateIPCObjectMessage(const UpdateIPCObjectMessage& msg);
     void onRemoveIPCObjectMessage(const RemoveIPCObjectMessage& msg);
@@ -56,14 +55,10 @@ protected:
 	IPCHandler m_handler;
 	IPCCheckerThread *m_checker;
 	bool m_bConnected;
-	bool m_isNotifyRemove;
-	bool m_isSendIPCObjects;
-    bool m_isCoordinator;
 private:
 	IPCObjectName m_moduleName;
 	String m_accessId;
 	Signal* m_ipcSignal;
-	bool m_isExist;
 	String m_rand;
 };
 

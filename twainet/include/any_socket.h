@@ -24,8 +24,6 @@ public:
 	virtual ~AnySocket(){}
 public:
 	virtual bool Bind(const String& host, int port) = 0;
-	virtual bool Listen(int limit) = 0;
-	virtual int Accept(String& ip, int& port) = 0;
 	virtual bool Connect(const String& host, int port) = 0;
 	virtual bool Send(char* data, int len) = 0;
 	virtual bool Recv(char* data, int len) = 0;

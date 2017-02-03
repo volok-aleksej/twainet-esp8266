@@ -2,7 +2,7 @@
 #define CLIENT_SIGNAL_HANDLER_H
 
 #include "connector_messages.h"
-#include "client_server_connector.h"
+#include "client_connector.h"
 
 class ClientModule;
 

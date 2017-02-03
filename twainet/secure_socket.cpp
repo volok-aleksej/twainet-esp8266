@@ -185,12 +185,6 @@ SecureTCPSocket::SecureTCPSocket()
 {
 }
 
-SecureTCPSocket::SecureTCPSocket(int socket)
-: TCPSocket(socket)
-{
-	PerformSslVerify();
-}
-
 bool SecureTCPSocket::Connect(const String& host, int port)
 {
 	if(!TCPSocket::Connect(host, port))

@@ -71,8 +71,6 @@ void IPCSignalHandler::onAddIPCObject(const AddIPCObjectMessage& msg)
                                 const_cast<AddIPCObjectMessage&>(msg).GetMessage()->ip,
                                 const_cast<AddIPCObjectMessage&>(msg).GetMessage()->port,
                                 const_cast<AddIPCObjectMessage&>(msg).GetMessage()->access_id);
-// 	LOG_INFO("Add IPC Object: ipc name - %s, m_moduleName - %s\n",
-// 		 object.m_ipcName.GetModuleNameString().c_str(), m_module->m_moduleName.GetModuleNameString().c_str());
 	m_module->m_ipcObject.insert(m_module->m_ipcObject.end(), object);
 	m_module->OnIPCObjectsChanged();
 }
@@ -102,13 +100,6 @@ void IPCSignalHandler::onUpdateIPCObject(const UpdateIPCObjectMessage& msg)
     }
     
 	m_module->OnIPCObjectsChanged();
-/*
-	IPCObjectName ipcNameNew(msg.ipc_new_name());
-	IPCObjectName ipcNameOld(msg.ipc_old_name());
-	LOG_INFO("Update IPC Object: ipc name old - %s, ipc name new - %s, m_moduleName - %s\n",
-			ipcNameOld.GetModuleNameString().c_str(),
-			ipcNameNew.GetModuleNameString().c_str(),
-			m_module->m_moduleName.GetModuleNameString().c_str());*/
 }
 
 void IPCSignalHandler::onRemoveIPCObject(const RemoveIPCObjectMessage& msg)
@@ -125,8 +116,6 @@ void IPCSignalHandler::onRemoveIPCObject(const RemoveIPCObjectMessage& msg)
     }
     
     m_module->OnIPCObjectsChanged();
-// 	LOG_INFO("Remove IPC Object: ipc name - %s, m_moduleName - %s\n",
-// 		 object.m_ipcName.GetModuleNameString().c_str(), m_module->m_moduleName.GetModuleNameString().c_str());
 }
 
 void IPCSignalHandler::onModuleName(const ModuleNameMessage& msg)
