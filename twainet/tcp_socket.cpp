@@ -87,15 +87,16 @@ bool TCPSocket::Bind(const String& host, int port)
 	{
        IPAddress ipaddress(ThreadManager::GetInstance().GetCurrentThreadId());
        if(!ipaddress.fromString(host)) {
-           err_t err = dns_gethostbyname(host.c_str(), &ipaddr, &dnsFoundCallback, &ipaddress);
+          err_t err = dns_gethostbyname(host.c_str(), &ipaddr, &dnsFoundCallback, &ipaddress);
           if(err == ERR_INPROGRESS) {
                ThreadManager::GetInstance().SuspendThread(ThreadManager::GetInstance().GetCurrentThreadId());
                // will return here when dns_found_callback fires
-               ipaddr.addr = ipaddress;
-           } else if(err != ERR_OK) {
-               return false;
-           }
+          } else if(err != ERR_OK) {
+              return false;
+          }
        }
+       
+       ipaddr.addr = ipaddress;
 	}
 	
 	return tcp_bind(m_socket, &ipaddr, port) == ERR_OK;
@@ -115,19 +116,21 @@ bool TCPSocket::Connect(const String& host, int port)
     }
     else
     {
-        IPAddress ipaddress(ThreadManager::GetInstance().GetCurrentThreadId());
+        IPAddress ipaddress;
         if(!ipaddress.fromString(host)) {
             err_t err = dns_gethostbyname(host.c_str(), &ipaddr, &dnsFoundCallback, &ipaddress);
             if(err == ERR_INPROGRESS) {
                 ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
                 // will return here when dns_found_callback fires
-                ipaddr.addr = ipaddress;
             } else if(err != ERR_OK) {
                 return false;
             }
         }
+        
+        ipaddr.addr = ipaddress;
     }
     
+    Serial.println("tcp connect");
 	tcp_connect(m_socket, &ipaddr, port, &onTcpConnect);
     m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
     ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
@@ -172,20 +175,20 @@ bool TCPSocket::Recv(char* data, int len)
     }
 
     
-    DEBUGV(":rd %d, %d, %d\r\n", len, m_buf->tot_len, m_buf_offset);
+    Serial.printf(":rd %d, %d, %d\r\n", len, m_buf->tot_len, m_buf_offset);
     while(len) {
         size_t max_size = m_buf->tot_len - m_buf_offset;
         size_t size = (len < max_size) ? len : max_size;
         size_t buf_size = m_buf->len - m_buf_offset;
-        size_t copy_size = (max_size < buf_size) ? max_size : buf_size;
-        DEBUGV(":rdi %d, %d\r\n", buf_size, copy_size);
+        size_t copy_size = (size < buf_size) ? size : buf_size;
+        Serial.printf(":rdi %d, %d\r\n", buf_size, copy_size);
         os_memcpy(data, reinterpret_cast<char*>(m_buf->payload) + m_buf_offset, copy_size);
         data += copy_size;
         Consume(copy_size);
         len -= copy_size;
     }
     
-	return false;
+	return true;
 }
 void TCPSocket::Consume(size_t size)
 {
@@ -193,13 +196,13 @@ void TCPSocket::Consume(size_t size)
     if(left > 0) {
         m_buf_offset += size;
     } else if(!m_buf->next) {
-        DEBUGV(":c0 %d, %d\r\n", size, _rx_buf->tot_len);
+        Serial.printf(":c0 %d, %d\r\n", size, m_buf->tot_len);
         if(m_socket) tcp_recved(m_socket, m_buf->len);
         pbuf_free(m_buf);
         m_buf = 0;
         m_buf_offset = 0;
     } else {
-        DEBUGV(":c %d, %d, %d\r\n", size, _rx_buf->len, _rx_buf->tot_len);
+        Serial.printf(":c %d, %d, %d\r\n", size, m_buf->len, m_buf->tot_len);
         auto head = m_buf;
         m_buf = m_buf->next;
         m_buf_offset = 0;
@@ -216,6 +219,7 @@ bool TCPSocket::Close()
 		return false;
 	}
 	
+    Serial.println("close m_socket");
     tcp_arg(m_socket, NULL);
     tcp_sent(m_socket, NULL);
     tcp_recv(m_socket, NULL);
@@ -261,7 +265,7 @@ void TCPSocket::OnError(uint8_t err)
 
 int8_t TCPSocket::OnConnect(tcp_pcb* tpcb, int8_t err)
 {
-    m_lastError = err;
+    m_lastError = ERR_OK;
     m_socket = tpcb;
     tcp_setprio(m_socket, TCP_PRIO_MIN);
     tcp_arg(m_socket, this);

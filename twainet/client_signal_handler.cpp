@@ -3,7 +3,7 @@
 #include "client_signal_handler.h"
 #include "client_module.h"
 #include "thread_manager.h"
-// #include "utils/logger.h"
+#include <Arduino.h>
 
 ClientSignalHandler::ClientSignalHandler(ClientModule* module)
 : m_module(module)
@@ -31,6 +31,7 @@ void ClientSignalHandler::onAddClientServerConnector(const ConnectorMessage& msg
 
 void ClientSignalHandler::onErrorConnect(const ConnectErrorMessage& msg)
 {
+    Serial.println("ClientSignalHandler::onErrorConnect");
     m_module->OnConnectFailed(msg.m_moduleName);
 }
 

@@ -1,5 +1,7 @@
 #include "secure_socket.h"
 #include "aes.h"
+#include <Arduino.h>
+
 #define RSA_DATA_BITS 2048
 #define RSA_DATA_BYTES RSA_DATA_BITS/8
 #define SSL_HEADER_SIZE	8
@@ -25,6 +27,7 @@ bool SecureSocket::PerformSslVerify()
     int len = 0;
     bool bRet = false;
     //send STARTTLS to and receive it from other side
+    Serial.println("Send startTls");
     unsigned char sslHeader[SSL_HEADER_SIZE] = {0};
     if (!Send((char*)expecTls, SSL_HEADER_SIZE) ||
         !Recv((char*)sslHeader, SSL_HEADER_SIZE) ||
@@ -34,6 +37,7 @@ bool SecureSocket::PerformSslVerify()
     }
     
      //receive RSA public key
+    Serial.println("Recv RSA public");
     if(!Recv((char*)&len, sizeof(int)))
     {
         goto end;
