@@ -11,6 +11,33 @@ const char* SecureSocket::expecTls = "EXPECTLS";
 
 static unsigned char rsaData[RSA_DATA_BYTES];
 
+err_t RSA_new(uint8_t* data, int len, RSA_CTX **ctx)
+{
+    int offset = 0, cert_size = 0;
+    asn1_skip_obj(data, &cert_size, ASN1_SEQUENCE);
+    if (asn1_next_obj(data, &offset, ASN1_SEQUENCE) < 0)
+    {
+        return ERR_VAL;
+    }
+    
+    uint8_t *modules, *pub_exp;
+    int mod_len = asn1_get_int(data, &offset, &modules);
+    if(mod_len < 0)
+    {
+        return ERR_VAL;
+    }
+    
+    int pub_len = asn1_get_int(data, &offset, &pub_exp);
+    if(pub_len < 0)
+    {
+        return ERR_VAL;
+    }
+    
+    RSA_pub_key_new(ctx, modules, mod_len, pub_exp, pub_len);
+    
+    return ERR_OK;
+}
+
 SecureSocket::SecureSocket()
 	: m_bInit(false)
 {
@@ -22,7 +49,7 @@ SecureSocket::~SecureSocket()
 
 bool SecureSocket::PerformSslVerify()
 {
-    X509_CTX *ctx = 0;
+    RSA_CTX *ctx = 0;
     unsigned char* data = 0;
     int len = 0;
     bool bRet = false;
@@ -48,14 +75,14 @@ bool SecureSocket::PerformSslVerify()
          goto end;
     }
 
-    if(x509_new((uint8_t*)data, &len, &ctx) != X509_OK)
+    if(RSA_new((uint8_t*)data, len, &ctx) != ERR_OK)
     {
         goto end;
     }
     
     //Send session aes key
     get_random(sizeof(m_keyOwn), m_keyOwn);
-    len = RSA_encrypt(ctx->rsa_ctx, m_keyOwn, sizeof(m_keyOwn), data, false);
+    len = RSA_encrypt(ctx, m_keyOwn, sizeof(m_keyOwn), data, false);
     if(!Send((char*)data, len))
     {
         goto end;
@@ -63,7 +90,7 @@ bool SecureSocket::PerformSslVerify()
     delete data;
 
     if (!Recv((char*)data, len) ||
-        RSA_encrypt(ctx->rsa_ctx, data, len, m_keyOther, false) <= 0)
+        RSA_encrypt(ctx, data, len, m_keyOther, false) <= 0)
     {
         goto end;
     }
@@ -86,7 +113,7 @@ finish:
     
     if(ctx) 
     {
-        x509_free(ctx);
+        RSA_free(ctx);
     }
 	return bRet;
 }
