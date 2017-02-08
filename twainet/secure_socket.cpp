@@ -1,5 +1,6 @@
 #include "secure_socket.h"
 #include "aes.h"
+#include "aes.h"
 #include <Arduino.h>
 
 #define RSA_DATA_BITS 2048
@@ -87,14 +88,13 @@ bool SecureSocket::PerformSslVerify()
     {
         goto end;
     }
-    delete data;
 
     if (!Recv((char*)data, len) ||
-        RSA_encrypt(ctx, data, len, m_keyOther, false) <= 0)
+        RSA_decrypt(ctx, data, m_keyOther, sizeof(m_keyOther), true) <= 0)
     {
         goto end;
     }
-    delete data;
+    
     goto finish;
 
 end:
