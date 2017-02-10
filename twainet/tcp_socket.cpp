@@ -168,15 +168,13 @@ bool TCPSocket::Recv(char* data, int len)
 	{
 		return false;
 	}
-    
-    if(!m_buf) {
-        m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
-        ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
-    }
-
-    
-    Serial.printf(":rd %d, %d, %d\r\n", len, m_buf->tot_len, m_buf_offset);
+        
     while(len) {
+        if(!m_buf) {
+            m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
+            ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
+        }
+        Serial.printf(":rd %d, %d, %d\r\n", len, m_buf->tot_len, m_buf_offset);
         size_t max_size = m_buf->tot_len - m_buf_offset;
         size_t size = (len < max_size) ? len : max_size;
         size_t buf_size = m_buf->len - m_buf_offset;
