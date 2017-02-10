@@ -27,6 +27,7 @@ static void thread_func(os_event_t *events)
         desk.m_state = ThreadDescription::RUNNING;
         cont_run(&desk.m_cont, &thread_wrapper);
         if (cont_check(&desk.m_cont) != 0) {
+	    Serial.println("stack is corrupted");
             panic();
         }
     }
