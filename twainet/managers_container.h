@@ -2,7 +2,7 @@
 #define MANAGERS_CONTAINER_H
 
 #include "std/list.hpp"
-#include "include/thread_singleton.h"
+#include "include/singleton.h"
 
 class IManager
 {
@@ -17,7 +17,7 @@ public:
     virtual bool IsDestroyable() = 0;
 };
 
-class ManagersContainer : public ThreadSingleton<ManagersContainer>
+class ManagersContainer : public Singleton<ManagersContainer>
 {
 protected:
 	friend class Singleton<ManagersContainer>;
@@ -27,15 +27,9 @@ protected:
 public:
 	void AddManager(IManager* manager);
 	void RemoveManager(IManager* manager);
-
-protected:
-	virtual void ThreadFunc();
-	virtual void OnStop();
-	virtual void OnStart();
-	virtual void Stop();
+    void CheckManagers();
 private:
 	twnstd::list<IManager*> m_managers;
-	bool m_isExit;
 };
 
 #endif/*MANAGERS_CONTAINER_H*/

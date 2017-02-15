@@ -5,14 +5,19 @@
 /*                                             ManagersContainer                                                */
 /****************************************************************************************************************/
 ManagersContainer::ManagersContainer()
-: m_isExit(false)
 {
     Serial.println("Managers Container");
 }
 
 ManagersContainer::~ManagersContainer()
 {
-	StopThread();
+    for(twnstd::list<IManager*>::iterator it = m_managers.begin();
+        it != m_managers.end(); ++it) {
+        (*it)->ManagerStop();
+        if((*it)->IsDestroyable()) {
+            delete (*it);
+        }
+    }
 }
 
 void ManagersContainer::AddManager(IManager* manager)
@@ -34,39 +39,16 @@ void ManagersContainer::RemoveManager(IManager* manager)
     }
 }
 
-void ManagersContainer::ThreadFunc()
-{
-	while(!m_isExit)
-	{
-        for(twnstd::list<IManager*>::iterator it = m_managers.begin();
-            it != m_managers.end(); ++it) {
-            (*it)->ManagerFunc();
-            if((*it)->IsStop()) {
-                (*it)->ManagerStop();
-                if((*it)->IsDestroyable()) {
-                    delete (*it);
-                }
-            }
-		}
-	}
-}
-
-void ManagersContainer::OnStop()
+void ManagersContainer::CheckManagers()
 {
     for(twnstd::list<IManager*>::iterator it = m_managers.begin();
         it != m_managers.end(); ++it) {
-        (*it)->ManagerStop();
-        if((*it)->IsDestroyable()) {
-            delete (*it);
+        (*it)->ManagerFunc();
+        if((*it)->IsStop()) {
+            (*it)->ManagerStop();
+            if((*it)->IsDestroyable()) {
+                delete (*it);
+            }
         }
     }
-}
-
-void ManagersContainer::OnStart()
-{
-}
-
-void ManagersContainer::Stop()
-{
-	m_isExit = true;
 }

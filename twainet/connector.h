@@ -31,4 +31,15 @@ protected:
 	int m_remotePort;
 };
 
+class SimpleConnector : public Connector
+{
+public:
+    SimpleConnector(AnySocket* socket);
+    virtual ~SimpleConnector();
+protected:
+    virtual void ThreadFunc();
+    virtual void OnStart();
+    virtual void OnStop();
+};
+
 #endif/*CONNECTOR_H*/

@@ -1,4 +1,5 @@
 #include "connector.h"
+#include <Arduino.h>
 
 Connector::Connector(AnySocket* socket)
 : Thread(false), m_socket(socket)
@@ -60,3 +61,32 @@ void Connector::SetRemoteAddr(const String& ip, int port)
 	m_remotePort = port;
 }
 
+SimpleConnector::SimpleConnector(AnySocket* socket)
+: Connector(socket)
+{
+}
+
+SimpleConnector::~SimpleConnector()
+{
+}
+
+void SimpleConnector::OnStart()
+{
+}
+
+void SimpleConnector::OnStop()
+{
+}
+
+void SimpleConnector::ThreadFunc()
+{
+    while(!IsStop())
+    {
+        int len;
+        if(!m_socket->Recv((char*)&len, sizeof(len)))
+        {
+            break;
+        }
+        Serial.println(len);
+    }
+}

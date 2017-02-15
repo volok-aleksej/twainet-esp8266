@@ -163,27 +163,30 @@ bool TCPSocket::Send(char* data, int len)
 }
 
 bool TCPSocket::Recv(char* data, int len)
-{
-	if(m_socket == INVALID_SOCKET)
-	{
-		return false;
-	}
-        
+{        
     while(len) {
+        if(m_socket == INVALID_SOCKET)
+        {
+            return false;
+        }
+
         if(!m_buf) {
             m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
             ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
         }
-        Serial.printf(":rd %d, %d, %d\r\n", len, m_buf->tot_len, m_buf_offset);
-        size_t max_size = m_buf->tot_len - m_buf_offset;
-        size_t size = (len < max_size) ? len : max_size;
-        size_t buf_size = m_buf->len - m_buf_offset;
-        size_t copy_size = (size < buf_size) ? size : buf_size;
-        Serial.printf(":rdi %d, %d\r\n", buf_size, copy_size);
-        os_memcpy(data, reinterpret_cast<char*>(m_buf->payload) + m_buf_offset, copy_size);
-        data += copy_size;
-        Consume(copy_size);
-        len -= copy_size;
+        
+        if(m_buf) {
+            Serial.printf(":rd %d, %d, %d\r\n", len, m_buf->tot_len, m_buf_offset);
+            size_t max_size = m_buf->tot_len - m_buf_offset;
+            size_t size = (len < max_size) ? len : max_size;
+            size_t buf_size = m_buf->len - m_buf_offset;
+            size_t copy_size = (size < buf_size) ? size : buf_size;
+            Serial.printf(":rdi %d, %d\r\n", buf_size, copy_size);
+            os_memcpy(data, reinterpret_cast<char*>(m_buf->payload) + m_buf_offset, copy_size);
+            data += copy_size;
+            Consume(copy_size);
+            len -= copy_size;
+        }
     }
     
 	return true;
@@ -221,6 +224,7 @@ bool TCPSocket::Close()
     tcp_arg(m_socket, NULL);
     tcp_sent(m_socket, NULL);
     tcp_recv(m_socket, NULL);
+    tcp_err(m_socket, NULL);
     tcp_close(m_socket);	
     return true;
 }
@@ -257,7 +261,7 @@ int TCPSocket::GetMaxBufferSize()
 void TCPSocket::OnError(uint8_t err)
 {
     m_lastError = err;
-    m_socket = 0;
+    m_socket = INVALID_SOCKET;
     ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
 }
 
@@ -276,18 +280,32 @@ int8_t TCPSocket::OnConnect(tcp_pcb* tpcb, int8_t err)
 
 int8_t TCPSocket::OnTCPRecv(tcp_pcb* tpcb, pbuf* pb, err_t err)
 {
-    m_lastError = err;
-    if(m_buf) {
-        pbuf_cat(m_buf, pb);
+    int8_t ret;
+    if(!pb) {
+        tcp_arg(m_socket, NULL);
+        tcp_sent(m_socket, NULL);
+        tcp_recv(m_socket, NULL);
+        tcp_err(m_socket, NULL);
+        tcp_abort(m_socket);
+        m_socket = INVALID_SOCKET;
+        ret = ERR_ABRT;
     } else {
-        m_buf = pb;
+        m_lastError = err;
+        if(m_buf) {
+            pbuf_cat(m_buf, pb);
+        } else {
+            m_buf = pb;
+        }
+        ret = ERR_OK;
     }
     ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
-    return ERR_OK;
+    return ret;
 }
 
 int8_t TCPSocket::OnTCPSent(tcp_pcb* tpcb, uint16_t len)
 {
+    Serial.print("tcp_s: ");
+    Serial.println(len);
     m_lastError = ERR_OK;
     m_sentSize -= len;
     ThreadManager::GetInstance().ResumeThread(m_suspendedThread);

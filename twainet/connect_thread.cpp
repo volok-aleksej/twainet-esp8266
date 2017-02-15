@@ -36,10 +36,12 @@ void ConnectThread::ThreadFunc()
     
     if(m_socket->Connect(m_address.m_ip, m_address.m_port))
 	{
-        Serial.print("connect success");
+        Serial.println("connect success");
 		Connector* connector = m_address.m_connectorFactory->CreateConnector(m_socket);
+        Serial.printf("Connector %d\n", connector);
 		connector->SetId(m_address.m_id);
 		connector->SetRemoteAddr(m_address.m_ip, m_address.m_port);
+        Serial.println("signal connect success");
 		m_socket = 0;
 		ConnectorMessage msg(connector);
 		onSignal(msg);

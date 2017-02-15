@@ -29,6 +29,4 @@ void SignalManager::ManagerFunc()
             it = m_signals.erase(it);
         }
     }
-    
-    ThreadManager::GetInstance().SwitchThread();
 }

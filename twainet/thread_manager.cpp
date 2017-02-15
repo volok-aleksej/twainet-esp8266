@@ -27,7 +27,6 @@ static void thread_func(os_event_t *events)
         desk.m_state = ThreadDescription::RUNNING;
         cont_run(&desk.m_cont, &thread_wrapper);
         if (cont_check(&desk.m_cont) != 0) {
-	    Serial.println("stack is corrupted");
             panic();
         }
     }
@@ -38,7 +37,6 @@ extern "C" void esp_yield();
 
 ThreadManager::ThreadManager()
 {
-    Serial.println("Thread Manager");
     for(uint8_t i = 0; i < THREAD_MAX; i++) {
         g_threadDesks[i].m_id = THREAD_START_ID + i;
         g_threadDesks[i].m_thread = 0;
@@ -89,6 +87,9 @@ void ThreadManager::RemoveThread(Thread* thread)
 
 void ThreadManager::SuspendThread(unsigned int id)
 {
+    if(id < THREAD_START_ID)
+        return;
+    
     g_threadDesks[id - THREAD_START_ID].m_state = ThreadDescription::SUSPENDED;
     if(g_current_threadId == id) {
         unsigned int nextid = ThreadManager::GetInstance().GetNextSuspendThreadId();
@@ -110,6 +111,9 @@ void ThreadManager::SuspendThread(unsigned int id)
 
 void ThreadManager::ResumeThread(unsigned int id)
 {
+    if(id < THREAD_START_ID)
+        return;
+    
     unsigned int curId = g_current_threadId;
     if(id) {
         ets_post(id, id, 0);
@@ -180,6 +184,4 @@ void ThreadManager::ManagerFunc()
             g_threadDesks[i].m_state = ThreadDescription::ABSENT;
         }
     }
-    
-    SwitchThread();
 }

@@ -82,19 +82,15 @@ bool SecureSocket::PerformSslVerify()
     }
     
     //Send session aes key
-    get_random(sizeof(m_keyOwn), m_keyOwn);
-    len = RSA_encrypt(ctx, m_keyOwn, sizeof(m_keyOwn), data, false);
+    Serial.println("Send aes key");
+    get_random(sizeof(m_key), m_key);
+    len = RSA_encrypt(ctx, m_key, sizeof(m_key), data, false);
     if(!Send((char*)data, len))
     {
         goto end;
     }
-
-    if (!Recv((char*)data, len) ||
-        RSA_decrypt(ctx, data, m_keyOther, sizeof(m_keyOther), true) <= 0)
-    {
-        goto end;
-    }
     
+    bRet = true;
     goto finish;
 
 end:
@@ -136,7 +132,7 @@ bool SecureSocket::Recv(char* data, int len)
  		}
  		
  		unsigned char* decriptedData = new unsigned char[recvlen];
- 		int decriptedLen = AESDecrypt(m_keyOwn, sizeof(m_keyOwn), recvdata, realDataLen, (byte*)decriptedData, recvlen);
+ 		int decriptedLen = AESDecrypt(m_key, sizeof(m_key), recvdata, realDataLen, (byte*)decriptedData, recvlen);
  		if(decriptedLen == -1)
  		{
  			return false;
@@ -193,7 +189,7 @@ bool SecureSocket::Send(char* data, int len)
 	}
 	
 	unsigned char* encriptedData = new unsigned char[MAX_BUFFER_LEN];
-	int sendLen = AESEncrypt(m_keyOther, sizeof(m_keyOther), (byte*)data, len, encriptedData, MAX_BUFFER_LEN);
+	int sendLen = AESEncrypt(m_key, sizeof(m_key), (byte*)data, len, encriptedData, MAX_BUFFER_LEN);
 	if(sendLen <= 0)
 	{
 		return false;
