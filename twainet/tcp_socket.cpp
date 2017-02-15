@@ -28,7 +28,6 @@ void dnsFoundCallback(const char *name, ip_addr_t *ipaddr, void *callback_arg)
 
 int8_t onTcpConnect(void* arg, tcp_pcb* tpcb, int8_t err)
 {
-    Serial.println("tcp connected");
     TCPSocket* socket = reinterpret_cast<TCPSocket*>(arg);
     if(socket) {
         return socket->OnConnect(tpcb, err);
@@ -130,7 +129,6 @@ bool TCPSocket::Connect(const String& host, int port)
         ipaddr.addr = ipaddress;
     }
     
-    Serial.println("tcp connect");
 	tcp_connect(m_socket, &ipaddr, port, &onTcpConnect);
     m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
     ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
@@ -220,7 +218,6 @@ bool TCPSocket::Close()
 		return false;
 	}
 	
-    Serial.println("close m_socket");
     tcp_arg(m_socket, NULL);
     tcp_sent(m_socket, NULL);
     tcp_recv(m_socket, NULL);

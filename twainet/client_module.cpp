@@ -49,6 +49,20 @@ void ClientModule::Connect(const String& ip, int port)
 	thread->StartThread();
 }
 
+void ClientModule::OnConnectFailed(const String& moduleName)
+{
+    IPCObjectName ipcModuleName = IPCObjectName::GetIPCName(moduleName);
+    Serial.printf("connected failed %s\n", ipcModuleName.GetModuleName().c_str());
+    if (ipcModuleName.GetModuleName() == m_serverIPCName &&
+        !m_isStopConnect && !m_isExit)
+    {
+        m_ownSessionId = "";
+        Connect(m_ip, m_port);
+        return;
+    }
+    IPCModule::OnConnectFailed(moduleName);
+}
+
 void ClientModule::OnFireConnector(const String& moduleName)
 {
 	IPCObjectName ipcModuleName = IPCObjectName::GetIPCName(moduleName);

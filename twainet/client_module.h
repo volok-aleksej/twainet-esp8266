@@ -52,6 +52,7 @@ public:
     const String& GetSessionId();
 protected:
 	friend class ClientSignalHandler;
+    virtual void OnConnectFailed(const String& moduleName);
 	virtual void OnFireConnector(const String& moduleName);
 	virtual bool CheckFireConnector(const String& moduleName);
 	virtual void OnServerConnected();

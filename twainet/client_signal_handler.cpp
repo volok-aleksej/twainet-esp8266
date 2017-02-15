@@ -25,7 +25,7 @@ void ClientSignalHandler::onAddClientServerConnector(const ConnectorMessage& msg
 		m_module->ipcSubscribe(conn, this, SIGNAL_FUNC(this, ClientSignalHandler, LoginResultMessage, onLoginResult));
 		m_module->ipcSubscribe(conn, this, SIGNAL_FUNC(this, ClientSignalHandler, ClientServerConnectedMessage, onConnected));
 	}
-
+    Serial.println("add connector");
 	m_module->AddConnector(msg.m_conn);
 }
 
