@@ -23,12 +23,14 @@ struct ThreadDescription
     cont_t m_cont __attribute__ ((aligned (16)));
     os_event_t m_loop_queue[QUEUE_SIZE];
     unsigned int m_id;
+    unsigned long m_startTime;
     Thread* m_thread;
     enum {
         ABSENT,
         CREATED,
         RUNNING,
         SUSPENDED,
+        DELAYED,
         WAITING,
         STOPPED,
         STOP_PENDING
@@ -48,6 +50,7 @@ public:
 	void RemoveThread(Thread* thread);
     void SuspendThread(unsigned int id);
     void ResumeThread(unsigned int id);
+    void DelayThread(unsigned int id, unsigned long timeout);
     void SwitchThread();
     unsigned int GetCurrentThreadId();
     

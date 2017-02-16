@@ -1,17 +1,19 @@
 #include "ssl/ssl_crypto.h"
 #include "ssl/ssl_crypto_misc.h"
 #include "common_func.h"
+#include <osapi.h>
 
 static const char size = 16;
 static char uuidNumber[size];
-    
+
 String CreateGUID()
 {
     get_random(size, (uint8_t*)uuidNumber);
-    int len = 0;
-    base64_decode(uuidNumber, size, 0, &len);
-    char* data = new char[len];
-    base64_decode(uuidNumber, size, (uint8_t*)data, &len);
+    size_t len = 0;
+    char data[size*2] = {0};
+    for(int i = 0; i < size; i++) {
+        os_sprintf(data, "%02X", uuidNumber[i]);
+    }
     return data;
 }
 

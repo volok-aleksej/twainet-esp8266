@@ -23,7 +23,8 @@ static void thread_func(os_event_t *events)
     g_current_threadId = events->sig;
     if(desk.m_state == ThreadDescription::CREATED ||
        desk.m_state == ThreadDescription::WAITING ||
-       desk.m_state == ThreadDescription::SUSPENDED) {
+       desk.m_state == ThreadDescription::SUSPENDED ||
+       desk.m_state == ThreadDescription::DELAYED) {
         desk.m_state = ThreadDescription::RUNNING;
         cont_run(&desk.m_cont, &thread_wrapper);
         if (cont_check(&desk.m_cont) != 0) {
@@ -129,7 +130,32 @@ void ThreadManager::ResumeThread(unsigned int id)
         esp_yield();
     }
 }
+
+void ThreadManager::DelayThread(unsigned int id, unsigned long timeout)
+{
+    if(id < THREAD_START_ID)
+        return;
     
+    g_threadDesks[id - THREAD_START_ID].m_state = ThreadDescription::DELAYED;
+    g_threadDesks[id - THREAD_START_ID].m_startTime = millis() + timeout;
+    if(g_current_threadId == id) {
+        unsigned int nextid = ThreadManager::GetInstance().GetNextSuspendThreadId();
+        if(nextid) {
+            ets_post(nextid, nextid, 0);
+        } else {
+            g_current_threadId = 0;
+            esp_schedule();
+        }
+
+        if(id){
+            if(cont_can_yield(&g_threadDesks[id - THREAD_START_ID].m_cont))
+                cont_yield(&g_threadDesks[id - THREAD_START_ID].m_cont);
+        } else {
+            esp_yield();
+        }
+    }
+}
+
 unsigned int ThreadManager::GetCurrentThreadId()
 {
     return g_current_threadId;
@@ -139,13 +165,17 @@ unsigned int ThreadManager::GetNextSuspendThreadId()
 {
     if(g_current_threadId) {
         for(uint8_t i = g_current_threadId - THREAD_START_ID; i < THREAD_MAX; i++) {
-            if(g_threadDesks[i].m_state == ThreadDescription::WAITING) {
+            if(g_threadDesks[i].m_state == ThreadDescription::WAITING ||
+               g_threadDesks[i].m_state == ThreadDescription::DELAYED &&
+               millis() > g_threadDesks[i].m_startTime) {
                 return g_threadDesks[i].m_id;
             }
         }
     } else {
         for(uint8_t i = 0; i < THREAD_MAX; i++) {
-            if(g_threadDesks[i].m_state == ThreadDescription::WAITING) {
+            if(g_threadDesks[i].m_state == ThreadDescription::WAITING ||
+               g_threadDesks[i].m_state == ThreadDescription::DELAYED &&
+               millis() > g_threadDesks[i].m_startTime) {
                 return g_threadDesks[i].m_id;
             }
         }

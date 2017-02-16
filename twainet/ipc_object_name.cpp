@@ -109,8 +109,30 @@ void IPCObjectName::SetConnId(const String& id)
     
 IPCObjectName IPCObjectName::GetIPCName(const String& ipcName)
 {
-	IPCObjectName name("");
-
+	IPCObjectName name;
+    int iter = 0;
+    int posBegin = 0, posEnd = 0;
+    for(int i = 0; i < ipcName.length(); i++, posEnd++) {
+        if(ipcName[i] == '.') {
+            if(iter == 0) {
+                name.SetModuleName(ipcName.substring(posBegin, posEnd));
+            } else if(iter == 1) {
+                name.SetHostName(ipcName.substring(posBegin, posEnd));
+            } else if(iter == 2) {
+                name.SetConnId(ipcName.substring(posBegin, posEnd));
+            }
+            iter++;
+            posBegin = posEnd + 1;
+        }
+    }
+    
+    if(iter == 0) {
+        name.SetModuleName(ipcName.substring(posBegin, posEnd));
+    } else if(iter == 1) {
+        name.SetHostName(ipcName.substring(posBegin, posEnd));
+    } else if(iter == 2) {
+        name.SetConnId(ipcName.substring(posBegin, posEnd));
+    }
     
 	return name;
 }

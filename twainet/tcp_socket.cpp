@@ -129,7 +129,12 @@ bool TCPSocket::Connect(const String& host, int port)
         ipaddr.addr = ipaddress;
     }
     
-	tcp_connect(m_socket, &ipaddr, port, &onTcpConnect);
+    netif* interface = ip_route(&ipaddr);
+    if (!interface) {
+        return false;
+    }
+    
+    tcp_connect(m_socket, &ipaddr, port, &onTcpConnect);
     m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
     ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
     return m_lastError == ERR_OK;
@@ -258,6 +263,10 @@ int TCPSocket::GetMaxBufferSize()
 void TCPSocket::OnError(uint8_t err)
 {
     m_lastError = err;
+    tcp_arg(m_socket, NULL);
+    tcp_sent(m_socket, NULL);
+    tcp_recv(m_socket, NULL);
+    tcp_err(m_socket, NULL);
     m_socket = INVALID_SOCKET;
     ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
 }

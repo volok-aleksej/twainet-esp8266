@@ -36,9 +36,7 @@ void ConnectThread::ThreadFunc()
     
     if(m_socket->Connect(m_address.m_ip, m_address.m_port))
 	{
-        Serial.println("connect success");
 		Connector* connector = m_address.m_connectorFactory->CreateConnector(m_socket);
-        Serial.printf("Connector %d\n", connector->GetId().c_str());
 		connector->SetId(m_address.m_id);
 		connector->SetRemoteAddr(m_address.m_ip, m_address.m_port);
 		m_socket = 0;
@@ -47,14 +45,11 @@ void ConnectThread::ThreadFunc()
 	}
 	else
 	{
-        Serial.println("connect error");
+        delete m_socket;
+        m_socket = 0;
 		ConnectErrorMessage errMsg(m_address.m_moduleName, "", GetError());
 		onSignal(errMsg);
-		delete m_socket;
-		m_socket = 0;
 	}
-	
-    Serial.println("connect thread finish");
 }
 
 void ConnectThread::Stop()

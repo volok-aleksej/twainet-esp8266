@@ -57,6 +57,8 @@ void ClientModule::OnConnectFailed(const String& moduleName)
         !m_isStopConnect && !m_isExit)
     {
         m_ownSessionId = "";
+        ThreadManager& threadManager = ThreadManager::GetInstance();
+        threadManager.DelayThread(threadManager.GetCurrentThreadId(), 1000);
         Connect(m_ip, m_port);
         return;
     }

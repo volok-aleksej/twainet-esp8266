@@ -55,7 +55,6 @@ bool SecureSocket::PerformSslVerify()
     int len = 0;
     bool bRet = false;
     //send STARTTLS to and receive it from other side
-    Serial.println("Send startTls");
     unsigned char sslHeader[SSL_HEADER_SIZE] = {0};
     if (!Send((char*)expecTls, SSL_HEADER_SIZE) ||
         !Recv((char*)sslHeader, SSL_HEADER_SIZE) ||
@@ -65,7 +64,6 @@ bool SecureSocket::PerformSslVerify()
     }
     
      //receive RSA public key
-    Serial.println("Recv RSA public");
     if(!Recv((char*)&len, sizeof(int)))
     {
         goto end;
@@ -82,7 +80,6 @@ bool SecureSocket::PerformSslVerify()
     }
     
     //Send session aes key
-    Serial.println("Send aes key");
     get_random(sizeof(m_key), m_key);
     len = RSA_encrypt(ctx, m_key, sizeof(m_key), data, false);
     if(!Send((char*)data, len))
