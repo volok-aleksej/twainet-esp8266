@@ -11,7 +11,9 @@ void Thread::sleep(unsigned long millisec)
 
 void Thread::ThreadFunc(Thread* thread)
 {
+    thread->OnStart();
     thread->ThreadFunc();
+    thread->OnStop();
 }
 
 Thread::Thread(bool isDestroyable)

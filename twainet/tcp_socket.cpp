@@ -9,8 +9,8 @@
 
 void onError(void* arg, int8_t err)
 {
-    Serial.print("tcp error");
-    Serial.println(err);
+//    Serial.print("tcp error");
+//    Serial.println(err);
     TCPSocket* socket = reinterpret_cast<TCPSocket*>(arg);
     if(socket) {
         socket->OnError(err);
@@ -153,7 +153,6 @@ bool TCPSocket::Send(char* data, int len)
         size_t will_send = (room < m_sentSize) ? room : m_sentSize;
         err_t err = tcp_write(m_socket, data + len - m_sentSize, will_send, 0);
         if(err != ERR_OK) {
-            DEBUGV("TCPSocket:Send !ERR_OK\r\n");
             return false;
         }
         
@@ -179,12 +178,12 @@ bool TCPSocket::Recv(char* data, int len)
         }
         
         if(m_buf) {
-            Serial.printf(":rd %d, %d, %d\r\n", len, m_buf->tot_len, m_buf_offset);
+//            Serial.printf(":rd %d, %d, %d\r\n", len, m_buf->tot_len, m_buf_offset);
             size_t max_size = m_buf->tot_len - m_buf_offset;
             size_t size = (len < max_size) ? len : max_size;
             size_t buf_size = m_buf->len - m_buf_offset;
             size_t copy_size = (size < buf_size) ? size : buf_size;
-            Serial.printf(":rdi %d, %d\r\n", buf_size, copy_size);
+//            Serial.printf(":rdi %d, %d\r\n", buf_size, copy_size);
             os_memcpy(data, reinterpret_cast<char*>(m_buf->payload) + m_buf_offset, copy_size);
             data += copy_size;
             Consume(copy_size);
@@ -200,13 +199,13 @@ void TCPSocket::Consume(size_t size)
     if(left > 0) {
         m_buf_offset += size;
     } else if(!m_buf->next) {
-        Serial.printf(":c0 %d, %d\r\n", size, m_buf->tot_len);
+//        Serial.printf(":c0 %d, %d\r\n", size, m_buf->tot_len);
         if(m_socket) tcp_recved(m_socket, m_buf->len);
         pbuf_free(m_buf);
         m_buf = 0;
         m_buf_offset = 0;
     } else {
-        Serial.printf(":c %d, %d, %d\r\n", size, m_buf->len, m_buf->tot_len);
+//        Serial.printf(":c %d, %d, %d\r\n", size, m_buf->len, m_buf->tot_len);
         auto head = m_buf;
         m_buf = m_buf->next;
         m_buf_offset = 0;
@@ -310,8 +309,8 @@ int8_t TCPSocket::OnTCPRecv(tcp_pcb* tpcb, pbuf* pb, err_t err)
 
 int8_t TCPSocket::OnTCPSent(tcp_pcb* tpcb, uint16_t len)
 {
-    Serial.print("tcp_s: ");
-    Serial.println(len);
+//    Serial.print("tcp_s: ");
+//    Serial.println(len);
     m_lastError = ERR_OK;
     m_sentSize -= len;
     ThreadManager::GetInstance().ResumeThread(m_suspendedThread);

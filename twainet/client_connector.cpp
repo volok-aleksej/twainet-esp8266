@@ -55,6 +55,7 @@ void ClientServerConnector::OnStart()
 	LoginMessage loginMsg(this, client_server__login__descriptor);
 	loginMsg.GetMessage()->name = (char*)m_userName.c_str();
 	loginMsg.GetMessage()->password = (char*)m_password.c_str();
+    loginMsg.GetMessage()->has_login_result = false;
 	toMessage(loginMsg);
 }
 
