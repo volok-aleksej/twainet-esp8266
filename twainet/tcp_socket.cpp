@@ -134,9 +134,11 @@ bool TCPSocket::Connect(const String& host, int port)
         return false;
     }
     
-    tcp_connect(m_socket, &ipaddr, port, &onTcpConnect);
-    m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
-    ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
+    err_t err = tcp_connect(m_socket, &ipaddr, port, &onTcpConnect);
+    if(err == ERR_OK || err == ERR_INPROGRESS) {
+        m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
+        ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
+    }
     return m_lastError == ERR_OK;
 }
 
@@ -226,7 +228,8 @@ bool TCPSocket::Close()
     tcp_sent(m_socket, NULL);
     tcp_recv(m_socket, NULL);
     tcp_err(m_socket, NULL);
-    tcp_close(m_socket);	
+    tcp_close(m_socket);
+    m_socket = INVALID_SOCKET;
     return true;
 }
 
@@ -245,8 +248,10 @@ int TCPSocket::GetSocket()
 void TCPSocket::Initialize()
 {
 	m_socket = tcp_new();
-    tcp_arg(m_socket, this);
-    tcp_err(m_socket, &onError);
+    if(m_socket) {
+        tcp_arg(m_socket, this);
+        tcp_err(m_socket, &onError);
+    }
 }
 
 int TCPSocket::GetMaxBufferSize()
