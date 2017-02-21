@@ -144,23 +144,27 @@ bool TCPSocket::Connect(const String& host, int port)
 
 bool TCPSocket::Send(char* data, int len)
 {
-	if(m_socket == INVALID_SOCKET || m_sentSize)
-	{
-		return false;
-	}
-	
- 	m_sentSize = len;
-    while(m_sentSize) {
+    while(len) {
+        if(m_socket == INVALID_SOCKET)
+        {
+            return false;
+        }
+        
         size_t room = tcp_sndbuf(m_socket);
-        size_t will_send = (room < m_sentSize) ? room : m_sentSize;
-        err_t err = tcp_write(m_socket, data + len - m_sentSize, will_send, 0);
+        size_t will_send = (room < len) ? room : len;
+        err_t err = tcp_write(m_socket, data, will_send, 0);
         if(err != ERR_OK) {
             return false;
         }
         
+        data += will_send;
+        len -= will_send;
+        m_sentSize = 0;
         tcp_output(m_socket);
-        m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
-        ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
+        while(m_sentSize != will_send && m_socket != INVALID_SOCKET) {
+            m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
+            ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
+        }
     }
 	
 	return true;
@@ -317,7 +321,7 @@ int8_t TCPSocket::OnTCPSent(tcp_pcb* tpcb, uint16_t len)
 //    Serial.print("tcp_s: ");
 //    Serial.println(len);
     m_lastError = ERR_OK;
-    m_sentSize -= len;
+    m_sentSize = len;
     ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
     return ERR_OK;
 }

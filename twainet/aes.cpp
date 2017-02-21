@@ -30,15 +30,17 @@ int AESEncrypt(byte* key, int keylength,
 	{
 		return -2;
 	}
-	else if(keylength != 32 || keylength != 16 || !key)
+	else if(keylength > 32 || !key || keylength%8 != 0)
 	{
 		return -3;
 	}
 	
 	AES_MODE mode = (keylength*8 == 256) ? AES_MODE_256 : AES_MODE_128;
-
-	unsigned char tempdata[MAX_BUFFER_LEN] = {0};
-	memset(tempdata, 0, MAX_BUFFER_LEN);
+	unsigned char *tempdata = new unsigned char[realDataLen];
+    if(!tempdata) {
+        return -4;
+    }
+	memset(tempdata, 0, realDataLen);
 	memcpy(tempdata, data, datalen);
 
 	unsigned char iv[16] = "123456789abcdef";
@@ -61,7 +63,7 @@ int AESDecrypt(byte* key, int keylength,
 	{
 		return -2;
 	}
-    else if(keylength != 32 || keylength != 16 || !key)
+    else if(keylength > 32 || !key || keylength%8 != 0)
     {
         return -3;
     }
