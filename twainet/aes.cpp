@@ -1,6 +1,7 @@
 #include "aes.h"
 #include "ssl/ssl_crypto.h"
 #include <string.h>
+#include <Arduino.h>
 
 #define AES_BLOCK_SIZE 16
 
@@ -44,9 +45,10 @@ int AESEncrypt(byte* key, int keylength,
 	memcpy(tempdata, data, datalen);
 
 	unsigned char iv[16] = "123456789abcdef";
-	AES_CTX aesKey;
-	AES_set_key(&aesKey, key, iv, mode);
-	AES_cbc_encrypt(&aesKey, (unsigned char*)tempdata, (unsigned char*)encryptedData, realDataLen);
+    AES_CTX *aesKey = new AES_CTX;
+	AES_set_key(aesKey, key, iv, mode);
+	AES_cbc_encrypt(aesKey, (unsigned char*)tempdata, (unsigned char*)encryptedData, realDataLen);
+    delete aesKey;
 
 	return realDataLen;
 }
@@ -74,11 +76,10 @@ int AESDecrypt(byte* key, int keylength,
 
     AES_MODE mode = (keylength*8 == 256) ? AES_MODE_256 : AES_MODE_128;
 	unsigned char iv[16] = "123456789abcdef";
-	AES_CTX aesKey;
-    AES_set_key(&aesKey, key, iv, mode);
-	char decryptData[MAX_BUFFER_LEN] = {0};
-	AES_cbc_encrypt(&aesKey, (unsigned char*)data, (unsigned char*)decryptData, datalen);
-	memcpy(decryptedData, decryptData, decryptedDataLen);
+	AES_CTX *aesKey = new AES_CTX;
+    AES_set_key(aesKey, key, iv, mode);
+	AES_cbc_decrypt(aesKey, (unsigned char*)data, (unsigned char*)decryptedData, decryptedDataLen);
+    delete aesKey;
 
 	return decryptedDataLen;
 }

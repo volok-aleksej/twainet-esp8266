@@ -37,13 +37,13 @@ IPCConnector::~IPCConnector()
 
 void IPCConnector::ThreadFunc()
 {
-	static int len = 0;
-    if(!len) {
-        if (!m_socket->Recv((char*)&len, sizeof(int))) {
-            return;
-        }
+	static int len;
+    len = 0;
+    if (!m_socket->Recv((char*)&len, sizeof(int))) {
+        return;
     }
 
+    Serial.println(len);
 	if(len < 0 || len > MAX_DATA_LEN) {
 		return;
 	}
@@ -56,7 +56,6 @@ void IPCConnector::ThreadFunc()
 	
 	onData(data, len);
     free(data);
-    len = 0;
 }
 
 void IPCConnector::OnStart()
