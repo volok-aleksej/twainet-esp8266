@@ -16,6 +16,9 @@ int GetEncriptedDataLen(int datalen)
 	return datalen + rest;
 }
 
+static AES_CTX aesKey;
+static unsigned char iv[16] = "123456789abcdef";
+    
 int AESEncrypt(byte* key, int keylength,
 			   byte* data, int datalen,
 			   byte* encryptedData, int encryptedDataLen)
@@ -44,11 +47,9 @@ int AESEncrypt(byte* key, int keylength,
 	memset(tempdata, 0, realDataLen);
 	memcpy(tempdata, data, datalen);
 
-	unsigned char iv[16] = "123456789abcdef";
-    AES_CTX *aesKey = new AES_CTX;
-	AES_set_key(aesKey, key, iv, mode);
-	AES_cbc_encrypt(aesKey, (unsigned char*)tempdata, (unsigned char*)encryptedData, realDataLen);
-    delete aesKey;
+	AES_set_key(&aesKey, key, iv, mode);
+	AES_cbc_encrypt(&aesKey, (unsigned char*)tempdata, (unsigned char*)encryptedData, realDataLen);
+    delete tempdata;
 
 	return realDataLen;
 }
@@ -75,11 +76,8 @@ int AESDecrypt(byte* key, int keylength,
 	}
 
     AES_MODE mode = (keylength*8 == 256) ? AES_MODE_256 : AES_MODE_128;
-	unsigned char iv[16] = "123456789abcdef";
-	AES_CTX *aesKey = new AES_CTX;
-    AES_set_key(aesKey, key, iv, mode);
-	AES_cbc_decrypt(aesKey, (unsigned char*)data, (unsigned char*)decryptedData, decryptedDataLen);
-    delete aesKey;
+    AES_set_key(&aesKey, key, iv, mode);
+	AES_cbc_decrypt(&aesKey, (unsigned char*)data, (unsigned char*)decryptedData, decryptedDataLen);
 
 	return decryptedDataLen;
 }

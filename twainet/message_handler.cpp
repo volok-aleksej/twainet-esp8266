@@ -24,6 +24,10 @@ bool MessageHandler::onData(char* data, int len)
 		&& len >= headerLen)
 	{
 		char* type = (char*)malloc(typeLen + 1);
+        if(!type)
+        {
+            return false;
+        }
 		memset(type, 0, typeLen + 1);
 		memcpy(type, data + sizeof(unsigned int), typeLen);
 		bool ret = onData(type, data + headerLen, len - headerLen);
@@ -39,6 +43,10 @@ bool MessageHandler::toMessage(const DataMessage& msg)
 	int len = 0;
 	deserialize(msg, data, len);
 	data = (char*)malloc(len);
+    if(!data)
+    {
+        return false;
+    }
 	bool res = deserialize(msg, data, len) && SendData(data, len);
 	free(data);
 	return res;
@@ -50,7 +58,7 @@ bool MessageHandler::deserialize(const DataMessage& msg, char* data, int& len)
 	int typeLen = (int)strlen(type);
 	int headerLen = sizeof(int) + typeLen;
 	int msgBodyLen = (len > headerLen ? (len - headerLen) : 0);
-
+    
 	bool res = const_cast<DataMessage&>(msg).deserialize(data + headerLen, msgBodyLen);
 	len = headerLen + msgBodyLen;
 
@@ -59,7 +67,7 @@ bool MessageHandler::deserialize(const DataMessage& msg, char* data, int& len)
 		memcpy(data, &typeLen, sizeof(unsigned int));
 		memcpy(data + sizeof(unsigned int), type, typeLen);
 	}
-
+	
 	return res;
 }
 

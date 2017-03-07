@@ -49,6 +49,9 @@ void IPCConnector::ThreadFunc()
 	}
 
 	char* data = (char*)malloc(len);
+    if(!data) {
+        return;
+    }
 	if(!m_socket->Recv(data, len)) {
         free(data);
 		return;
@@ -144,6 +147,10 @@ void IPCConnector::onIPCMessage(const IPCProtoMessage& msg)
 bool IPCConnector::SendData(char* data, int len)
 {
 	char* senddata = (char*)malloc(len + sizeof(int));
+    if(!senddata)
+    {
+        return false;
+    }
 	memcpy(senddata + sizeof(int), data, len);
 	memcpy(senddata, &len, sizeof(int));
 	bool ret = Connector::SendData(senddata, len + sizeof(int));
