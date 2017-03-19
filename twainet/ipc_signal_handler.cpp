@@ -59,7 +59,7 @@ void IPCSignalHandler::onIPCMessage(const IPCSignalMessage& msg)
 	}
 	else if(path.length() == 0 && m_module->GetModuleName() == newPath)
 	{
- 		IPCProtoMessage protoMsg(0, ipc__ipcmessage__descriptor);
+ 		IPCProtoMessage protoMsg;
         *protoMsg.GetMessage() = *(Ipc__IPCMessage*)(&msg);
  		onIPCMessage(protoMsg);
 	}

@@ -18,15 +18,15 @@ IPCConnector::IPCConnector(AnySocket* socket, const IPCObjectName& moduleName)
 , m_rand(CreateGUID()), m_checker(0)
 {
 	m_ipcSignal = new Signal(static_cast<SignalOwner*>(this));
-	addMessage(new ModuleNameMessage(&m_handler, ipc__module_name__descriptor));
-	addMessage(new AddIPCObjectMessage(&m_handler, ipc__add_ipcobject__descriptor));
-	addMessage(new RemoveIPCObjectMessage(&m_handler, ipc__remove_ipcobject__descriptor));
-	addMessage(new IPCProtoMessage(&m_handler, ipc__ipcmessage__descriptor));
-	addMessage(new IPCObjectListMessage(&m_handler, ipc__ipcobject_list__descriptor));
-	addMessage(new ChangeIPCNameMessage(&m_handler, ipc__change_ipcname__descriptor));
-	addMessage(new UpdateIPCObjectMessage(&m_handler, ipc__update_ipcobject__descriptor));
-	addMessage(new ModuleStateMessage(&m_handler, ipc__module_state__descriptor));
-	addMessage(new PingMessage(&m_handler, ipc__ping__descriptor));
+	addMessage(new ModuleNameMessage(&m_handler));
+	addMessage(new AddIPCObjectMessage(&m_handler));
+	addMessage(new RemoveIPCObjectMessage(&m_handler));
+	addMessage(new IPCProtoMessage(&m_handler));
+	addMessage(new IPCObjectListMessage(&m_handler));
+	addMessage(new ChangeIPCNameMessage(&m_handler));
+	addMessage(new UpdateIPCObjectMessage(&m_handler));
+	addMessage(new ModuleStateMessage(&m_handler));
+	addMessage(new PingMessage(&m_handler));
 }
 
 IPCConnector::~IPCConnector()
@@ -37,28 +37,30 @@ IPCConnector::~IPCConnector()
 
 void IPCConnector::ThreadFunc()
 {
-	static int len;
-    len = 0;
-    if (!m_socket->Recv((char*)&len, sizeof(int))) {
-        return;
-    }
+    while(!IsStop()) {
+        static int len;
+        len = 0;
+        if (!m_socket->Recv((char*)&len, sizeof(int))) {
+            return;
+        }
 
-    Serial.println(len);
-	if(len < 0 || len > MAX_DATA_LEN) {
-		return;
-	}
+        Serial.println(len);
+        if(len < 0 || len > MAX_DATA_LEN) {
+            return;
+        }
 
-	char* data = (char*)malloc(len);
-    if(!data) {
-        return;
-    }
-	if(!m_socket->Recv(data, len)) {
+        char* data = (char*)malloc(len);
+        if(!data) {
+            return;
+        }
+        if(!m_socket->Recv(data, len)) {
+            free(data);
+            return;
+        }
+        
+        onData(data, len);
         free(data);
-		return;
-	}
-	
-	onData(data, len);
-    free(data);
+    }
 }
 
 void IPCConnector::OnStart()
@@ -75,7 +77,7 @@ void IPCConnector::OnStart()
     int port;
     m_socket->GetIPPort(ip, port);
     
-    ModuleNameMessage mnMsg(&m_handler, ipc__module_name__descriptor);
+    ModuleNameMessage mnMsg;
     mnMsg.GetMessage()->ipc_name = ipcName;
     mnMsg.GetMessage()->ip = (char*)ip.c_str();
     mnMsg.GetMessage()->port = port;
@@ -187,7 +189,7 @@ void IPCConnector::onIPCMessage(const IPCSignalMessage& msg)
 	if (const_cast<IPCSignalMessage&>(msg).n_ipc_path == 0 ||
 		ipcName == IPCObjectName::GetIPCName(GetId()))
 	{
-        IPCProtoMessage ipmMsg(&m_handler, ipc__ipcmessage__descriptor);
+        IPCProtoMessage ipmMsg;
         ipmMsg.GetMessage()->has_message = msg.has_message;
         ipmMsg.GetMessage()->ipc_path = msg.ipc_path;
         ipmMsg.GetMessage()->n_ipc_path = msg.n_ipc_path;
@@ -206,7 +208,7 @@ void IPCConnector::onModuleNameMessage(const ModuleNameMessage& msg)
 		return;
 	}
 
-	AddIPCObjectMessage aoMsg(&m_handler, ipc__add_ipcobject__descriptor);
+	AddIPCObjectMessage aoMsg;
 	aoMsg.GetMessage()->ip = const_cast<ModuleNameMessage&>(msg).GetMessage()->ip;
 	aoMsg.GetMessage()->port = const_cast<ModuleNameMessage&>(msg).GetMessage()->port;
 	aoMsg.GetMessage()->access_id = const_cast<ModuleNameMessage&>(msg).GetMessage()->access_id;

@@ -13,7 +13,7 @@ class Signal
 public:
 	Signal(SignalOwner* owner);
 
-	void onSignal(const DataMessage& msg);
+	void onSignal(const NamedMessage& msg);
 	void removeOwner();
 protected:
 	friend class SignalManager;
@@ -24,7 +24,7 @@ protected:
 	void subscribe(IReceiverFunc* obj);
 	void unsubscribe(SignalReceiver* receiver);
 private:
-	bool onSignalFunc(const DataMessage& msg, const IReceiverFunc* obj);
+	bool onSignalFunc(const NamedMessage& msg, const IReceiverFunc* obj);
 	bool unsubsribeFunc(const SignalReceiver* receiver, const IReceiverFunc* signal);
 	bool unsubsribeReceiver(const IReceiverFunc* signal);
 	twnstd::list<IReceiverFunc*> m_receiverFunctions;

@@ -130,6 +130,7 @@ bool SecureSocket::Recv(char* data, int len)
  		}
  		
  		decriptedData = new unsigned char[recvlen];
+        memset(decriptedData, 0, recvlen);
  		int decriptedLen = AESDecrypt(m_key, sizeof(m_key), recvdata, realDataLen, (byte*)decriptedData, recvlen);
         Serial.printf("%d %08X\n", decriptedLen, *(int*)decriptedData);
  		if(decriptedLen <= 0)

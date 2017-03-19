@@ -10,50 +10,52 @@ class IPCHandler;
 template<typename TMessage, typename THandler = IPCHandler>
 class ProtoMessage : public DataMessage
 {
-    static const char* messageName;
+    static const ProtobufCMessageDescriptor& descriptor;
 public:
-	ProtoMessage(THandler* handler, const ProtobufCMessageDescriptor& descriptor)
-		: m_handler(handler), m_descriptor(descriptor), unpacked(false)
+    ProtoMessage()
+    : m_handler(0), unpacked(false)
     {
         message = (TMessage*)malloc(descriptor.sizeof_message);
         descriptor.message_init((ProtobufCMessage*)message);
     }
+    
+    ProtoMessage(THandler* handler)
+    : m_handler(handler), unpacked(true), message(0)
+    {
+    }
 
 	~ProtoMessage()
     {
-        if(unpacked)
-        {
-            protobuf_c_message_free_unpacked((ProtobufCMessage*)message, 0);
-        }
-        else
-        {
-            free(message);
-        }
+        FreeMessage();
     }
 
 	virtual void onMessage()
 	{
-		m_handler->onMessage(*message);
+        if(m_handler && message)
+        {
+            m_handler->onMessage(*message);
+            FreeMessage();
+        }
 	}
 
 	virtual bool serialize(char* data, int len)
 	{
-        TMessage* msg = (TMessage*)protobuf_c_message_unpack(&m_descriptor, 0, len, (const uint8_t*)data);
-        if(unpacked)
+        if(!unpacked)
         {
-            protobuf_c_message_free_unpacked((ProtobufCMessage*)message, 0);
+            return false;
         }
-        else
+        
+        if(message)
         {
-            free(message);
+            FreeMessage();
         }
-        unpacked = true;
-        message = msg;
+
+        message = (TMessage*)protobuf_c_message_unpack(&descriptor, 0, len, (const uint8_t*)data);
 		return true;
 	}
 
 	virtual bool deserialize(char* data, int& len)
-	{
+	{        
 		int size = protobuf_c_message_get_packed_size((ProtobufCMessage*)message);
 		if (size > len)
 		{
@@ -66,9 +68,9 @@ public:
         return true;
 	}
 
-	virtual char* GetName() const
+	virtual const char* GetName() const
 	{
-		return (char*)m_descriptor.name;
+		return GetMessageName();
 	}
 	
 	TMessage* GetMessage()
@@ -78,14 +80,32 @@ public:
     
     static const char* GetMessageName()
     {
-        return messageName;
+        return descriptor.name;
+    }
+    
+    void FreeMessage()
+    {
+        if(!message)
+        {
+            return;
+        }
+        
+        if(unpacked)
+        {
+            protobuf_c_message_free_unpacked((ProtobufCMessage*)message, 0);
+        }
+        else
+        {
+            free(message);
+        }
+        
+        message = 0;
     }
     
 private:
 	THandler* m_handler;
 	TMessage* message;
     bool unpacked;
-    const ProtobufCMessageDescriptor& m_descriptor;
 };
 
 #endif/*PROTO_MESSAGE_H*/

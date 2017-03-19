@@ -54,7 +54,7 @@ bool MessageHandler::toMessage(const DataMessage& msg)
 
 bool MessageHandler::deserialize(const DataMessage& msg, char* data, int& len)
 {
-	char* type = msg.GetDeserializeName();
+	const char* type = msg.GetName();
 	int typeLen = (int)strlen(type);
 	int headerLen = sizeof(int) + typeLen;
 	int msgBodyLen = (len > headerLen ? (len - headerLen) : 0);

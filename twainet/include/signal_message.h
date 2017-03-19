@@ -4,7 +4,7 @@
 #include "data_message.h"
 
 template<class TMessage>
-class SignalMessage : public DataMessage, public TMessage
+class SignalMessage : public NamedMessage, public TMessage
 {
     static const char* messageName;
 public:
@@ -13,7 +13,7 @@ public:
         *(TMessage*)this = msg;
 	}
 
-    virtual char* GetName()const
+    virtual const char* GetName()const
     {
         return const_cast<char*>(GetMessageName());
     }

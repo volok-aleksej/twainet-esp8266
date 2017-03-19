@@ -10,7 +10,7 @@ SignalOwner::~SignalOwner()
 	m_signal->removeOwner();
 }
 
-void SignalOwner::onSignal(const DataMessage& msg)
+void SignalOwner::onSignal(const NamedMessage& msg)
 {
 	m_signal->onSignal(msg);
 }

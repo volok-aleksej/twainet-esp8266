@@ -12,7 +12,7 @@ public:
 
 	void addSubscriber(SignalReceiver* receiver, IReceiverFunc* func);
 protected:
-	void onSignal(const DataMessage& msg);
+	void onSignal(const NamedMessage& msg);
 
 private:
 	Signal* m_signal;

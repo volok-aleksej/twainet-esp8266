@@ -12,7 +12,7 @@ Signal::~Signal(void)
 {
 }
 
-void Signal::onSignal(const DataMessage& msg)
+void Signal::onSignal(const NamedMessage& msg)
 {
 	for(twnstd::list<IReceiverFunc*>::iterator it = m_receiverFunctions.begin();
 	    it != m_receiverFunctions.end(); ++it)
@@ -51,7 +51,7 @@ void Signal::removeOwner()
 	}
 }
 
-bool Signal::onSignalFunc(const DataMessage& msg, const IReceiverFunc* obj)
+bool Signal::onSignalFunc(const NamedMessage& msg, const IReceiverFunc* obj)
 {
 	if(const_cast<IReceiverFunc*>(obj)->isSignal(msg))
 	{

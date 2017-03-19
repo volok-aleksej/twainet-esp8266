@@ -13,9 +13,18 @@ public:
     virtual bool serialize(char* data, int len) = 0;
 };
 
+class NamedMessage
+{
+public:
+    virtual ~NamedMessage(){};
+    
+    virtual const char* GetName()const = 0;
+};
+
 class DataMessage
-	: public Serializer
+	: public NamedMessage
 	, public Deserializer
+	, public Serializer
 {
 public:
 	virtual ~DataMessage(){};
@@ -23,8 +32,6 @@ public:
 	virtual void onMessage(){};
 	virtual bool serialize(char* data, int len){return false;}
 	virtual bool deserialize(char* data, int& len){return false;}
-	virtual char* GetName()const = 0;
-	virtual char* GetDeserializeName()const{return GetName();}
 };
 
 #endif	// DATA_MESSAGE_H
