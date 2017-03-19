@@ -75,33 +75,6 @@ void IPCSignalHandler::onAddIPCObject(const AddIPCObjectMessage& msg)
 	m_module->OnIPCObjectsChanged();
 }
 
-void IPCSignalHandler::onUpdateIPCObject(const UpdateIPCObjectMessage& msg)
-{
-	IPCModule::IPCObject object(*const_cast<UpdateIPCObjectMessage&>(msg).GetMessage()->ipc_old_name);
-    for(twnstd::list<IPCModule::IPCObject>::iterator it = m_module->m_ipcObject.begin();
-        it != m_module->m_ipcObject.end(); ++it)
-    {
-        if(*it == object)
-        {
-            *it = IPCModule::IPCObject(*const_cast<UpdateIPCObjectMessage&>(msg).GetMessage()->ipc_new_name);
-            break;
-        }
-    }
-    bool update = false;
-    for(twnstd::list<IPCModule::IPCObject>::iterator it = m_module->m_modules.begin();
-        it != m_module->m_modules.end(); ++it)
-    {
-        if(*it == object)
-        {
-            update = true;
-            *it = IPCModule::IPCObject(*const_cast<UpdateIPCObjectMessage&>(msg).GetMessage()->ipc_new_name);
-            break;
-        }
-    }
-    
-	m_module->OnIPCObjectsChanged();
-}
-
 void IPCSignalHandler::onRemoveIPCObject(const RemoveIPCObjectMessage& msg)
 {
     IPCObjectName ipcName = IPCObjectName::GetIPCName(const_cast<RemoveIPCObjectMessage&>(msg).GetMessage()->ipc_name);

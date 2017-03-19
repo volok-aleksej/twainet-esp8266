@@ -17,8 +17,6 @@ PROTOBUF_C__BEGIN_DECLS
 
 typedef struct _Ipc__IPCName Ipc__IPCName;
 typedef struct _Ipc__AddIPCObject Ipc__AddIPCObject;
-typedef struct _Ipc__UpdateIPCObject Ipc__UpdateIPCObject;
-typedef struct _Ipc__ChangeIPCName Ipc__ChangeIPCName;
 typedef struct _Ipc__IPCObjectList Ipc__IPCObjectList;
 typedef struct _Ipc__ModuleName Ipc__ModuleName;
 typedef struct _Ipc__ModuleState Ipc__ModuleState;
@@ -55,28 +53,6 @@ struct  _Ipc__AddIPCObject
 #define IPC__ADD_IPCOBJECT__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&ipc__add_ipcobject__descriptor) \
     , NULL, NULL, 0, NULL }
-
-
-struct  _Ipc__UpdateIPCObject
-{
-  ProtobufCMessage base;
-  Ipc__IPCName *ipc_old_name;
-  Ipc__IPCName *ipc_new_name;
-};
-#define IPC__UPDATE_IPCOBJECT__INIT \
- { PROTOBUF_C_MESSAGE_INIT (&ipc__update_ipcobject__descriptor) \
-    , NULL, NULL }
-
-
-struct  _Ipc__ChangeIPCName
-{
-  ProtobufCMessage base;
-  Ipc__IPCName *ipc_name;
-};
-#define IPC__CHANGE_IPCNAME__INIT \
- { PROTOBUF_C_MESSAGE_INIT (&ipc__change_ipcname__descriptor) \
-    , NULL }
-
 
 struct  _Ipc__IPCObjectList
 {
@@ -190,44 +166,6 @@ Ipc__AddIPCObject *
                       const uint8_t       *data);
 void   ipc__add_ipcobject__free_unpacked
                      (Ipc__AddIPCObject *message,
-                      ProtobufCAllocator *allocator);
-/* Ipc__UpdateIPCObject methods */
-void   ipc__update_ipcobject__init
-                     (Ipc__UpdateIPCObject         *message);
-size_t ipc__update_ipcobject__get_packed_size
-                     (const Ipc__UpdateIPCObject   *message);
-size_t ipc__update_ipcobject__pack
-                     (const Ipc__UpdateIPCObject   *message,
-                      uint8_t             *out);
-size_t ipc__update_ipcobject__pack_to_buffer
-                     (const Ipc__UpdateIPCObject   *message,
-                      ProtobufCBuffer     *buffer);
-Ipc__UpdateIPCObject *
-       ipc__update_ipcobject__unpack
-                     (ProtobufCAllocator  *allocator,
-                      size_t               len,
-                      const uint8_t       *data);
-void   ipc__update_ipcobject__free_unpacked
-                     (Ipc__UpdateIPCObject *message,
-                      ProtobufCAllocator *allocator);
-/* Ipc__ChangeIPCName methods */
-void   ipc__change_ipcname__init
-                     (Ipc__ChangeIPCName         *message);
-size_t ipc__change_ipcname__get_packed_size
-                     (const Ipc__ChangeIPCName   *message);
-size_t ipc__change_ipcname__pack
-                     (const Ipc__ChangeIPCName   *message,
-                      uint8_t             *out);
-size_t ipc__change_ipcname__pack_to_buffer
-                     (const Ipc__ChangeIPCName   *message,
-                      ProtobufCBuffer     *buffer);
-Ipc__ChangeIPCName *
-       ipc__change_ipcname__unpack
-                     (ProtobufCAllocator  *allocator,
-                      size_t               len,
-                      const uint8_t       *data);
-void   ipc__change_ipcname__free_unpacked
-                     (Ipc__ChangeIPCName *message,
                       ProtobufCAllocator *allocator);
 /* Ipc__IPCObjectList methods */
 void   ipc__ipcobject_list__init
@@ -351,12 +289,6 @@ typedef void (*Ipc__IPCName_Closure)
 typedef void (*Ipc__AddIPCObject_Closure)
                  (const Ipc__AddIPCObject *message,
                   void *closure_data);
-typedef void (*Ipc__UpdateIPCObject_Closure)
-                 (const Ipc__UpdateIPCObject *message,
-                  void *closure_data);
-typedef void (*Ipc__ChangeIPCName_Closure)
-                 (const Ipc__ChangeIPCName *message,
-                  void *closure_data);
 typedef void (*Ipc__IPCObjectList_Closure)
                  (const Ipc__IPCObjectList *message,
                   void *closure_data);
@@ -383,8 +315,6 @@ typedef void (*Ipc__Ping_Closure)
 
 extern const ProtobufCMessageDescriptor ipc__ipcname__descriptor;
 extern const ProtobufCMessageDescriptor ipc__add_ipcobject__descriptor;
-extern const ProtobufCMessageDescriptor ipc__update_ipcobject__descriptor;
-extern const ProtobufCMessageDescriptor ipc__change_ipcname__descriptor;
 extern const ProtobufCMessageDescriptor ipc__ipcobject_list__descriptor;
 extern const ProtobufCMessageDescriptor ipc__module_name__descriptor;
 extern const ProtobufCMessageDescriptor ipc__module_state__descriptor;

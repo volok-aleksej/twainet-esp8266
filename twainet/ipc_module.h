@@ -44,7 +44,6 @@ public:
 	void DisconnectModule(const IPCObjectName& moduleName);
 	bool IsExit();
 	void Exit();
-	void UpdateModuleName(const IPCObjectName& moduleName);
 	void SendMsg(const IPCSignalMessage& msg);
 	void CreateInternalConnection(const IPCObjectName& moduleName, const std::string& ip, int port);
 	const IPCObjectName& GetModuleName();

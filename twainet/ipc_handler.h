@@ -9,8 +9,6 @@ typedef ProtoMessage<_Ipc__IPCName> IPCNameMessage;
 typedef ProtoMessage<_Ipc__IPCMessage> IPCProtoMessage;
 typedef ProtoMessage<_Ipc__ModuleName> ModuleNameMessage;
 typedef ProtoMessage<_Ipc__AddIPCObject> AddIPCObjectMessage;
-typedef ProtoMessage<_Ipc__UpdateIPCObject> UpdateIPCObjectMessage;
-typedef ProtoMessage<_Ipc__ChangeIPCName> ChangeIPCNameMessage;
 typedef ProtoMessage<_Ipc__RemoveIPCObject> RemoveIPCObjectMessage;
 typedef ProtoMessage<_Ipc__IPCObjectList> IPCObjectListMessage;
 typedef ProtoMessage<_Ipc__ModuleState> ModuleStateMessage;
@@ -32,8 +30,6 @@ public:
 	void onMessage(const _Ipc__RemoveIPCObject& msg);
 	void onMessage(const _Ipc__IPCMessage& msg);
  	void onMessage(const _Ipc__IPCObjectList& msg);
-	void onMessage(const _Ipc__ChangeIPCName& msg);
-	void onMessage(const _Ipc__UpdateIPCObject& msg);
     //stubs
 	void onMessage(const _Ipc__Ping& msg){}
     void onMessage(const _Ipc__IPCName& msg){}

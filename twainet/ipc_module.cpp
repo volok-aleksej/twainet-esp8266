@@ -125,7 +125,6 @@ void IPCModule::AddConnector(Connector* conn)
 		OnNewConnector(conn);
 
 		connector->addSubscriber(&m_ipcSignalHandler, SIGNAL_FUNC(&m_ipcSignalHandler, IPCSignalHandler, AddIPCObjectMessage, onAddIPCObject));
-		connector->addSubscriber(&m_ipcSignalHandler, SIGNAL_FUNC(&m_ipcSignalHandler, IPCSignalHandler, UpdateIPCObjectMessage, onUpdateIPCObject));
 		connector->addSubscriber(&m_ipcSignalHandler, SIGNAL_FUNC(&m_ipcSignalHandler, IPCSignalHandler, ModuleNameMessage, onModuleName));
 		connector->addSubscriber(&m_ipcSignalHandler, SIGNAL_FUNC(&m_ipcSignalHandler, IPCSignalHandler, RemoveIPCObjectMessage, onRemoveIPCObject));
 		connector->addSubscriber(&m_ipcSignalHandler, SIGNAL_FUNC(&m_ipcSignalHandler, IPCSignalHandler, IPCObjectListMessage, onIPCObjectList));
@@ -140,22 +139,6 @@ void IPCModule::AddConnector(Connector* conn)
 	{
 		delete conn;
 	}
-}
-	
-void IPCModule::UpdateModuleName(const IPCObjectName& moduleName)
-{
-// 	UpdateIPCObjectMessage uioMsg(0);
-// 	*uioMsg.mutable_ipc_old_name() = m_moduleName;
-// 	*uioMsg.mutable_ipc_new_name() = moduleName;
-// 	m_ipcSignalHandler.onUpdateIPCObject(uioMsg);
-// 
-// 	LOG_INFO("Update ipc name: old - %s, new - %s\n", m_moduleName.GetModuleNameString().c_str(), const_cast<IPCObjectName&>(moduleName).GetModuleNameString().c_str());
-// 	m_moduleName = moduleName;
-// 
-// 	ChangeIPCNameMessage cinMsg(0);
-// 	*cinMsg.mutable_ipc_name() = m_moduleName;
-// 	onSignal(cinMsg);
-
 }
 
 void IPCModule::SendMsg(const IPCSignalMessage& msg)

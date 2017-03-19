@@ -23,8 +23,6 @@ IPCConnector::IPCConnector(AnySocket* socket, const IPCObjectName& moduleName)
 	addMessage(new RemoveIPCObjectMessage(&m_handler));
 	addMessage(new IPCProtoMessage(&m_handler));
 	addMessage(new IPCObjectListMessage(&m_handler));
-	addMessage(new ChangeIPCNameMessage(&m_handler));
-	addMessage(new UpdateIPCObjectMessage(&m_handler));
 	addMessage(new ModuleStateMessage(&m_handler));
 	addMessage(new PingMessage(&m_handler));
 }
@@ -105,7 +103,6 @@ void IPCConnector::SubscribeConnector(const IPCConnector* connector)
     if(conn)
     {
         ipcSubscribe(conn, SIGNAL_FUNC(this, IPCConnector, IPCProtoMessage, onIPCMessage));
-        ipcSubscribe(conn, SIGNAL_FUNC(this, IPCConnector, UpdateIPCObjectMessage, onUpdateIPCObjectMessage));
         ipcSubscribe(conn, SIGNAL_FUNC(this, IPCConnector, ModuleNameMessage, onModuleNameMessage));
         ipcSubscribe(conn, SIGNAL_FUNC(this, IPCConnector, RemoveIPCObjectMessage, onRemoveIPCObjectMessage));
     }
@@ -113,7 +110,6 @@ void IPCConnector::SubscribeConnector(const IPCConnector* connector)
 
 void IPCConnector::SubscribeModule(::SignalOwner* owner)
 {
-	owner->addSubscriber(this, SIGNAL_FUNC(this, IPCConnector, ChangeIPCNameMessage, onChangeIPCNameMessage));
 	owner->addSubscriber(this, SIGNAL_FUNC(this, IPCConnector, IPCSignalMessage, onIPCMessage));
 }
 
@@ -158,19 +154,6 @@ bool IPCConnector::SendData(char* data, int len)
 	bool ret = Connector::SendData(senddata, len + sizeof(int));
     free(senddata);
     return ret;
-}
-
-void IPCConnector::onChangeIPCNameMessage(const ChangeIPCNameMessage& msg)
-{
-	if(SetModuleName(*const_cast<ChangeIPCNameMessage&>(msg).GetMessage()->ipc_name))
-	{
-		toMessage(msg);
-	}
-}
-
-void IPCConnector::onUpdateIPCObjectMessage(const UpdateIPCObjectMessage& msg)
-{
-    toMessage(msg);
 }
 
 void IPCConnector::onRemoveIPCObjectMessage(const RemoveIPCObjectMessage& msg)
@@ -264,10 +247,6 @@ void IPCConnector::OnDisconnected()
 }
 
 void IPCConnector::OnAddIPCObject(const String& moduleName)
-{
-}
-
-void IPCConnector::OnUpdateIPCObject(const String& oldModuleName, const String& newModuleName)
 {
 }
 

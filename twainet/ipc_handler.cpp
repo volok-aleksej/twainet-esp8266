@@ -6,8 +6,6 @@ template<> const ProtobufCMessageDescriptor& IPCNameMessage::descriptor = ipc__i
 template<> const ProtobufCMessageDescriptor& IPCProtoMessage::descriptor = ipc__ipcmessage__descriptor;
 template<> const ProtobufCMessageDescriptor& ModuleNameMessage::descriptor = ipc__module_name__descriptor;
 template<> const ProtobufCMessageDescriptor& AddIPCObjectMessage::descriptor = ipc__add_ipcobject__descriptor;
-template<> const ProtobufCMessageDescriptor& UpdateIPCObjectMessage::descriptor = ipc__update_ipcobject__descriptor;
-template<> const ProtobufCMessageDescriptor& ChangeIPCNameMessage::descriptor = ipc__change_ipcname__descriptor;
 template<> const ProtobufCMessageDescriptor& RemoveIPCObjectMessage::descriptor = ipc__remove_ipcobject__descriptor;
 template<> const ProtobufCMessageDescriptor& IPCObjectListMessage::descriptor = ipc__ipcobject_list__descriptor;
 template<> const ProtobufCMessageDescriptor& ModuleStateMessage::descriptor = ipc__module_state__descriptor;
@@ -176,38 +174,4 @@ void IPCHandler::onMessage(const _Ipc__IPCObjectList& msg)
  		IPCObjectName ipcName(*msg.ipc_object[i]->ipc_name);
  		m_connector->OnAddIPCObject(ipcName.GetModuleNameString());
  	}
-}
-
-void IPCHandler::onMessage(const _Ipc__ChangeIPCName& msg)
-{
-    IPCObjectName objectName = IPCObjectName::GetIPCName(m_connector->m_id);
-    IPCNameMessage inMsg;
-    inMsg.GetMessage()->module_name = (char*)objectName.GetModuleName().c_str();
-    inMsg.GetMessage()->host_name = (char*)objectName.GetHostName().c_str();
-    inMsg.GetMessage()->conn_id = (char*)objectName.GetConnId().c_str();
- 	UpdateIPCObjectMessage uioMsg;
-    uioMsg.GetMessage()->ipc_new_name = msg.ipc_name;
-    uioMsg.GetMessage()->ipc_old_name = inMsg.GetMessage();
- 	m_connector->onSignal(uioMsg);
-	m_connector->onIPCSignal(uioMsg);
- 
- 	IPCObjectName ipcName(*msg.ipc_name);
- 	m_connector->m_id = ipcName.GetModuleNameString();
- 	
-    Serial.print("Change connector id: m_id-");
-    Serial.print(m_connector->m_id.c_str());
-    Serial.print(", m_module-");
-    Serial.println(m_connector->m_moduleName.GetModuleNameString().c_str());
-}
-
-void IPCHandler::onMessage(const _Ipc__UpdateIPCObject& msg)
-{
- 	UpdateIPCObjectMessage uioMsg;
-    uioMsg.GetMessage()->ipc_new_name = msg.ipc_new_name;
-    uioMsg.GetMessage()->ipc_old_name = msg.ipc_old_name;
- 	m_connector->onSignal(uioMsg);
- 
- 	IPCObjectName ipcNameOld(*msg.ipc_old_name);
- 	IPCObjectName ipcNameNew(*msg.ipc_new_name);
- 	m_connector->OnUpdateIPCObject(ipcNameOld.GetModuleNameString(), ipcNameNew.GetModuleNameString());
 }

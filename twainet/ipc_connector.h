@@ -27,8 +27,6 @@ protected:
     void onIPCMessage(const IPCSignalMessage& msg);
  	void onIPCMessage(const IPCProtoMessage& msg);
  	void onModuleNameMessage(const ModuleNameMessage& msg);
- 	void onChangeIPCNameMessage(const ChangeIPCNameMessage& msg);
-    void onUpdateIPCObjectMessage(const UpdateIPCObjectMessage& msg);
     void onRemoveIPCObjectMessage(const RemoveIPCObjectMessage& msg);
 
 // 	
@@ -49,7 +47,6 @@ protected:
 	virtual void OnConnected();
 	virtual void OnDisconnected();
 	virtual void OnAddIPCObject(const String& moduleName);
-	virtual void OnUpdateIPCObject(const String& oldModuleName, const String& newModuleName);
 	virtual IPCObjectName GetIPCName();
 protected:
 	IPCHandler m_handler;
