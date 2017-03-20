@@ -130,34 +130,3 @@ void IPCSignalHandler::onDisconnected(const DisconnectedMessage& msg)
     
 	m_module->OnFireConnector(msg.m_id);
 }
-
-void IPCSignalHandler::onIPCObjectList(const IPCObjectListMessage& msg)
-{
- 	twnstd::list<IPCModule::IPCObject> list = m_module->m_ipcObject;
- 	m_module->FillIPCObjectList(list);
-    const_cast<IPCObjectListMessage&>(msg).GetMessage()->n_ipc_object = list.size();
-    const_cast<IPCObjectListMessage&>(msg).GetMessage()->ipc_object = 
-        (Ipc__AddIPCObject**)malloc(sizeof(Ipc__AddIPCObject*) * list.size() + sizeof(Ipc__AddIPCObject) * list.size() + sizeof(Ipc__IPCName)* list.size());
-    unsigned int offsetobjects = sizeof(Ipc__AddIPCObject*) * list.size();
-    unsigned int offsetnames = offsetobjects + sizeof(Ipc__AddIPCObject) * list.size();
-    twnstd::list<IPCModule::IPCObject>::iterator it;
-    int i;
- 	for(it = list.begin(), i = 0; it != list.end(); ++it, i++)
- 	{
- 		if(it->m_accessId != const_cast<IPCObjectListMessage&>(msg).GetMessage()->access_id)
- 			continue;
- 
-        char* dataPtr = (char*)const_cast<IPCObjectListMessage&>(msg).GetMessage()->ipc_object;
-        const_cast<IPCObjectListMessage&>(msg).GetMessage()->ipc_object[i] = (Ipc__AddIPCObject*)(dataPtr + offsetobjects + sizeof(Ipc__AddIPCObject) * i);
-        Ipc__AddIPCObject* addIPCObject = const_cast<IPCObjectListMessage&>(msg).GetMessage()->ipc_object[i];
-        ipc__add_ipcobject__init(addIPCObject);
- 		addIPCObject->ip = (char*)it->m_ip.c_str();
- 		addIPCObject->port = it->m_port;
- 		addIPCObject->access_id = (char*)it->m_accessId.c_str();
-        addIPCObject->ipc_name = (Ipc__IPCName*)(dataPtr + offsetnames + sizeof(Ipc__IPCName) * i);
-        ipc__ipcname__init(addIPCObject->ipc_name);
-        addIPCObject->ipc_name->module_name = (char*)it->m_ipcName.GetModuleName().c_str();
-        addIPCObject->ipc_name->host_name = (char*)it->m_ipcName.GetHostName().c_str();
-        addIPCObject->ipc_name->conn_id = (char*)it->m_ipcName.GetConnId().c_str();
- 	}
-}
