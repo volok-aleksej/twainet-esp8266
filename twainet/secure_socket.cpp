@@ -1,7 +1,6 @@
 #include "secure_socket.h"
 #include "aes.h"
 #include "aes.h"
-#include <Arduino.h>
 
 #define RSA_DATA_BITS 2048
 #define RSA_DATA_BYTES RSA_DATA_BITS/8
@@ -132,7 +131,6 @@ bool SecureSocket::Recv(char* data, int len)
  		decriptedData = new unsigned char[recvlen];
         memset(decriptedData, 0, recvlen);
  		int decriptedLen = AESDecrypt(m_key, sizeof(m_key), recvdata, realDataLen, (byte*)decriptedData, recvlen);
-        Serial.printf("%d %08X\n", decriptedLen, *(int*)decriptedData);
  		if(decriptedLen <= 0)
  		{
             goto Recv_end;

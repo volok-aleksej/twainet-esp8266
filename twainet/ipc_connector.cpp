@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <WString.h>
-#include <Arduino.h>
 
+#include "logger.h"
 #include "ipc_connector.h"
 #include "include/proto_message.h"
 #include "ipc.pb-c.h"
@@ -42,7 +42,6 @@ void IPCConnector::ThreadFunc()
             return;
         }
 
-        Serial.println(len);
         if(len < 0 || len > MAX_DATA_LEN) {
             return;
         }
@@ -113,7 +112,7 @@ void IPCConnector::SubscribeModule(::SignalOwner* owner)
 	owner->addSubscriber(this, SIGNAL_FUNC(this, IPCConnector, IPCSignalMessage, onIPCMessage));
 }
 
-IPCObjectName IPCConnector::GetModuleName() const
+const IPCObjectName& IPCConnector::GetModuleName() const
 {
 	return m_moduleName;
 }
@@ -226,10 +225,6 @@ void IPCConnector::onIPCSignal(const DataMessage& msg)
 
 bool IPCConnector::SetModuleName(const IPCObjectName& moduleName)
 {
-    Serial.print("Set module name: old-");
-    Serial.print(m_moduleName.GetModuleNameString().c_str());
-    Serial.print(", new-");
-    Serial.println(const_cast<IPCObjectName&>(moduleName).GetModuleNameString().c_str());
 	m_moduleName = moduleName;
 	return true;
 }

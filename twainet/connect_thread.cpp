@@ -6,8 +6,6 @@
 #include "include/socket_factory.h"
 #include "include/connector_factory.h"
 
-#include <Arduino.h>
-
 ConnectThread::ConnectThread(const ConnectAddress& address)
 : Thread(true), m_address(address), m_socket(0)
 {
@@ -28,11 +26,6 @@ void ConnectThread::ThreadFunc()
 {
 	m_socket = m_address.m_socketFactory->CreateSocket();
 	m_socket->Bind(m_address.m_localIP, m_address.m_localPort);
-
-    Serial.print("try connect to ");
-    Serial.print(m_address.m_ip.c_str());
-	Serial.print(":");
-    Serial.println(m_address.m_port);
     
     if(m_socket->Connect(m_address.m_ip, m_address.m_port))
 	{

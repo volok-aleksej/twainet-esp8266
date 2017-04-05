@@ -1,6 +1,6 @@
 #include "ipc_handler.h"
 #include "ipc_connector.h"
-#include <Arduino.h>
+#include "logger.h"
 
 template<> const ProtobufCMessageDescriptor& IPCNameMessage::descriptor = ipc__ipcname__descriptor;
 template<> const ProtobufCMessageDescriptor& IPCProtoMessage::descriptor = ipc__ipcmessage__descriptor;
@@ -33,10 +33,9 @@ void IPCHandler::onMessage(const _Ipc__ModuleName& msg)
  	IPCObjectName ipcName(*msg.ipc_name);
  	m_connector->SetId(ipcName.GetModuleNameString());
 
-    Serial.print("ModuleName message: m_id-");
-    Serial.print(m_connector->m_id.c_str());
-    Serial.print(", m_module-");
-    Serial.println(m_connector->m_moduleName.GetModuleNameString().c_str());
+    LOG_INFO("ModuleName message: m_id-%s, m_module-%s",
+             m_connector->m_id.c_str(),
+             m_connector->m_moduleName.GetModuleNameString().c_str());
  
  	AddIPCObjectMessage aoMsg;
     aoMsg.GetMessage()->ip = msg.ip;
@@ -65,10 +64,9 @@ void IPCHandler::onMessage(const _Ipc__ModuleState& msg)
 {
  	if(msg.exist)
  	{
-        Serial.print("Module exists: m_id-");
-        Serial.print(m_connector->m_id.c_str());
-        Serial.print(", m_module-");
-        Serial.println(m_connector->m_moduleName.GetModuleNameString().c_str());
+        LOG_INFO("Module exists: m_id-%s, m_module-%s",
+                 m_connector->m_id.c_str(),
+                 m_connector->m_moduleName.GetModuleNameString().c_str());
  		m_connector->StopThread();
  	}
 }

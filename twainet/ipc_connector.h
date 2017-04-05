@@ -20,7 +20,7 @@ public:
     virtual void SubscribeConnector(const IPCConnector* connector);
     virtual void SubscribeModule(::SignalOwner* owner);
         
-	IPCObjectName GetModuleName() const;
+	const IPCObjectName& GetModuleName() const;
 	String GetAccessId();
 protected:
  	friend class Signal;

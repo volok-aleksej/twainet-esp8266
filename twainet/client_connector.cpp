@@ -2,56 +2,56 @@
 #include "connector_messages.h"
 #include "client_module.h"
 #include "common_func.h"
-#include "Arduino.h"
+#include "logger.h"
 
 template<> const ProtobufCMessageDescriptor& LoginMessage::descriptor = client_server__login__descriptor;
 template<> const ProtobufCMessageDescriptor& LoginResultMessage::descriptor = client_server__login_result__descriptor;
 
-ClientServerConnector::ClientServerConnector(AnySocket* socket, const IPCObjectName& moduleName)
+ClientConnector::ClientConnector(AnySocket* socket, const IPCObjectName& moduleName)
 : IPCConnector(socket, moduleName)
 {
 	addMessage(new LoginMessage(this));
 	addMessage(new LoginResultMessage(this));
 }
 
-ClientServerConnector::~ClientServerConnector()
+ClientConnector::~ClientConnector()
 {
 	removeReceiver();
 }
 
-void ClientServerConnector::SubscribeConnector(const IPCConnector* connector)
+void ClientConnector::SubscribeConnector(const IPCConnector* connector)
 {
 	IPCConnector* ipcConn = const_cast<IPCConnector*>(connector);
 	if(ipcConn)
 	{
-		ipcSubscribe(ipcConn, SIGNAL_FUNC(this, ClientServerConnector, IPCProtoMessage, onIPCMessage));
+		ipcSubscribe(ipcConn, SIGNAL_FUNC(this, ClientConnector, IPCProtoMessage, onIPCMessage));
 	}
-	ClientServerConnector* conn = static_cast<ClientServerConnector*>(ipcConn);
+	ClientConnector* conn = static_cast<ClientConnector*>(ipcConn);
 	if(conn)
 	{
-		ipcSubscribe(conn, SIGNAL_FUNC(this, ClientServerConnector, AddIPCObjectMessage, onAddIPCObjectMessage));
-		ipcSubscribe(ipcConn, SIGNAL_FUNC(this, ClientServerConnector, RemoveIPCObjectMessage, onRemoveIPCObjectMessage));
+		ipcSubscribe(conn, SIGNAL_FUNC(this, ClientConnector, AddIPCObjectMessage, onAddIPCObjectMessage));
+		ipcSubscribe(ipcConn, SIGNAL_FUNC(this, ClientConnector, RemoveIPCObjectMessage, onRemoveIPCObjectMessage));
 	}
 }
 
-void ClientServerConnector::SubscribeModule(::SignalOwner* owner)
+void ClientConnector::SubscribeModule(::SignalOwner* owner)
 {
 	IPCConnector::SubscribeModule(owner);
 }
 
-void ClientServerConnector::SetUserName(const String& userName)
+void ClientConnector::SetUserName(const String& userName)
 {
 	m_userName = userName;
 }
 
-void ClientServerConnector::SetPassword(const String& password)
+void ClientConnector::SetPassword(const String& password)
 {
 	m_password = password;
 }
 
-void ClientServerConnector::OnStart()
+void ClientConnector::OnStart()
 {
-//	m_checker = new IPCCheckerThread(this);
+	m_checker = new IPCCheckerThread(this);
 	LoginMessage loginMsg;
 	loginMsg.GetMessage()->name = (char*)m_userName.c_str();
 	loginMsg.GetMessage()->password = (char*)m_password.c_str();
@@ -59,26 +59,26 @@ void ClientServerConnector::OnStart()
 	toMessage(loginMsg);
 }
 
-bool ClientServerConnector::SetModuleName(const IPCObjectName& moduleName)
+bool ClientConnector::SetModuleName(const IPCObjectName& moduleName)
 {
 	return false;
 }
 
-void ClientServerConnector::OnConnected()
+void ClientConnector::OnConnected()
 {
  	m_bConnected = true;
 	ClientServerConnectedMessage msg(GetId());
 	onSignal(msg);
 }
 
-IPCObjectName ClientServerConnector::GetIPCName()
+IPCObjectName ClientConnector::GetIPCName()
 {
 	IPCObjectName name = IPCObjectName::GetIPCName(GetId());
 	name.SetHostName(m_ownSessionId);
 	return name;
 }
 
-void ClientServerConnector::onIPCMessage(const IPCProtoMessage& msg)
+void ClientConnector::onIPCMessage(const IPCProtoMessage& msg)
 {
 	IPCObjectName path(*const_cast<IPCProtoMessage&>(msg).GetMessage()->ipc_path[0]);
 	if(path == GetModuleName())
@@ -111,7 +111,7 @@ void ClientServerConnector::onIPCMessage(const IPCProtoMessage& msg)
 	  
 }
 
-void ClientServerConnector::onAddIPCObjectMessage(const AddIPCObjectMessage& msg)
+void ClientConnector::onAddIPCObjectMessage(const AddIPCObjectMessage& msg)
 {
 	IPCObjectName idName = IPCObjectName::GetIPCName(m_id);
 	if (idName.GetModuleName() == ClientModule::m_clientIPCName &&
@@ -121,14 +121,13 @@ void ClientServerConnector::onAddIPCObjectMessage(const AddIPCObjectMessage& msg
 	}
 }
 
-void ClientServerConnector::onRemoveIPCObjectMessage(const RemoveIPCObjectMessage& msg)
+void ClientConnector::onRemoveIPCObjectMessage(const RemoveIPCObjectMessage& msg)
 {
 	IPCConnector::onRemoveIPCObjectMessage(msg);
 }
 
-void ClientServerConnector::onMessage(const ClientServer__LoginResult& msg)
+void ClientConnector::onMessage(const ClientServer__LoginResult& msg)
 {
-    Serial.println("ClientServer__LoginResult");
 	if(m_checker)
 	{
         ManagersContainer::GetInstance().RemoveManager(m_checker);
@@ -142,8 +141,7 @@ void ClientServerConnector::onMessage(const ClientServer__LoginResult& msg)
 	onSignal(lrMsg);
 	if(msg.login_result == CLIENT_SERVER__RESULT_CODE__LOGIN_FAILURE)
 	{
-        Serial.print("Login failed: m_moduleName - ");
- 		Serial.println(GetModuleName().GetModuleNameString().c_str());
+        LOG_INFO("Login failed: m_moduleName - %s", GetModuleName().GetModuleNameString().c_str());
 		StopThread();
 		return;
 	}
@@ -155,10 +153,9 @@ void ClientServerConnector::onMessage(const ClientServer__LoginResult& msg)
 	SetId(name.GetModuleNameString());
 	IPCConnector::SetModuleName(IPCObjectName(GetModuleName().GetModuleName(), m_ownSessionId));
 	
-    Serial.print("Login succesful: m_id - ");
-    Serial.print(name.GetModuleNameString().c_str());
-    Serial.print(", m_moduleName - ");
-    Serial.println(GetModuleName().GetModuleNameString().c_str());
+    LOG_INFO("Login succesful: m_id - %s, m_moduleName - %s",
+             name.GetModuleNameString().c_str(),
+             GetModuleName().GetModuleNameString().c_str());
 
 	ModuleNameMessage mnMsg;
     IPCNameMessage ipcname;
@@ -169,5 +166,7 @@ void ClientServerConnector::onMessage(const ClientServer__LoginResult& msg)
 	mnMsg.GetMessage()->port = 0;
 	mnMsg.GetMessage()->access_id = (char*)m_userName.c_str();
     mnMsg.GetMessage()->ipc_name = ipcname.GetMessage();
+    mnMsg.GetMessage()->conn_id = "";
+    mnMsg.GetMessage()->has_is_exist = false;
 	toMessage(mnMsg);
 }

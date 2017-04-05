@@ -3,7 +3,6 @@
 #include "client_signal_handler.h"
 #include "client_module.h"
 #include "thread_manager.h"
-#include <Arduino.h>
 
 ClientSignalHandler::ClientSignalHandler(ClientModule* module)
 : m_module(module)
@@ -15,9 +14,9 @@ ClientSignalHandler::~ClientSignalHandler()
 	removeReceiver();
 }
 
-void ClientSignalHandler::onAddClientServerConnector(const ConnectorMessage& msg)
+void ClientSignalHandler::onAddClientConnector(const ConnectorMessage& msg)
 {
-	ClientServerConnector* conn = static_cast<ClientServerConnector*>(msg.m_conn);
+	ClientConnector* conn = static_cast<ClientConnector*>(msg.m_conn);
 	if(conn)
 	{
 		conn->SetUserName(m_module->m_userPassword.m_userName);
@@ -25,7 +24,6 @@ void ClientSignalHandler::onAddClientServerConnector(const ConnectorMessage& msg
 		m_module->ipcSubscribe(conn, this, SIGNAL_FUNC(this, ClientSignalHandler, LoginResultMessage, onLoginResult));
 		m_module->ipcSubscribe(conn, this, SIGNAL_FUNC(this, ClientSignalHandler, ClientServerConnectedMessage, onConnected));
 	}
-    Serial.printf("add connector id - %s\n", msg.m_conn->GetId().c_str());
 	m_module->AddConnector(msg.m_conn);
 }
 

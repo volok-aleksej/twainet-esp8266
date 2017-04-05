@@ -1,5 +1,4 @@
 #include "connector.h"
-#include <Arduino.h>
 
 Connector::Connector(AnySocket* socket)
 : Thread(false), m_socket(socket)
@@ -87,6 +86,5 @@ void SimpleConnector::ThreadFunc()
         {
             break;
         }
-        Serial.println(len);
     }
 }

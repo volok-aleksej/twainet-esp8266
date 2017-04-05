@@ -1,7 +1,7 @@
 #include "thread_manager.h"
+#include <Arduino.h>
 #include <malloc.h>
 #include <string.h>
-#include <Arduino.h>
 
 unsigned int g_threadCount = 0;
 
@@ -11,10 +11,8 @@ ThreadDescription g_threadDesks[THREAD_MAX];
 void thread_wrapper()
 {
     ThreadDescription& desk = g_threadDesks[g_current_threadId - THREAD_START_ID];
-    Serial.printf("thread started %d\n", g_current_threadId);
     Thread::ThreadFunc(desk.m_thread);
     desk.m_state = ThreadDescription::STOPPED;
-    Serial.printf("thread stoped %d\n", g_current_threadId);
 }
 
 static void thread_func(os_event_t *events)

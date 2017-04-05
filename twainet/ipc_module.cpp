@@ -89,7 +89,6 @@ void IPCModule::OnFireConnector(const String& moduleName)
 
 void IPCModule::OnConnectFailed(const String& moduleName)
 {
-// 	LOG_INFO("Connection failed: moduleName - %s, m_moduleName - %s\n", moduleName.c_str(), m_moduleName.GetModuleNameString().c_str());
 }
 
 void IPCModule::OnMessage(const String& messageName, const twnstd::vector<String>& path, const char* data, unsigned int lenData)

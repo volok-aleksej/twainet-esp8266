@@ -8,6 +8,7 @@ class IPCObjectName
 {
 public:
 	IPCObjectName(const String& moduleName = "", const String& hostName = "", const String& connId = "");
+    IPCObjectName(const IPCObjectName& ipcName);
 	IPCObjectName(const Ipc__IPCName& ipcName);
 	~IPCObjectName();
 
@@ -18,11 +19,12 @@ public:
 	bool operator < (const Ipc__IPCName& object) const;
     
     void operator = (const Ipc__IPCName& object);
+    void operator = (const IPCObjectName& ipcName);
 
 	String GetModuleNameString() const;
-    String GetModuleName() const;
-    String GetHostName() const;
-    String GetConnId() const;
+    const String& GetModuleName() const;
+    const String& GetHostName() const;
+    const String& GetConnId() const;
     
     void SetModuleName(const String& name);
     void SetHostName(const String& name);

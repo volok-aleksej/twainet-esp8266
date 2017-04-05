@@ -12,7 +12,7 @@ public:
 	ClientSignalHandler(ClientModule* module);
 	~ClientSignalHandler();
 	
-	void onAddClientServerConnector(const ConnectorMessage& msg);
+	void onAddClientConnector(const ConnectorMessage& msg);
 	void onErrorConnect(const ConnectErrorMessage& msg);
 	void onConnected(const ClientServerConnectedMessage& msg);
 

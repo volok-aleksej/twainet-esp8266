@@ -9,6 +9,12 @@ IPCObjectName::IPCObjectName(const String& moduleName, const String& hostName, c
 	m_moduleNameString = GetModuleNameString();
 }
 
+IPCObjectName::IPCObjectName(const IPCObjectName& ipcName)
+: m_moduleName(ipcName.m_moduleName), m_hostName(ipcName.m_hostName), m_connId(ipcName.m_connId)
+{
+    m_moduleNameString = GetModuleNameString();
+}
+
 IPCObjectName::IPCObjectName(const Ipc__IPCName& ipcName)
 : m_moduleName(ipcName.module_name), m_hostName(ipcName.host_name), m_connId(ipcName.conn_id)
 {
@@ -60,6 +66,13 @@ void IPCObjectName::operator = (const Ipc__IPCName& object)
     m_connId = object.conn_id;
 }
 
+void IPCObjectName::operator = (const IPCObjectName& ipcName)
+{
+    m_moduleName = ipcName.m_moduleName;
+    m_hostName = ipcName.m_hostName;
+    m_connId = ipcName.m_connId;
+}
+    
 String IPCObjectName::GetModuleNameString() const
 {
 	String moduleNameString = m_moduleName;
@@ -77,17 +90,17 @@ String IPCObjectName::GetModuleNameString() const
 	return moduleNameString;
 }
 
-String IPCObjectName::GetModuleName() const
+const String& IPCObjectName::GetModuleName() const
 {
     return m_moduleName;
 }
 
-String IPCObjectName::GetHostName() const
+const String& IPCObjectName::GetHostName() const
 {
     return m_hostName;
 }
 
-String IPCObjectName::GetConnId() const
+const String& IPCObjectName::GetConnId() const
 {
     return m_connId;
 }

@@ -1,12 +1,10 @@
 #include "managers_container.h"
-#include <Arduino.h>
 
 /****************************************************************************************************************/
 /*                                             ManagersContainer                                                */
 /****************************************************************************************************************/
 ManagersContainer::ManagersContainer()
 {
-    Serial.println("Managers Container");
 }
 
 ManagersContainer::~ManagersContainer()
@@ -22,7 +20,6 @@ ManagersContainer::~ManagersContainer()
 
 void ManagersContainer::AddManager(IManager* manager)
 {
-    Serial.println("Add Manager");
 	manager->ManagerStart();
 	m_managers.insert(m_managers.end(), manager);
 }

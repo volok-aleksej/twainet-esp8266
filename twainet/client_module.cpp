@@ -5,7 +5,7 @@
 #include "socket_factories.h"
 #include "include/ipc_connector_factory.h"
 #include "thread_manager.h"
-#include <Arduino.h>
+#include "logger.h"
 
 const String ClientModule::m_serverIPCName = "Server";
 const String ClientModule::m_clientIPCName = "Client";
@@ -39,12 +39,12 @@ void ClientModule::Connect(const String& ip, int port)
 	address.m_localIP = "";
 	address.m_localPort = 0;
 	address.m_moduleName = address.m_id = m_serverIPCName;
-	address.m_connectorFactory = new IPCConnectorFactory<ClientServerConnector>(m_clientIPCName);
+	address.m_connectorFactory = new IPCConnectorFactory<ClientConnector>(m_clientIPCName);
 	address.m_socketFactory = factory;
 	address.m_ip = ip;
 	address.m_port = port;
 	ConnectThread* thread = new ConnectThread(address);
-	thread->addSubscriber(&m_signalHandler, SIGNAL_FUNC(&m_signalHandler, ClientSignalHandler, ConnectorMessage, onAddClientServerConnector));
+	thread->addSubscriber(&m_signalHandler, SIGNAL_FUNC(&m_signalHandler, ClientSignalHandler, ConnectorMessage, onAddClientConnector));
 	thread->addSubscriber(&m_signalHandler, SIGNAL_FUNC(&m_signalHandler, ClientSignalHandler, ConnectErrorMessage, onErrorConnect));
 	thread->StartThread();
 }
@@ -52,7 +52,6 @@ void ClientModule::Connect(const String& ip, int port)
 void ClientModule::OnConnectFailed(const String& moduleName)
 {
     IPCObjectName ipcModuleName = IPCObjectName::GetIPCName(moduleName);
-    Serial.printf("connected failed %s\n", ipcModuleName.GetModuleName().c_str());
     if (ipcModuleName.GetModuleName() == m_serverIPCName &&
         !m_isStopConnect && !m_isExit)
     {
@@ -71,6 +70,7 @@ void ClientModule::OnFireConnector(const String& moduleName)
 	if ((ipcModuleName.GetModuleName() == m_serverIPCName && ipcModuleName.GetHostName() == m_ownSessionId)&&
 		!m_isStopConnect && !m_isExit)
 	{
+        LOG_INFO("Client %s disconnected", m_ownSessionId.c_str());
 		m_ownSessionId = "";
 		return;
 	}
@@ -85,14 +85,12 @@ bool ClientModule::CheckFireConnector(const String& moduleName)
 
 void ClientModule::OnServerConnected()
 {
-	Serial.print("Client connected to server. sessionId: ");
-    Serial.println(m_ownSessionId.c_str());
+	LOG_INFO("Client %s connected", m_ownSessionId.c_str());
 }
 
 void ClientModule::OnAuthFailed()
 {
-	Serial.print("Client authorization failed. m_moduleName ");
-    Serial.println(m_moduleName.GetModuleNameString().c_str());
+	LOG_INFO("Client authorization failed");
 }
 
 void ClientModule::FillIPCObjectList(twnstd::list<IPCObject>& ipcList)
@@ -112,8 +110,6 @@ void ClientModule::FillIPCObjectList(twnstd::list<IPCObject>& ipcList)
 	
 void ClientModule::Disconnect()
 {
-    Serial.print("Try client disconnect. sessionId ");
-    Serial.println(m_ownSessionId.c_str());
 	IPCObjectName ipcName(m_serverIPCName, m_ownSessionId);
 	m_manager.StopConnection(ipcName.GetModuleNameString());
 	m_isStopConnect = true;

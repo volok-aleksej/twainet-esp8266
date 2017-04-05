@@ -5,16 +5,16 @@
 #include "client_server.pb-c.h"
 #include "ipc.pb-c.h"
 
-class ClientServerConnector;
+class ClientConnector;
 
-typedef ProtoMessage<ClientServer__Login, ClientServerConnector> LoginMessage;
-typedef ProtoMessage<ClientServer__LoginResult, ClientServerConnector> LoginResultMessage;
+typedef ProtoMessage<ClientServer__Login, ClientConnector> LoginMessage;
+typedef ProtoMessage<ClientServer__LoginResult, ClientConnector> LoginResultMessage;
 
-class ClientServerConnector : public IPCConnector
+class ClientConnector : public IPCConnector
 {
 public:
-	ClientServerConnector(AnySocket* socket, const IPCObjectName& moduleName);
-	virtual ~ClientServerConnector();
+	ClientConnector(AnySocket* socket, const IPCObjectName& moduleName);
+	virtual ~ClientConnector();
 
 	virtual void SubscribeConnector(const IPCConnector* connector);
 	virtual void SubscribeModule(::SignalOwner* owner);
