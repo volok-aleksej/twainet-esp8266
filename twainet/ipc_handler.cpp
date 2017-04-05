@@ -54,7 +54,7 @@ void IPCHandler::onMessage(const _Ipc__ModuleName& msg)
  	m_connector->onSignal(mnMsg);
  
  	ModuleStateMessage msMsg;
- 	msMsg.GetMessage()->exist = false;
+ 	msMsg.GetMessage()->exist = mnMsg.GetMessage()->is_exist;
  	msMsg.GetMessage()->rndval = (char*)m_connector->m_rand.c_str();
  	m_connector->toMessage(msMsg);
   	m_connector->OnConnected();
