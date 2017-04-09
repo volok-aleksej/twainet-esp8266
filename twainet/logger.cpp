@@ -4,27 +4,7 @@
 #include <string.h>
 #include <time.h>
 
-Logger::Logger()
-{
-}
-
-Logger::~Logger()
-{
-}
-
-void Logger::Log(TypeLog type, const char* prototype, ...)
-{
-	char printdata[1024] = {0};
-	va_list argptr;
-	va_start(argptr, prototype);
-	vsnprintf(printdata, 1024, prototype, argptr);
-	va_end(argptr);
-	String strtype = GetStringType(type);
-    Serial.print(strtype);
-    Serial.println(printdata);
-}
-
-String Logger::GetStringType(TypeLog type)
+String GetStringType(TypeLog type)
 {
 	switch(type)
 	{
@@ -37,4 +17,16 @@ String Logger::GetStringType(TypeLog type)
 	}
 
 	return "";
+}
+
+extern "C" void Log(TypeLog type, const char* prototype, ...)
+{
+	char printdata[1024] = {0};
+	va_list argptr;
+	va_start(argptr, prototype);
+	vsnprintf(printdata, 1024, prototype, argptr);
+	va_end(argptr);
+	String strtype = GetStringType(type);
+    Serial.print(strtype);
+    Serial.println(printdata);
 }

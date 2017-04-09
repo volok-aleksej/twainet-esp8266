@@ -1,32 +1,25 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <string>
-#include "include/singleton.h"
-#include <WString.h>
+#define LOG_WARNING(Format, ...) Log(LOG_WARNING, Format, ## __VA_ARGS__)
+#define LOG_INFO(Format, ...) Log(LOG_INFO, Format, ## __VA_ARGS__)
+#define LOG_ERROR(Format, ...) Log(LOG_ERROR, Format, ## __VA_ARGS__)
 
-#define LOG_WARNING(Format, ...) Logger::GetInstance().Log(Logger::LOG_WARNING, Format, ## __VA_ARGS__)
-#define LOG_INFO(Format, ...) Logger::GetInstance().Log(Logger::LOG_INFO, Format, ## __VA_ARGS__)
-#define LOG_ERROR(Format, ...) Logger::GetInstance().Log(Logger::LOG_ERROR, Format, ## __VA_ARGS__)
-
-class Logger : public Singleton<Logger>
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus    
+    
+typedef enum
 {
-protected:
-	friend class Singleton<Logger>;
-	Logger();
-public:
-	enum TypeLog
-	{
-		LOG_WARNING,
-		LOG_INFO,
-		LOG_ERROR
-	};
+    LOG_WARNING,
+    LOG_INFO,
+    LOG_ERROR
+} TypeLog;
 
-	~Logger();
+void Log(TypeLog type, const char* prototype, ...);
 
-	void Log(TypeLog type, const char* prototype, ...);
-protected:
-	String GetStringType(TypeLog type);
-};
+#ifdef __cplusplus    
+}
+#endif //__cplusplus    
 
 #endif/*LOGGER_H*/

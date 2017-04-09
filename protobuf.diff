@@ -1,0 +1,32 @@
+Index: protobuf-c.c
+===================================================================
+--- protobuf-c.c	(revision 616)
++++ protobuf-c.c	(working copy)
+@@ -49,6 +49,7 @@
+ #include <string.h>	/* for strcmp, strlen, memcpy, memmove, memset */
+ 
+ #include "protobuf-c.h"
++#include <logger.h>
+ 
+ #define TRUE				1
+ #define FALSE				0
+@@ -81,7 +82,7 @@
+ #define MAX_UINT64_ENCODED_SIZE		10
+ 
+ #ifndef PROTOBUF_C_UNPACK_ERROR
+-# define PROTOBUF_C_UNPACK_ERROR(...)
++# define PROTOBUF_C_UNPACK_ERROR(...) LOG_ERROR(__VA_ARGS__)
+ #endif
+ 
+ /**
+@@ -3090,9 +3091,9 @@
+ 			if (field->default_value == NULL &&
+ 			    !REQUIRED_FIELD_BITMAP_IS_SET(f))
+ 			{
+-				CLEAR_REMAINING_N_PTRS();
+ 				PROTOBUF_C_UNPACK_ERROR("message '%s': missing required field '%s'",
+ 							desc->name, field->name);
++				CLEAR_REMAINING_N_PTRS();
+ 				goto error_cleanup;
+ 			}
+ 		}
