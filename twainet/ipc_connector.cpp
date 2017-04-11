@@ -91,7 +91,7 @@ void IPCConnector::OnStop()
  
  	if(m_checker)
  	{
- 		ManagersContainer::GetInstance().RemoveManager(m_checker);
+        delete m_checker;
  		m_checker = 0;
  	}
 }

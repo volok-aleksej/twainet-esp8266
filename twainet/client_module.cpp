@@ -96,13 +96,15 @@ void ClientModule::OnAuthFailed()
 void ClientModule::FillIPCObjectList(twnstd::list<IPCObject>& ipcList)
 {
 	twnstd::list<IPCObject>::iterator it;
-	for(it = ipcList.begin(); it != ipcList.end(); ++it)
+	for(it = ipcList.begin(); it != ipcList.end();)
 	{
 		if (it->m_ipcName.GetModuleName() == m_clientIPCName &&
 		    it->m_ipcName.GetModuleName() == m_serverIPCName)
 		{
 			it = ipcList.erase(it);
-		}
+		} else {
+            ++it;
+        }
 	}
 	
 	IPCModule::FillIPCObjectList(ipcList);

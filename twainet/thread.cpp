@@ -3,6 +3,7 @@
 extern "C" {
 #include <cont.h>
 }
+#include "logger.h"
 
 void Thread::sleep(unsigned long millisec)
 {
@@ -73,7 +74,6 @@ void Thread::StopThread()
 {
 	if(!IsStopped())
 	{
-		m_state == ThreadDescription::STOP_PENDING;
         ThreadManager::GetInstance().RemoveThread(this);
 	}
 }

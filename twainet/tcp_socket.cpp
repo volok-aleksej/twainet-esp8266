@@ -119,6 +119,7 @@ bool TCPSocket::Connect(const String& host, int port)
         if(!ipaddress.fromString(host)) {
             err_t err = dns_gethostbyname(host.c_str(), &ipaddr, &dnsFoundCallback, &ipaddress);
             if(err == ERR_INPROGRESS) {
+                m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
                 ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
                 // will return here when dns_found_callback fires
             } else if(err != ERR_OK) {
@@ -234,6 +235,10 @@ bool TCPSocket::Close()
     tcp_err(m_socket, NULL);
     tcp_close(m_socket);
     m_socket = INVALID_SOCKET;
+    if(m_suspendedThread) {
+        ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
+        m_suspendedThread = 0;
+    }
     return true;
 }
 
@@ -277,6 +282,7 @@ void TCPSocket::OnError(uint8_t err)
     tcp_err(m_socket, NULL);
     m_socket = INVALID_SOCKET;
     ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
+    m_suspendedThread = 0;
 }
 
 int8_t TCPSocket::OnConnect(tcp_pcb* tpcb, int8_t err)
@@ -289,6 +295,7 @@ int8_t TCPSocket::OnConnect(tcp_pcb* tpcb, int8_t err)
     tcp_sent(m_socket, &onTCPSent);
     tcp_err(m_socket, &onError);
     ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
+    m_suspendedThread = 0;
     return ERR_OK;
 }
 
@@ -313,6 +320,7 @@ int8_t TCPSocket::OnTCPRecv(tcp_pcb* tpcb, pbuf* pb, err_t err)
         ret = ERR_OK;
     }
     ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
+    m_suspendedThread = 0;
     return ret;
 }
 
@@ -323,5 +331,6 @@ int8_t TCPSocket::OnTCPSent(tcp_pcb* tpcb, uint16_t len)
     m_lastError = ERR_OK;
     m_sentSize = len;
     ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
+    m_suspendedThread = 0;
     return ERR_OK;
 }

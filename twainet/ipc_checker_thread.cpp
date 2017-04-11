@@ -14,7 +14,7 @@ IPCCheckerThread::~IPCCheckerThread()
 
 void IPCCheckerThread::ManagerFunc()
 {
-	if(--m_count > 0 || IsStop())
+	if(--m_count > 0)
 	{
 	      return;
 	}

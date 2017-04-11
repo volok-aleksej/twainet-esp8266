@@ -29,12 +29,14 @@ void Signal::subscribe(IReceiverFunc* obj)
 void Signal::unsubscribe(SignalReceiver* receiver)
 {
 	for(twnstd::list<IReceiverFunc*>::iterator it = m_receiverFunctions.begin();
-	    it != m_receiverFunctions.end(); ++it)
+	    it != m_receiverFunctions.end();)
 	{
 		if((*it)->GetReciever() == receiver) {
 			delete *it;
 			it = m_receiverFunctions.erase(it);
-		}
+		} else {
+            ++it;
+        }
 	}
 }
 
@@ -42,12 +44,14 @@ void Signal::removeOwner()
 {
 	m_owner = 0;
 	for(twnstd::list<IReceiverFunc*>::iterator it =m_receiverFunctions.begin();
-	    it != m_receiverFunctions.end(); ++it)
+	    it != m_receiverFunctions.end();)
 	{
 		if((*it)->GetReciever()->onRemoveSignal(this)) {
 			delete *it;
 			it = m_receiverFunctions.erase(it);
-		}
+		} else {
+            ++it;
+        }
 	}
 }
 

@@ -76,9 +76,12 @@ void ThreadManager::RemoveThread(Thread* thread)
         if(g_threadDesks[i].m_thread == thread) {
             g_threadDesks[i].m_thread->Stop();
             if(g_threadDesks[i].m_id != g_current_threadId) {
-                delete g_threadDesks[i].m_thread;
+                g_threadDesks[i].m_thread->OnStop();
                 g_threadDesks[i].m_state = ThreadDescription::ABSENT;
                 g_threadDesks[i].m_thread->m_state = g_threadDesks[i].m_state;
+                if(g_threadDesks[i].m_thread->IsDestroyable())
+                    delete g_threadDesks[i].m_thread;
+                g_threadDesks[i].m_thread = 0;
             } else {
                 g_threadDesks[i].m_state = ThreadDescription::STOP_PENDING;
                 g_threadDesks[i].m_thread->m_state = g_threadDesks[i].m_state;
@@ -105,8 +108,9 @@ void ThreadManager::SuspendThread(unsigned int id)
         }
 
         if(id){
-            if(cont_can_yield(&g_threadDesks[id - THREAD_START_ID].m_cont))
+            if(cont_can_yield(&g_threadDesks[id - THREAD_START_ID].m_cont)) {
                 cont_yield(&g_threadDesks[id - THREAD_START_ID].m_cont);
+            }
         } else {
             esp_yield();
         }
@@ -213,11 +217,11 @@ void ThreadManager::ManagerFunc()
 {
     for(uint8_t i = 0; i < THREAD_MAX; i++) {
         if(g_threadDesks[i].m_state == ThreadDescription::STOPPED) {
+            g_threadDesks[i].m_state = ThreadDescription::ABSENT;
+            g_threadDesks[i].m_thread->m_state = g_threadDesks[i].m_state;
             if(g_threadDesks[i].m_thread->IsDestroyable())
                 delete g_threadDesks[i].m_thread;
             g_threadDesks[i].m_thread = 0;
-            g_threadDesks[i].m_state = ThreadDescription::ABSENT;
-            g_threadDesks[i].m_thread->m_state = g_threadDesks[i].m_state;
         }
     }
 }

@@ -128,13 +128,6 @@ void ClientConnector::onRemoveIPCObjectMessage(const RemoveIPCObjectMessage& msg
 
 void ClientConnector::onMessage(const ClientServer__LoginResult& msg)
 {
-	if(m_checker)
-	{
-        ManagersContainer::GetInstance().RemoveManager(m_checker);
-		m_checker = 0;
-	}
-	
-
 	LoginResultMessage lrMsg;
     lrMsg.GetMessage()->login_result = msg.login_result;
     lrMsg.GetMessage()->own_session_id = msg.own_session_id;

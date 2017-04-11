@@ -42,13 +42,16 @@ void ManagersContainer::RemoveManager(IManager* manager)
 void ManagersContainer::CheckManagers()
 {
     for(twnstd::list<IManager*>::iterator it = m_managers.begin();
-        it != m_managers.end(); ++it) {
+        it != m_managers.end();) {
         (*it)->ManagerFunc();
         if((*it)->IsStop()) {
             (*it)->ManagerStop();
             if((*it)->IsDestroyable()) {
                 delete (*it);
             }
+            it = m_managers.erase(it);
+        } else {
+            ++it;
         }
     }
 }
