@@ -1,4 +1,5 @@
 #include "thread_manager.h"
+#include "thread.h"
 #include <Arduino.h>
 #include <malloc.h>
 #include <string.h>
@@ -61,6 +62,7 @@ void ThreadManager::AddThread(Thread* thread)
             g_threadDesks[i].m_thread = thread;
             g_threadDesks[i].m_thread->m_threadId = g_threadDesks[i].m_id;
             g_threadDesks[i].m_state = ThreadDescription::CREATED;
+            g_threadDesks[i].m_thread->m_state = g_threadDesks[i].m_state;
             return;
         }
     }
@@ -76,8 +78,10 @@ void ThreadManager::RemoveThread(Thread* thread)
             if(g_threadDesks[i].m_id != g_current_threadId) {
                 delete g_threadDesks[i].m_thread;
                 g_threadDesks[i].m_state = ThreadDescription::ABSENT;
+                g_threadDesks[i].m_thread->m_state = g_threadDesks[i].m_state;
             } else {
                 g_threadDesks[i].m_state = ThreadDescription::STOP_PENDING;
+                g_threadDesks[i].m_thread->m_state = g_threadDesks[i].m_state;
             }
             break;
         }
@@ -90,6 +94,7 @@ void ThreadManager::SuspendThread(unsigned int id)
         return;
     
     g_threadDesks[id - THREAD_START_ID].m_state = ThreadDescription::SUSPENDED;
+    g_threadDesks[id - THREAD_START_ID].m_thread->m_state = g_threadDesks[id - THREAD_START_ID].m_state;
     if(g_current_threadId == id) {
         unsigned int nextid = ThreadManager::GetInstance().GetNextSuspendThreadId();
         if(nextid) {
@@ -135,6 +140,7 @@ void ThreadManager::DelayThread(unsigned int id, unsigned long timeout)
         return;
     
     g_threadDesks[id - THREAD_START_ID].m_state = ThreadDescription::DELAYED;
+    g_threadDesks[id - THREAD_START_ID].m_thread->m_state = g_threadDesks[id - THREAD_START_ID].m_state;
     g_threadDesks[id - THREAD_START_ID].m_startTime = millis() + timeout;
     if(g_current_threadId == id) {
         unsigned int nextid = ThreadManager::GetInstance().GetNextSuspendThreadId();
@@ -195,6 +201,7 @@ void ThreadManager::SwitchThread()
     
     if(curId && g_threadDesks[curId - THREAD_START_ID].m_state == ThreadDescription::RUNNING){
         g_threadDesks[curId - THREAD_START_ID].m_state = ThreadDescription::WAITING;
+        g_threadDesks[curId - THREAD_START_ID].m_thread->m_state = g_threadDesks[curId - THREAD_START_ID].m_state;
         if(cont_can_yield(&g_threadDesks[curId - THREAD_START_ID].m_cont))
             cont_yield(&g_threadDesks[curId - THREAD_START_ID].m_cont);
     } else {
@@ -210,6 +217,7 @@ void ThreadManager::ManagerFunc()
                 delete g_threadDesks[i].m_thread;
             g_threadDesks[i].m_thread = 0;
             g_threadDesks[i].m_state = ThreadDescription::ABSENT;
+            g_threadDesks[i].m_thread->m_state = g_threadDesks[i].m_state;
         }
     }
 }

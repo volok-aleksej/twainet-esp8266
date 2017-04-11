@@ -1,8 +1,8 @@
 #include <Arduino.h>
+#include "thread.h"
 extern "C" {
 #include <cont.h>
 }
-#include "thread_manager.h"
 
 void Thread::sleep(unsigned long millisec)
 {
@@ -17,7 +17,7 @@ void Thread::ThreadFunc(Thread* thread)
 }
 
 Thread::Thread(bool isDestroyable)
-: m_threadId(0), m_destroyable(isDestroyable)
+: m_threadId(0), m_state(ThreadDescription::State::ABSENT), m_destroyable(isDestroyable)
 {
 }
 
@@ -41,34 +41,39 @@ bool Thread::IsDestroyable() const
     
 bool Thread::IsStopped() const
 {
-	return g_threadDesks[m_threadId - THREAD_START_ID].m_state == ThreadDescription::STOPPED;
+	return m_state == ThreadDescription::STOPPED;
+}
+
+bool Thread::IsAbsent() const
+{
+    return m_state == ThreadDescription::ABSENT;
 }
 
 bool Thread::IsWaiting() const
 {
-    return g_threadDesks[m_threadId - THREAD_START_ID].m_state == ThreadDescription::WAITING;
+    return m_state == ThreadDescription::WAITING;
 }
 
 bool Thread::IsStop() const
 {
-    return g_threadDesks[m_threadId - THREAD_START_ID].m_state == ThreadDescription::STOP_PENDING;
+    return m_state == ThreadDescription::STOP_PENDING;
 }
 
 bool Thread::IsRunning() const
 {
-    return g_threadDesks[m_threadId - THREAD_START_ID].m_state == ThreadDescription::RUNNING;
+    return m_state == ThreadDescription::RUNNING;
 }
 
 bool Thread::IsSuspend() const
 {
-    return g_threadDesks[m_threadId - THREAD_START_ID].m_state == ThreadDescription::SUSPENDED;
+    return m_state == ThreadDescription::SUSPENDED;
 }
 
 void Thread::StopThread()
 {
 	if(!IsStopped())
 	{
-		g_threadDesks[m_threadId - THREAD_START_ID].m_state == ThreadDescription::STOP_PENDING;
+		m_state == ThreadDescription::STOP_PENDING;
         ThreadManager::GetInstance().RemoveThread(this);
 	}
 }

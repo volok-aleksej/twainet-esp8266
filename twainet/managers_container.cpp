@@ -30,6 +30,9 @@ void ManagersContainer::RemoveManager(IManager* manager)
     for(twnstd::list<IManager*>::iterator it = m_managers.begin();
         it != m_managers.end(); ++it) {
         if(*it == manager) {
+            if((*it)->IsDestroyable()) {
+                delete (*it);
+            }
             m_managers.erase(it);
             break;
         }

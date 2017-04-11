@@ -1,7 +1,6 @@
 #ifndef THREAD_MANAGER_H
 #define THREAD_MANAGER_H
 
-#include "thread.h"
 #include "managers_container.h"
 #include "include/singleton.h"
 #include "std/list.hpp"
@@ -18,6 +17,8 @@ extern "C" {
 #define QUEUE_SIZE      1
 #define THREAD_MAX      2
 
+class Thread;
+
 struct ThreadDescription
 {
     cont_t m_cont __attribute__ ((aligned (16)));
@@ -25,7 +26,7 @@ struct ThreadDescription
     unsigned int m_id;
     unsigned long m_startTime;
     Thread* m_thread;
-    enum {
+    enum State{
         ABSENT,
         CREATED,
         RUNNING,

@@ -4,10 +4,12 @@
 
 ConnectorManager::ConnectorManager()
 {
+    ManagersContainer::GetInstance().AddManager(this);
 }
 
 ConnectorManager::~ConnectorManager()
 {
+    ManagersContainer::GetInstance().RemoveManager(this);
 }
 
 void ConnectorManager::AddConnection(Connector* conn)
@@ -25,10 +27,10 @@ void ConnectorManager::StopConnection(const String& moduleName)
     for(twnstd::list<Connector*>::iterator it = m_connectors.begin();
         it != m_connectors.end(); ++it) {
         if((*it)->GetId() == moduleName) {
-            (*it)->StopThread();
             DisconnectedMessage msg((*it)->GetId(), (*it)->GetConnectorId());
             onSignal(msg);
-            delete *it;
+            (*it)->StopThread();
+            delete (*it);
             m_connectors.erase(it);
             break;
         }
@@ -39,11 +41,24 @@ void ConnectorManager::StopAllConnection()
 {
     for(twnstd::list<Connector*>::iterator it = m_connectors.begin();
         it != m_connectors.end();) {
-        (*it)->StopThread();
         DisconnectedMessage msg((*it)->GetId(), (*it)->GetConnectorId());
         onSignal(msg);
-        delete *it;
+        (*it)->StopThread();
+        delete (*it);
         it = m_connectors.erase(it);
+    }
+}
+
+void ConnectorManager::ManagerFunc()
+{
+    for(twnstd::list<Connector*>::iterator it = m_connectors.begin();
+        it != m_connectors.end();) {
+        if((*it)->IsAbsent()) {
+            DisconnectedMessage msg((*it)->GetId(), (*it)->GetConnectorId());
+            onSignal(msg);
+            delete (*it);
+            it = m_connectors.erase(it);
+        }
     }
 }
 

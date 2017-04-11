@@ -1,6 +1,8 @@
 #ifndef THREAD_H
 #define THREAD_H
 
+#include "thread_manager.h"
+
 class Thread
 {
 public:
@@ -15,6 +17,7 @@ public:
     bool IsSuspend() const;
     bool IsWaiting() const;
 	bool IsStopped() const;
+    bool IsAbsent() const;
 	bool IsStop() const;
     void StopThread();
 
@@ -30,6 +33,7 @@ protected:
 private:
     unsigned int m_threadId;
     bool m_destroyable;
+    ThreadDescription::State m_state;
 };
 
 #endif/*THREAD_H*/
