@@ -3,7 +3,6 @@
 extern "C" {
 #include <cont.h>
 }
-#include "logger.h"
 
 void Thread::sleep(unsigned long millisec)
 {

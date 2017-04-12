@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <WString.h>
 
-#include "logger.h"
 #include "ipc_connector.h"
 #include "include/proto_message.h"
 #include "ipc.pb-c.h"

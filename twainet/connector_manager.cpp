@@ -1,7 +1,6 @@
 #include "connector_manager.h"
 #include "connector_messages.h"
 #include "connector.h"
-#include "logger.h"
 
 ConnectorManager::ConnectorManager()
 {
@@ -55,7 +54,6 @@ void ConnectorManager::ManagerFunc()
     for(twnstd::list<Connector*>::iterator it = m_connectors.begin();
         it != m_connectors.end();) {
         if((*it)->IsAbsent()) {
-            LOG_INFO("connector %04x", *it);
             DisconnectedMessage msg((*it)->GetId(), (*it)->GetConnectorId());
             onSignal(msg);
             delete (*it);

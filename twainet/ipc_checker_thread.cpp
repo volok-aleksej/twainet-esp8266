@@ -17,7 +17,6 @@ void IPCCheckerThread::Stop()
     m_connector = 0;
 }
 
-
 void IPCCheckerThread::ManagerFunc()
 {
 	if(--m_count > 0)
