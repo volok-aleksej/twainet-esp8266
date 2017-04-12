@@ -17,7 +17,6 @@ int GetEncriptedDataLen(int datalen)
 }
 
 static unsigned char iv[16] = "123456789abcdef";
-static AES_CTX aesKey;
     
 int AESEncrypt(byte* key, int keylength,
 			   byte* data, int datalen,
@@ -47,6 +46,7 @@ int AESEncrypt(byte* key, int keylength,
 	memset(tempdata, 0, realDataLen);
 	memcpy(tempdata, data, datalen);
 
+    AES_CTX aesKey;
 	AES_set_key(&aesKey, key, iv, mode);
 	AES_cbc_encrypt(&aesKey, (unsigned char*)tempdata, (unsigned char*)encryptedData, realDataLen);
     delete tempdata;
@@ -75,6 +75,7 @@ int AESDecrypt(byte* key, int keylength,
 		return 0;
 	}
 
+    AES_CTX aesKey;
     AES_MODE mode = (keylength*8 == 256) ? AES_MODE_256 : AES_MODE_128;
     AES_set_key(&aesKey, key, iv, mode);
     AES_convert_key(&aesKey);

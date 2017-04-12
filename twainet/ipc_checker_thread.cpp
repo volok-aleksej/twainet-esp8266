@@ -2,15 +2,21 @@
 #include "ipc_connector.h"
 
 IPCCheckerThread::IPCCheckerThread(IPCConnector* connector)
-: m_connector(connector), m_count(50)
+: m_connector(connector), m_count(50), m_isStop(false)
 {
     ManagersContainer::GetInstance().AddManager(this);
 }
 
 IPCCheckerThread::~IPCCheckerThread()
 {
-    ManagersContainer::GetInstance().RemoveManager(this);
 }
+
+void IPCCheckerThread::Stop()
+{
+    m_isStop = true;
+    m_connector = 0;
+}
+
 
 void IPCCheckerThread::ManagerFunc()
 {
@@ -19,7 +25,7 @@ void IPCCheckerThread::ManagerFunc()
 	      return;
 	}
 
-	if(!m_count)
+	if(!m_count && m_connector)
 	{
 		m_connector->StopThread();
 	}

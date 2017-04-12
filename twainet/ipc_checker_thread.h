@@ -10,15 +10,18 @@ class IPCCheckerThread : public IManager
 public:
 	IPCCheckerThread(IPCConnector* connector);
 	virtual ~IPCCheckerThread();
+    
+    void Stop();
 protected:
 	virtual void ManagerFunc();
 	virtual void ManagerStop(){};
     virtual void ManagerStart(){};
-    virtual bool IsStop(){ return false; }
+    virtual bool IsStop(){ return m_isStop; }
     virtual bool IsDestroyable(){ return true; }
 private:
 	IPCConnector* m_connector;
 	int m_count;
+    bool m_isStop;
     bool isExit;
 };
 

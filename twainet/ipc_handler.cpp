@@ -26,7 +26,7 @@ void IPCHandler::onMessage(const _Ipc__ModuleName& msg)
 {
  	if(m_connector->m_checker)
  	{
-        delete m_connector->m_checker;
+        m_connector->m_checker->Stop();
  		m_connector->m_checker = 0;
  	}
 	
