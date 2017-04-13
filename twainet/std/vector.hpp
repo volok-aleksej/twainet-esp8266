@@ -27,7 +27,7 @@ public:
             {
                 newContainer[i] = m_objects[i];
             }
-            delete m_objects;
+            delete [] m_objects;
             m_objects = newContainer;
         }
         m_objects[m_objectsLen] = object;
@@ -44,7 +44,7 @@ public:
             {
                 newContainer[i] = m_objects[i];
             }
-            delete m_objects;
+            delete [] m_objects;
             m_objects = newContainer;
             m_objectsLen = len;
         }

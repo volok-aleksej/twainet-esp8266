@@ -49,14 +49,34 @@ public:
             return m_object;
         }
         
-        void operator ++ ()
+        iterator operator ++ ()
         {
+            if(!m_next) 
+                return *this;
             *this = *m_next;
+            return *m_prev;
         }
         
-        void operator -- ()
+        iterator operator ++ (int)
         {
+            if(m_next) 
+                *this = *m_next;
+            return *this;
+        }
+        
+        iterator operator -- ()
+        {
+            if(!m_prev) 
+                return *this;
             *this = *m_prev;
+            return *m_next;
+        }
+        
+        iterator operator -- (int)
+        {
+            if(m_prev) 
+                *this = *m_prev;
+            return *this;
         }
         
         bool operator == (const iterator& it) const
@@ -165,5 +185,6 @@ private:
 };
 
 }
+
 
 #endif/*LIST_HPP*/
