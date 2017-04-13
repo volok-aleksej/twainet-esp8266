@@ -50,7 +50,6 @@ SecureSocket::~SecureSocket()
         delete m_recvdata;
     }
 }
-
 bool SecureSocket::PerformSslVerify()
 {
     RSA_CTX *ctx = 0;
@@ -129,7 +128,6 @@ bool SecureSocket::Recv(char* data, int len)
  		}
  		
  		decriptedData = new unsigned char[recvlen];
-        memset(decriptedData, 0, recvlen);
  		int decriptedLen = AESDecrypt(m_key, sizeof(m_key), recvdata, realDataLen, (byte*)decriptedData, recvlen);
  		if(decriptedLen <= 0)
  		{
@@ -143,7 +141,7 @@ bool SecureSocket::Recv(char* data, int len)
             goto Recv_end;
         }
         memcpy(newdata, m_recvdata, m_recvSize);
-		memcpy(newdata + newsize - decriptedLen, decriptedData, decriptedLen);
+		memcpy(newdata + m_recvSize, decriptedData, decriptedLen);
         if(m_recvdata)
         {
             delete m_recvdata;
