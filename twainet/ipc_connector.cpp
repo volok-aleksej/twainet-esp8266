@@ -32,6 +32,8 @@ IPCConnector::~IPCConnector()
 	removeReceiver();
 }
 
+#include "logger.h"
+
 void IPCConnector::ThreadFunc()
 {
     while(!IsStop()) {
@@ -44,7 +46,7 @@ void IPCConnector::ThreadFunc()
         if(len < 0 || len > MAX_DATA_LEN) {
             return;
         }
-
+        LOG_INFO("recv message length %d", len);
         char* data = (char*)malloc(len);
         if(!data) {
             return;
@@ -147,8 +149,8 @@ bool IPCConnector::SendData(char* data, int len)
     {
         return false;
     }
-	memcpy(senddata + sizeof(int), data, len);
-	memcpy(senddata, &len, sizeof(int));
+	os_memcpy(senddata + sizeof(int), data, len);
+	os_memcpy(senddata, &len, sizeof(int));
 	bool ret = Connector::SendData(senddata, len + sizeof(int));
     free(senddata);
     return ret;

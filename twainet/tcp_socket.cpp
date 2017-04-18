@@ -188,8 +188,8 @@ bool TCPSocket::Recv(char* data, int len)
             size_t copy_size = (size < buf_size) ? size : buf_size;
             os_memcpy(data, reinterpret_cast<char*>(m_buf->payload) + m_buf_offset, copy_size);
             data += copy_size;
-            Consume(copy_size);
             len -= copy_size;
+            Consume(copy_size);
         }
     }
     

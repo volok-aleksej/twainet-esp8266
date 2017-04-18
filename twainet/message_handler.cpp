@@ -18,18 +18,17 @@ void MessageHandler::addMessage(DataMessage* msg)
 bool MessageHandler::onData(char* data, int len)
 {
 	int typeLen = 0;
-	memcpy(&typeLen, data, sizeof(int));
+	os_memcpy(&typeLen, data, sizeof(int));
 	int headerLen = sizeof(int) + typeLen;
 	if (typeLen
 		&& len >= headerLen)
 	{
-		char* type = (char*)malloc(typeLen + 1);
+		char* type = (char*)calloc(sizeof(unsigned char), typeLen + 1);
         if(!type)
         {
             return false;
         }
-		memset(type, 0, typeLen + 1);
-		memcpy(type, data + sizeof(unsigned int), typeLen);
+		os_memcpy(type, data + sizeof(unsigned int), typeLen);
 		bool ret = onData(type, data + headerLen, len - headerLen);
         free(type);
         return ret;
@@ -64,8 +63,8 @@ bool MessageHandler::deserialize(const DataMessage& msg, char* data, int& len)
 
 	if(res && data)
 	{
-		memcpy(data, &typeLen, sizeof(unsigned int));
-		memcpy(data + sizeof(unsigned int), type, typeLen);
+		os_memcpy(data, &typeLen, sizeof(unsigned int));
+		os_memcpy(data + sizeof(unsigned int), type, typeLen);
 	}
 	
 	return res;

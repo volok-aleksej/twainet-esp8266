@@ -140,8 +140,8 @@ bool SecureSocket::Recv(char* data, int len)
         {
             goto Recv_end;
         }
-        memcpy(newdata, m_recvdata, m_recvSize);
-		memcpy(newdata + m_recvSize, decriptedData, decriptedLen);
+        os_memcpy(newdata, m_recvdata, m_recvSize);
+		os_memcpy(newdata + m_recvSize, decriptedData, decriptedLen);
         if(m_recvdata)
         {
             delete m_recvdata;
@@ -181,13 +181,13 @@ bool SecureSocket::GetData(char* data, int len)
 		return false;
 	}
 	
-	memcpy(data, m_recvdata, len);
+	os_memcpy(data, m_recvdata, len);
 	unsigned char *newdata = new unsigned char[m_recvSize - len];
     if(!newdata)
     {
         return false;
     }
-	memcpy((char*)newdata, m_recvdata + len, m_recvSize - len);
+	os_memcpy((char*)newdata, m_recvdata + len, m_recvSize - len);
     m_recvSize -= len;
     if(m_recvdata) {
         delete m_recvdata;
@@ -229,8 +229,8 @@ bool SecureSocket::Send(char* data, int len)
     {
         goto Send_end;
     }
-	memcpy(senddata + sizeof(int), encriptedData, sendLen);
-	memcpy(senddata, &len, sizeof(int));
+	os_memcpy(senddata + sizeof(int), encriptedData, sendLen);
+	os_memcpy(senddata, &len, sizeof(int));
 	sendLen += sizeof(int);
 	bRet = SendData((char*)senddata, sendLen);
 

@@ -1,6 +1,7 @@
 #include "aes.h"
 #include "ssl/ssl_crypto.h"
 #include <string.h>
+#include <malloc.h>
 #include <Arduino.h>
 
 #define AES_BLOCK_SIZE 16
@@ -37,18 +38,17 @@ int AESEncrypt(byte* key, int keylength,
 	}
 	
 	AES_MODE mode = (keylength*8 == 256) ? AES_MODE_256 : AES_MODE_128;
-	unsigned char *tempdata = new unsigned char[realDataLen];
+	unsigned char *tempdata = (unsigned char*)calloc(sizeof(unsigned char), realDataLen);
     if(!tempdata) {
         return -4;
     }
-	memset(tempdata, 0, realDataLen);
-	memcpy(tempdata, data, datalen);
+	os_memcpy(tempdata, data, datalen);
 
     AES_CTX aesKey;
     unsigned char iv[16] = "123456789abcdef";
 	AES_set_key(&aesKey, key, iv, mode);
 	AES_cbc_encrypt(&aesKey, (unsigned char*)tempdata, (unsigned char*)encryptedData, realDataLen);
-    delete tempdata;
+    free(tempdata);
 
 	return realDataLen;
 }
@@ -79,7 +79,7 @@ int AESDecrypt(byte* key, int keylength,
     AES_MODE mode = (keylength*8 == 256) ? AES_MODE_256 : AES_MODE_128;
     AES_set_key(&aesKey, key, iv, mode);
     AES_convert_key(&aesKey);
-	AES_cbc_decrypt(&aesKey, (unsigned char*)data, (unsigned char*)decryptedData, decryptedDataLen);
+	AES_cbc_decrypt(&aesKey, (unsigned char*)data, (unsigned char*)decryptedData, datalen);
 
 	return decryptedDataLen;
 }
