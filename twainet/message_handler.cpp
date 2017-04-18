@@ -1,6 +1,6 @@
 #include "message_handler.h"
+#include <osapi.h>
 #include <malloc.h>
-#include <string.h>
 
 MessageHandler::MessageHandler()
 {

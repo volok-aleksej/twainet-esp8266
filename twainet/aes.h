@@ -2,7 +2,7 @@
 
 typedef unsigned char byte;
 
-#define MAX_BUFFER_LEN		256
+#define MAX_BUFFER_LEN		512
 
 //datalen must be less MAX_BUFFER_LEN
 //return size encripted data

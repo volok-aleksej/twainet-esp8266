@@ -1,6 +1,6 @@
 #include "secure_socket.h"
 #include "aes.h"
-#include "aes.h"
+#include <malloc.h>
 
 #define RSA_DATA_BITS 2048
 #define RSA_DATA_BYTES RSA_DATA_BITS/8
@@ -47,7 +47,7 @@ SecureSocket::~SecureSocket()
 {
     if(m_recvdata)
     {
-        delete m_recvdata;
+        free(m_recvdata);
     }
 }
 bool SecureSocket::PerformSslVerify()
@@ -69,7 +69,7 @@ bool SecureSocket::PerformSslVerify()
     {
         goto PerformSslVerify_end;
     }
-    data = new unsigned char[len];
+    data = (unsigned char*)malloc(len);
     if (!data || !Recv((char*)data, len))
     {
          goto PerformSslVerify_end;
@@ -97,7 +97,7 @@ PerformSslVerify_end:
 PerformSslVerify_finish:	
 	if(data)
     {
-        delete data;
+        free(data);
     }
     
     if(ctx) 
@@ -111,8 +111,7 @@ bool SecureSocket::Recv(char* data, int len)
 {
     bool bRet;
     int recvlen = 0;
-    unsigned char* recvdata = 0;
-    unsigned char* decriptedData = 0;
+    unsigned char recvdata[MAX_BUFFER_LEN] = {0};
  	while(!GetData(data, len))
  	{
  		if(!RecvData((char*)&recvlen, sizeof(int)))
@@ -121,38 +120,34 @@ bool SecureSocket::Recv(char* data, int len)
  		}
  
  		int realDataLen = GetEncriptedDataLen(recvlen);
- 		recvdata = new unsigned char[realDataLen];
+        if(realDataLen > MAX_BUFFER_LEN) {
+            return false;
+        }
  		if(!recvdata || !RecvData((char*)recvdata, realDataLen))
  		{
             goto Recv_end;
  		}
  		
- 		decriptedData = new unsigned char[recvlen];
- 		int decriptedLen = AESDecrypt(m_key, sizeof(m_key), recvdata, realDataLen, (byte*)decriptedData, recvlen);
+ 		int decriptedLen = AESDecrypt(m_key, sizeof(m_key), recvdata, realDataLen, (byte*)recvdata, recvlen);
  		if(decriptedLen <= 0)
  		{
             goto Recv_end;
  		}
          
  		int newsize = (int)m_recvSize + decriptedLen;
-        unsigned char* newdata = new unsigned char[newsize];
+        unsigned char* newdata = (unsigned char*)malloc(newsize);
         if(!newdata)
         {
             goto Recv_end;
         }
         os_memcpy(newdata, m_recvdata, m_recvSize);
-		os_memcpy(newdata + m_recvSize, decriptedData, decriptedLen);
+		os_memcpy(newdata + m_recvSize, recvdata, decriptedLen);
         if(m_recvdata)
         {
-            delete m_recvdata;
+            free(m_recvdata);
         }
         m_recvdata = newdata;
         m_recvSize = newsize;
- 		
-        delete recvdata;
-        delete decriptedData;
-        recvdata = 0;
-        decriptedData = 0;
  	}
  	
  	bRet = true;
@@ -162,15 +157,6 @@ Recv_end:
     bRet = false;
     
 Recv_finish:
-    if(recvdata)
-    {
-        delete recvdata;
-    }
-    if(decriptedData)
-    {
-        delete decriptedData;
-    }
-
 	return bRet;
 }
 
@@ -182,15 +168,18 @@ bool SecureSocket::GetData(char* data, int len)
 	}
 	
 	os_memcpy(data, m_recvdata, len);
-	unsigned char *newdata = new unsigned char[m_recvSize - len];
-    if(!newdata)
-    {
-        return false;
+	unsigned char *newdata = 0;
+    if(m_recvSize != len){
+        newdata = (unsigned char*)malloc(m_recvSize - len);
+        if(!newdata)
+        {
+            return false;
+        }
+        os_memcpy((char*)newdata, m_recvdata + len, m_recvSize - len);
     }
-	os_memcpy((char*)newdata, m_recvdata + len, m_recvSize - len);
     m_recvSize -= len;
     if(m_recvdata) {
-        delete m_recvdata;
+        free(m_recvdata);
     }
     m_recvdata = newdata;
 	return true;
@@ -214,22 +203,14 @@ bool SecureSocket::Send(char* data, int len)
 	}
 	
     bool bRet;
-    unsigned char* senddata = 0;
-	unsigned char* encriptedData = 0;
+    unsigned char senddata[MAX_BUFFER_LEN];
     int encriptedLen = GetEncriptedDataLen(len);
-	encriptedData = new unsigned char[encriptedLen];
-	int sendLen = AESEncrypt(m_key, sizeof(m_key), (byte*)data, len, encriptedData, encriptedLen);
+	int sendLen = AESEncrypt(m_key, sizeof(m_key), (byte*)data, len, senddata + sizeof(int), encriptedLen);
 	if(sendLen <= 0)
 	{
         goto Send_end;
 	}
 
-	senddata = new unsigned char[sendLen + sizeof(int)];
-    if(!senddata)
-    {
-        goto Send_end;
-    }
-	os_memcpy(senddata + sizeof(int), encriptedData, sendLen);
 	os_memcpy(senddata, &len, sizeof(int));
 	sendLen += sizeof(int);
 	bRet = SendData((char*)senddata, sendLen);
@@ -238,15 +219,6 @@ Send_end:
     bRet = false;
     
 Send_finish:
-    if(senddata)
-    {
-        delete senddata;
-    }
-    if(encriptedData)
-    {
-        delete encriptedData;
-    }
-
     return bRet;
 }
 
