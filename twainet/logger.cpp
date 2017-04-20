@@ -4,6 +4,13 @@
 #include <string.h>
 #include <time.h>
 
+static IConsole* console = 0;
+
+void SetConsole(IConsole* console_)
+{
+    console = console_;
+}
+
 String GetStringType(TypeLog type)
 {
 	switch(type)
@@ -19,14 +26,18 @@ String GetStringType(TypeLog type)
 	return "";
 }
 
+static char printdata[1024] = {0};
+    
 extern "C" void Log(TypeLog type, const char* prototype, ...)
 {
-	char printdata[1024] = {0};
+	String strtype = GetStringType(type);
+    strcpy(printdata, strtype.c_str());
 	va_list argptr;
 	va_start(argptr, prototype);
-	vsnprintf(printdata, 1024, prototype, argptr);
+	vsnprintf(printdata + strtype.length(), 1024 - strtype.length(), prototype, argptr);
 	va_end(argptr);
-	String strtype = GetStringType(type);
-    Serial.print(strtype);
-    Serial.println(printdata);
+    if(console)
+        console->Write(printdata);
+    else 
+        Serial.println(printdata);
 }
