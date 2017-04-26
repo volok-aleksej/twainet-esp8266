@@ -1,16 +1,16 @@
 # Library dependency
-1.console
-2.std
-3.multitask
-4.signal
-5.protobuf
-6.communication
-7.twainet
+1. console
+2. std
+3. multitask
+4. signal
+5. protobuf
+6. communication
+7. twainet
 
 # Install
-checkout this repository in path ~/Arduino/libraries
-execute thirdparty.sh
-compile your sketch in ArduinoIde
+- checkout this repository in path ~/Arduino/libraries
+- execute thirdparty.sh
+- compile your sketch in ArduinoIde
 
 # Usage example:
 ``` cpp
