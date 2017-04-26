@@ -1,7 +1,7 @@
 #ifndef SIGNAL_H
 #define SIGNAL_H
 
-#include "std/list.hpp"
+#include "list.h"
 #include "data_message.h"
 #include "receiver_func.h"
 #include "thread.h"

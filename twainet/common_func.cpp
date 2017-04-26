@@ -1,7 +1,7 @@
 #include <osapi.h>
 #include <WString.h>
-#include "ssl/ssl_crypto.h"
-#include "ssl/ssl_crypto_misc.h"
+#include "ssl_crypto.h"
+#include "ssl_crypto_misc.h"
 
 static const char size = 16;
 static char uuidNumber[size];

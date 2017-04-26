@@ -3,7 +3,7 @@
 
 #include "signal.h"
 #include "receiver_func.h"
-#include "std/list.hpp"
+#include "list.h"
 
 #define SIGNAL_FUNC(ClassObject, Class, MessageName, Func)\
 	new ReceiverFunc<Class>(ClassObject, MessageName::GetMessageName(), reinterpret_cast<ReceiverFunc<Class>::SignalFunction>(\

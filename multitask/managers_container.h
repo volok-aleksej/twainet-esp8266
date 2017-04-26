@@ -1,7 +1,7 @@
 #ifndef MANAGERS_CONTAINER_H
 #define MANAGERS_CONTAINER_H
 
-#include "std/list.hpp"
+#include "list.h"
 #include "singleton.h"
 
 class IManager

@@ -1,0 +1,61 @@
+Index: ssl_bigint.h
+===================================================================
+--- ssl_bigint.h	(revision 142)
++++ ssl_bigint.h	(working copy)
+@@ -31,7 +31,7 @@
+ #ifndef BIGINT_HEADER
+ #define BIGINT_HEADER
+ 
+-#include "ssl/ssl_crypto.h"
++#include "ssl_crypto.h"
+ 
+ BI_CTX *bi_initialize(void);
+ void bi_terminate(BI_CTX *ctx);
+Index: ssl_crypto.h
+===================================================================
+--- ssl_crypto.h	(revision 142)
++++ ssl_crypto.h	(working copy)
+@@ -39,9 +39,10 @@
+ extern "C" {
+ #endif
+ 
+-#include "ssl/ssl_config.h"
+-#include "ssl/ssl_bigint_impl.h"
+-#include "ssl/ssl_bigint.h"
++#include "ssl_os_int.h"
++#include "ssl_config.h"
++#include "ssl_bigint_impl.h"
++#include "ssl_bigint.h"
+ 
+ #ifndef STDCALL
+ #define STDCALL
+Index: ssl_crypto_misc.h
+===================================================================
+--- ssl_crypto_misc.h	(revision 142)
++++ ssl_crypto_misc.h	(working copy)
+@@ -39,8 +39,8 @@
+ extern "C" {
+ #endif
+ 
+-#include "ssl/ssl_crypto.h"
+-#include "ssl/ssl_bigint.h"
++#include "ssl_crypto.h"
++#include "ssl_bigint.h"
+ 
+ /**************************************************************************
+  * X509 declarations 
+Index: ssl_os_int.h
+===================================================================
+--- ssl_os_int.h	(revision 142)
++++ ssl_os_int.h	(working copy)
+@@ -55,7 +55,9 @@
+ #ifdef CONFIG_PLATFORM_SOLARIS
+ #include <inttypes.h>
+ #else
+-//#include <stdint.h>
++#include <stdint.h>
++#include <time.h>
++typedef long long sint64_t;
+ #endif /* Not Solaris */
+ 
+ #endif /* Not Win32 */

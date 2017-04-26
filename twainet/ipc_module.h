@@ -7,8 +7,8 @@
 
 #include "connector_manager.h"
 #include "signal_owner.h"
-#include "std/list.hpp"
-#include "std/vector.hpp"
+#include "list.h"
+#include "vector.h"
 #include "connector_factory.h"
 
 #include <string>

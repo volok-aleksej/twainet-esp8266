@@ -72,6 +72,7 @@ void ClientModule::OnFireConnector(const String& moduleName)
 	{
         LOG_INFO("Client %s disconnected", m_ownSessionId.c_str());
 		m_ownSessionId = "";
+        Connect(m_ip, m_port);
 		return;
 	}
 	IPCModule::OnFireConnector(moduleName);

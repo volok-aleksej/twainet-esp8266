@@ -1,5 +1,5 @@
 #include "aes.h"
-#include "ssl/ssl_crypto.h"
+#include "ssl_crypto.h"
 #include <Arduino.h>
 
 #define AES_BLOCK_SIZE 16

@@ -3,8 +3,8 @@
 
 #include "managers_container.h"
 #include "singleton.h"
-#include "std/list.hpp"
-#include "std/vector.hpp"
+#include "list.h"
+#include "vector.h"
 
 extern "C" {
 #include <ets_sys.h>

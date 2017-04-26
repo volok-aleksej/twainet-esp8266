@@ -2,7 +2,6 @@
 #include "connector_messages.h"
 #include "client_module.h"
 #include "common_func.h"
-#include "logger.h"
 
 template<> const ProtobufCMessageDescriptor& LoginMessage::descriptor = client_server__login__descriptor;
 template<> const ProtobufCMessageDescriptor& LoginResultMessage::descriptor = client_server__login_result__descriptor;
@@ -134,7 +133,6 @@ void ClientConnector::onMessage(const ClientServer__LoginResult& msg)
 	onSignal(lrMsg);
 	if(msg.login_result == CLIENT_SERVER__RESULT_CODE__LOGIN_FAILURE)
 	{
-        LOG_INFO("Login failed: m_moduleName - %s", GetModuleName().GetModuleNameString().c_str());
 		StopThread();
 		return;
 	}
@@ -145,10 +143,6 @@ void ClientConnector::onMessage(const ClientServer__LoginResult& msg)
 	IPCObjectName name(GetId(), m_ownSessionId);
 	SetId(name.GetModuleNameString());
 	IPCConnector::SetModuleName(IPCObjectName(GetModuleName().GetModuleName(), m_ownSessionId));
-	
-    LOG_INFO("Login succesful: m_id - %s, m_moduleName - %s",
-             name.GetModuleNameString().c_str(),
-             GetModuleName().GetModuleNameString().c_str());
 
 	ModuleNameMessage mnMsg;
     IPCNameMessage ipcname;

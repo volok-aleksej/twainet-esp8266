@@ -33,10 +33,6 @@ void IPCHandler::onMessage(const _Ipc__ModuleName& msg)
  	IPCObjectName ipcName(*msg.ipc_name);
  	m_connector->SetId(ipcName.GetModuleNameString());
 
-    LOG_INFO("ModuleName message: m_id-%s, m_module-%s",
-             m_connector->m_id.c_str(),
-             m_connector->m_moduleName.GetModuleNameString().c_str());
- 
  	AddIPCObjectMessage aoMsg;
     aoMsg.GetMessage()->ip = msg.ip;
     aoMsg.GetMessage()->port = msg.port;
@@ -64,8 +60,7 @@ void IPCHandler::onMessage(const _Ipc__ModuleState& msg)
 {
  	if(msg.exist)
  	{
-        LOG_INFO("Module exists: m_id-%s, m_module-%s",
-                 m_connector->m_id.c_str(),
+        LOG_INFO("Module exists: name-%s",
                  m_connector->m_moduleName.GetModuleNameString().c_str());
  		m_connector->StopThread();
  	}

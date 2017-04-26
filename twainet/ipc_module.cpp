@@ -67,24 +67,20 @@ IPCModule::~IPCModule()
 
 void IPCModule::DisconnectModule(const IPCObjectName& moduleName)
 {
-// 	LOG_INFO("Try disconnect from %s: m_moduleName - %s\n", const_cast<IPCObjectName&>(moduleName).GetModuleNameString().c_str(), m_moduleName.GetModuleNameString().c_str());
 	IPCObjectName module(moduleName);
 	m_manager.StopConnection(module.GetModuleNameString());
 }
 
 void IPCModule::OnNewConnector(Connector* connector)
 {
-// 	LOG_INFO("New connector created: m_id - %s, m_moduleName - %s\n", connector->GetId().c_str(), m_moduleName.GetModuleNameString().c_str());
 }
 
 void IPCModule::OnConnected(const String& moduleName)
 {
-// 	LOG_INFO("Connector created: moduleName - %s, m_moduleName - %s\n", moduleName.c_str(), m_moduleName.GetModuleNameString().c_str());
 }
 
 void IPCModule::OnFireConnector(const String& moduleName)
 {
-// 	LOG_INFO("Connector destroyed: moduleName - %s, m_moduleName - %s\n", moduleName.c_str(), m_moduleName.GetModuleNameString().c_str());
 }
 
 void IPCModule::OnConnectFailed(const String& moduleName)

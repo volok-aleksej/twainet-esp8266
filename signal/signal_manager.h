@@ -3,7 +3,7 @@
 
 #include "managers_container.h"
 #include "singleton.h"
-#include "std/list.hpp"
+#include "list.h"
 
 class Signal;
 

@@ -1,7 +1,7 @@
 #include "twainet.h"
 #include "thread_manager.h"
 #include "console.h"
-#include "ssl/ssl_crypto.h"
+#include "ssl_crypto.h"
 
 static const int commandSize = 1024;
 static char command[commandSize];

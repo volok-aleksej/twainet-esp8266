@@ -1,8 +1,8 @@
 #ifndef SECURE_SOCKET_H
 #define SECURE_SOCKET_H
 
-#include "ssl/ssl_crypto.h"
-#include "ssl/ssl_crypto_misc.h"
+#include "ssl_crypto.h"
+#include "ssl_crypto_misc.h"
 #include "tcp_socket.h"
 
 class AnySocket;
