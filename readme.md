@@ -1,4 +1,4 @@
-#Library dependency
+# Library dependency
 1.console
 2.std
 3.multitask
@@ -12,8 +12,8 @@ checkout this repository in path ~/Arduino/libraries
 execute thirdparty.sh
 compile your sketch in ArduinoIde
 
-#Usage example:
-'''
+# Usage example:
+``` cpp
 #include <ESP8266WiFi.h>
 #include <SPI.h>
 #include <twainet.h>
@@ -40,4 +40,4 @@ void setup() {
 void loop() {
     twainetAppRun(&mainloop);
 }
-'''
+```
