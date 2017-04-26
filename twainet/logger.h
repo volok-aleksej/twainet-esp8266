@@ -6,16 +6,6 @@
 #define LOG_ERROR(Format, ...) Log(LOG_ERROR, Format, ## __VA_ARGS__)
 
 #ifdef __cplusplus
-
-class IConsole
-{
-public:
-    virtual bool Write(const char* log) = 0;
-    virtual bool Read(char* buf, int bufLen) = 0;
-};
-
-void SetConsole(IConsole* console_);
-
 extern "C" {
 #endif //__cplusplus    
     
@@ -30,6 +20,16 @@ void Log(TypeLog type, const char* prototype, ...);
 
 #ifdef __cplusplus    
 }
+
+class IConsole
+{
+public:
+    virtual bool Write(const char* log) = 0;
+    virtual bool Read(char* buf, int bufLen) = 0;
+};
+
+void SetConsole(IConsole* console_);
+
 #endif //__cplusplus    
 
 #endif/*LOGGER_H*/

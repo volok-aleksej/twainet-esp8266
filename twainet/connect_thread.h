@@ -1,7 +1,7 @@
 #ifndef CONNECT_THREAD_H
 #define CONNECT_THREAD_H
 
-#include "include/address.h"
+#include "address.h"
 #include "thread.h"
 #include "signal.h"
 #include "signal_owner.h"

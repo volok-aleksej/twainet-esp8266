@@ -2,7 +2,7 @@
 #include <WString.h>
 
 #include "ipc_connector.h"
-#include "include/proto_message.h"
+#include "proto_message.h"
 #include "ipc.pb-c.h"
 #include "common_func.h"
 #include "connector_messages.h"

@@ -27,17 +27,17 @@ String GetStringType(TypeLog type)
 }
 
 static char printdata[1024] = {0};
-    
+
 extern "C" void Log(TypeLog type, const char* prototype, ...)
 {
 	String strtype = GetStringType(type);
-    strcpy(printdata, strtype.c_str());
+	strcpy(printdata, strtype.c_str());
 	va_list argptr;
 	va_start(argptr, prototype);
 	vsnprintf(printdata + strtype.length(), 1024 - strtype.length(), prototype, argptr);
 	va_end(argptr);
-    if(console)
-        console->Write(printdata);
-    else 
-        Serial.println(printdata);
+	if(console)
+            console->Write(printdata);
+        else 
+            Serial.println(printdata);
 }

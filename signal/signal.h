@@ -2,8 +2,8 @@
 #define SIGNAL_H
 
 #include "std/list.hpp"
-#include "include/data_message.h"
-#include "include/receiver_func.h"
+#include "data_message.h"
+#include "receiver_func.h"
 #include "thread.h"
 
 class SignalOwner;

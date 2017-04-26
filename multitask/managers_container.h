@@ -2,7 +2,7 @@
 #define MANAGERS_CONTAINER_H
 
 #include "std/list.hpp"
-#include "include/singleton.h"
+#include "singleton.h"
 
 class IManager
 {

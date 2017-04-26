@@ -2,9 +2,9 @@
 #include "connector_messages.h"
 #include "common_func.h"
 #include "connector.h"
-#include "include/any_socket.h"
-#include "include/socket_factory.h"
-#include "include/connector_factory.h"
+#include "any_socket.h"
+#include "socket_factory.h"
+#include "connector_factory.h"
 
 ConnectThread::ConnectThread(const ConnectAddress& address)
 : Thread(true), m_address(address), m_socket(0)

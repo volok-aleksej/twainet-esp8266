@@ -3,7 +3,7 @@
 #include "client_module.h"
 #include "connect_thread.h"
 #include "socket_factories.h"
-#include "include/ipc_connector_factory.h"
+#include "ipc_connector_factory.h"
 #include "thread_manager.h"
 #include "logger.h"
 

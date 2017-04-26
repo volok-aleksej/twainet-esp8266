@@ -1,8 +1,8 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include "logger.h"
 #include <WString.h>
+#include "logger.h"
 
 class Console : public IConsole
 {

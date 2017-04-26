@@ -1,7 +1,12 @@
+#include <osapi.h>
+#include <stdint.h>
+#include <time.h>
+#include "common_func.h"
+
+typedef long long sint64_t;
+
 #include "ssl/ssl_crypto.h"
 #include "ssl/ssl_crypto_misc.h"
-#include "common_func.h"
-#include <osapi.h>
 
 static const char size = 16;
 static char uuidNumber[size];

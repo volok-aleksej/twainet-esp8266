@@ -1,5 +1,5 @@
-#include "console.h"
 #include <Arduino.h>
+#include "console.h"
 
 Console::Console()
 {

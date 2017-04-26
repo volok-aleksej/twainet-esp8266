@@ -5,7 +5,7 @@
 #include "client_module.h"
 #include "thread_manager.h"
 #include "managers_container.h"
-#include "include/ipc_connector_factory.h"
+#include "ipc_connector_factory.h"
 
 extern "C" void twainetAppRun(void (*main)(void));
 

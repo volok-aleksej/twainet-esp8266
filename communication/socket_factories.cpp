@@ -1,3 +1,7 @@
+#include <time.h>
+
+typedef long long sint64_t;
+
 #include "socket_factories.h"
 #include "secure_socket.h"
 

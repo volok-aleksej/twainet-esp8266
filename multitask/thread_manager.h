@@ -2,7 +2,7 @@
 #define THREAD_MANAGER_H
 
 #include "managers_container.h"
-#include "include/singleton.h"
+#include "singleton.h"
 #include "std/list.hpp"
 #include "std/vector.hpp"
 

@@ -2,7 +2,7 @@
 #define IPC_CONNECTOR_FACTORY_H
 
 #include "connector_factory.h"
-#include "../ipc_object_name.h"
+#include "ipc_object_name.h"
 
 #include <string>
 

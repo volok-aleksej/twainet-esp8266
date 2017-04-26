@@ -1,7 +1,7 @@
 #ifndef SOCKET_FACTORIES_H
 #define SOCKET_FACTORIES_H
 
-#include "include/socket_factory.h"
+#include "socket_factory.h"
 #include <string>
 
 class TCPSocketFactory : public SocketFactory

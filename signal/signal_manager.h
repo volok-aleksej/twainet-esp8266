@@ -2,7 +2,7 @@
 #define SIGNAL_MANAGER_H
 
 #include "managers_container.h"
-#include "include/singleton.h"
+#include "singleton.h"
 #include "std/list.hpp"
 
 class Signal;

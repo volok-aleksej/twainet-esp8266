@@ -9,7 +9,7 @@
 #include "signal_owner.h"
 #include "std/list.hpp"
 #include "std/vector.hpp"
-#include "include/connector_factory.h"
+#include "connector_factory.h"
 
 #include <string>
 #include <stdarg.h>

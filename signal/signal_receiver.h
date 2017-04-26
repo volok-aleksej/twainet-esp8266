@@ -2,7 +2,7 @@
 #define SIGNAL_RECEIVER_H
 
 #include "signal.h"
-#include "include/receiver_func.h"
+#include "receiver_func.h"
 #include "std/list.hpp"
 
 #define SIGNAL_FUNC(ClassObject, Class, MessageName, Func)\
