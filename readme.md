@@ -22,7 +22,15 @@ char* ssid = "<wifi name>";
 char* pass = "<wifi password>";
 
 void mainloop() {
-//TODO(): your code
+    //TODO(): your code
+
+    if(WiFi.status() == WL_CONNECTED && !status) {
+      GetTwainetClient()->SetUserName("<>");
+      GetTwainetClient()->SetPassword("test");
+      GetTwainetClient()->Connect("192.168.0.103", 5200);
+      status = true;
+    }
+    delay(150);
 }
 
 void setup() {
@@ -37,7 +45,4 @@ void setup() {
   WiFi.begin(ssid, pass);
 }
 
-void loop() {
-    twainetAppRun(&mainloop);
-}
 ```

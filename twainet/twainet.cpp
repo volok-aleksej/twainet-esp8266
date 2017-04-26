@@ -6,13 +6,23 @@
 static const int commandSize = 1024;
 static char command[commandSize];
 
-extern "C" void twainetAppRun(void (*main)(void))
+extern void mainloop();
+
+ClientModule* GetTwainetClient()
+{
+  static IPCObjectName moduleName("");
+  static IPCConnectorFactory<ClientConnector> factory(moduleName);
+  static ClientModule module(moduleName, &factory);
+  return &module;
+}
+
+extern "C" void loop()
 {
     RNG_initialize();
     Console console;
     SetConsole(&console);
     while(true) {
-        main();
+        mainloop();
         console.Read(command, commandSize);
         ManagersContainer::GetInstance().CheckManagers();
         ThreadManager::GetInstance().SwitchThread();

@@ -7,6 +7,6 @@
 #include "managers_container.h"
 #include "ipc_connector_factory.h"
 
-extern "C" void twainetAppRun(void (*main)(void));
+ClientModule* GetTwainetClient();
 
 #endif/*TWAINET_H*/
