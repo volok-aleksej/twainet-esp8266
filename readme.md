@@ -27,7 +27,7 @@ void mainloop() {
     if(WiFi.status() == WL_CONNECTED && !status) {
       GetTwainetClient()->SetUserName("<user name>");
       GetTwainetClient()->SetPassword("<user password>");
-      GetTwainetClient()->Connect("192.168.0.103", 5200);
+      GetTwainetClient()->Connect("<server ip>", 0/*<server port>*/);
       status = true;
     }
     delay(150);
