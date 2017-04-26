@@ -25,8 +25,8 @@ void mainloop() {
     //TODO(): your code
 
     if(WiFi.status() == WL_CONNECTED && !status) {
-      GetTwainetClient()->SetUserName("<>");
-      GetTwainetClient()->SetPassword("test");
+      GetTwainetClient()->SetUserName("<user name>");
+      GetTwainetClient()->SetPassword("<user password>");
       GetTwainetClient()->Connect("192.168.0.103", 5200);
       status = true;
     }
