@@ -7,8 +7,8 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif //__cplusplus    
-    
+#endif //__cplusplus
+
 typedef enum
 {
     LOG_WARNING,
@@ -18,18 +18,19 @@ typedef enum
 
 void Log(TypeLog type, const char* prototype, ...);
 
-#ifdef __cplusplus    
+#ifdef __cplusplus
 }
 
 class IConsole
 {
 public:
+    virtual ~IConsole(){}
     virtual bool Write(const char* log) = 0;
     virtual bool Read(char* buf, int bufLen) = 0;
 };
 
 void SetConsole(IConsole* console_);
 
-#endif //__cplusplus    
+#endif //__cplusplus
 
 #endif/*LOGGER_H*/

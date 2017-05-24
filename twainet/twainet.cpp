@@ -1,6 +1,6 @@
 #include "twainet.h"
 #include "thread_manager.h"
-#include "console.h"
+#include "remote_logger.h"
 #include "ssl_crypto.h"
 
 static const int commandSize = 1024;
@@ -19,7 +19,7 @@ ClientModule* GetTwainetClient()
 extern "C" void loop()
 {
     RNG_initialize();
-    Console console;
+    RemoteLogger console;
     SetConsole(&console);
     while(true) {
         mainloop();

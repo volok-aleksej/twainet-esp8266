@@ -6,6 +6,10 @@ Console::Console()
     Serial.print("#");
 }
 
+Console::~Console()
+{
+}
+
 bool Console::Write(const char* log)
 {
     ClearLine();

@@ -18,7 +18,7 @@ public:
         message = (TMessage*)malloc(descriptor.sizeof_message);
         descriptor.message_init((ProtobufCMessage*)message);
     }
-    
+
     ProtoMessage(THandler* handler)
     : m_handler(handler), unpacked(true), message(0)
     {
@@ -44,7 +44,7 @@ public:
         {
             return false;
         }
-        
+
         if(message)
         {
             FreeMessage();
@@ -55,7 +55,7 @@ public:
 	}
 
 	virtual bool deserialize(char* data, int& len)
-	{        
+	{
 		int size = protobuf_c_message_get_packed_size((ProtobufCMessage*)message);
 		if (size > len)
 		{
@@ -72,24 +72,29 @@ public:
 	{
 		return GetMessageName();
 	}
-	
+
 	TMessage* GetMessage()
     {
         return message;
     }
-    
+
+    operator TMessage&()
+    {
+        return *message;
+    }
+
     static const char* GetMessageName()
     {
         return descriptor.name;
     }
-    
+
     void FreeMessage()
     {
         if(!message)
         {
             return;
         }
-        
+
         if(unpacked)
         {
             protobuf_c_message_free_unpacked((ProtobufCMessage*)message, 0);
@@ -98,10 +103,10 @@ public:
         {
             free(message);
         }
-        
+
         message = 0;
     }
-    
+
 private:
 	THandler* m_handler;
 	TMessage* message;

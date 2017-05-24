@@ -8,6 +8,7 @@ class Console : public IConsole
 {
 public:
     Console();
+    virtual ~Console();
     virtual bool Write(const char* log);
     virtual bool Read(char* buf, int bufLen);
 protected:
