@@ -1,5 +1,7 @@
 #include "twainet.h"
 #include "thread_manager.h"
+#include "managers_container.h"
+#include "ipc_connector_factory.h"
 #include "console.h"
 #include "ssl_crypto.h"
 
@@ -20,10 +22,13 @@ extern "C" void loop()
 {
     RNG_initialize();
     Console console;
+    console.Init();
     SetConsole(&console);
     while(true) {
         mainloop();
-        console.Read(command, commandSize);
+        if(console.Read(command, commandSize)) {
+            CommandLine::GetInstance().DoCommand(command, strlen(command));
+        }
         ManagersContainer::GetInstance().CheckManagers();
         ThreadManager::GetInstance().SwitchThread();
     }

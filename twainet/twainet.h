@@ -3,9 +3,7 @@
 
 #include "ipc_module.h"
 #include "client_module.h"
-#include "thread_manager.h"
-#include "managers_container.h"
-#include "ipc_connector_factory.h"
+#include "command_line.h"
 
 ClientModule* GetTwainetClient();
 

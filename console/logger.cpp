@@ -16,11 +16,11 @@ String GetStringType(TypeLog type)
 	switch(type)
 	{
 	case LOG_WARNING:
-		return " LOG_WARNING:\t";
+		return "\033[1;33m";
 	case LOG_ERROR:
-		return " LOG_ERROR:\t\t";
+		return "\033[1;31m";
 	case LOG_INFO:
-		return " LOG_INFO:\t\t";
+		return "\033[1;32m";
 	}
 
 	return "";
@@ -36,6 +36,7 @@ extern "C" void Log(TypeLog type, const char* prototype, ...)
 	va_start(argptr, prototype);
 	vsnprintf(printdata + strtype.length(), 1024 - strtype.length(), prototype, argptr);
 	va_end(argptr);
+    strcpy(printdata + strlen(printdata), "\033[0m");
 	if(console)
             console->Write(printdata);
         else 
