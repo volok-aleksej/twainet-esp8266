@@ -14,8 +14,7 @@ class RemoteLogger : public Console
 public:
     RemoteLogger();
     virtual ~RemoteLogger();
-    virtual bool Write(const char* log);
-    virtual bool Read(char* buf, int bufLen);
+    void Init() override;
 
     void onMessage(const RemoteLog__Log& msg){}
 };

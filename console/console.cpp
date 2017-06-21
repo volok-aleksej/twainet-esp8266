@@ -2,8 +2,12 @@
 #include "console.h"
 
 Console::Console()
+: m_stream(0){}
+
+void Console::Init()
 {
-    Serial.print("#");
+    m_stream = &Serial;
+    m_stream->print("#");
 }
 
 Console::~Console()
@@ -13,34 +17,41 @@ Console::~Console()
 bool Console::Write(const char* log)
 {
     ClearLine();
-    Serial.println(log);
-    Serial.print("#");
-    Serial.print(m_command);
+    if(m_stream) {
+        m_stream->println(log);
+        m_stream->print("#");
+        m_stream->print(m_command);
+    }
     return true;
 }
 
 bool Console::Read(char* buf, int bufLen)
 {
+    if(!m_stream) {
+        return false;
+    }
+        
     int ch;
     do {
-        ch = Serial.read();
+        ch = m_stream->read();
         if(ch == '\n')
         {
             strcpy(buf, m_command.c_str());
             m_command = "";
-            Serial.println();
-            Serial.print("#");
+            m_stream->println();
+            m_stream->print("#");
             return true;
         } else if(ch == 27){                        // escape
             ClearLine();
-            Serial.print("#");
+            m_stream->print("#");
             m_command = "";
         } else if(ch == '\t'){
+        } else if(ch == '\r'){
         } else if(ch == 127 && m_command.length()){ // '\b'
             m_command.remove(m_command.length() - 1);
-            Serial.print("\b \b");
+            m_stream->print("\b \b");
         } else if(ch > 31 && ch < 127){
-            Serial.print((char)ch);
+            m_stream->print((char)ch);
             m_command.concat((char)ch);
         }
     } while(ch != -1);
@@ -49,12 +60,12 @@ bool Console::Read(char* buf, int bufLen)
 
 void Console::ClearLine()
 {
-    char simb[] = {'\b', ' ', '\b'};
-    for(int count = 0; count < sizeof(simb); count++)
+    if(!m_stream) {
+        return;
+    }
+       
+    for(int i= 0; i < m_command.length() + 1; i++)
     {
-        for(int i= 0; i < m_command.length() + 1; i++)
-        {
-            Serial.print(simb[count]);
-        }
+        m_stream->print("\b \b");
     }
 }

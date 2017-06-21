@@ -11,6 +11,10 @@ RemoteLogger::~RemoteLogger()
 {
 }
 
+void RemoteLogger::Init()
+{
+}
+/*
 bool RemoteLogger::Read(char* buf, int bufLen)
 {
     if(Console::Read(buf, bufLen)){
@@ -59,4 +63,4 @@ bool RemoteLogger::Write(const char* log)
 
     free(data);
     return true;
-}
+}*/

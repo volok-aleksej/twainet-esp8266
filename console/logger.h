@@ -25,6 +25,7 @@ class IConsole
 {
 public:
     virtual ~IConsole(){}
+    virtual void Init() = 0;
     virtual bool Write(const char* log) = 0;
     virtual bool Read(char* buf, int bufLen) = 0;
 };
