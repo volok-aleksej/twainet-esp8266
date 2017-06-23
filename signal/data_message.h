@@ -4,7 +4,7 @@
 class Deserializer
 {
 public:
-    virtual bool deserialize(char* data, int& len) = 0;
+    virtual bool deserialize(char* data, int& len) const = 0;
 };
 
 class Serializer
@@ -31,7 +31,7 @@ public:
 
 	virtual void onMessage(){};
 	virtual bool serialize(char* data, int len){return false;}
-	virtual bool deserialize(char* data, int& len){return false;}
+	virtual bool deserialize(char* data, int& len) const{return false;}
 };
 
 #endif	// DATA_MESSAGE_H

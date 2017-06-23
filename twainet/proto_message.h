@@ -54,7 +54,7 @@ public:
 		return true;
 	}
 
-	virtual bool deserialize(char* data, int& len)
+	virtual bool deserialize(char* data, int& len) const
 	{
 		int size = protobuf_c_message_get_packed_size((ProtobufCMessage*)message);
 		if (size > len)

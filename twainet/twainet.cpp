@@ -11,11 +11,11 @@ static char command[commandSize];
 
 extern void mainloop();
 
-ClientModule* GetTwainetClient()
+TwainetModule* GetTwainetClient()
 {
   static IPCObjectName moduleName("");
   static IPCConnectorFactory<ClientConnector> factory(moduleName);
-  static ClientModule module(moduleName, &factory);
+  static TwainetModule module(moduleName, &factory);
   return &module;
 }
 

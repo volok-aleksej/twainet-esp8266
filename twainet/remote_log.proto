@@ -1,0 +1,7 @@
+package remote_log;
+
+message log
+{
+    required uint64 time = 1;
+    required string log  = 2;
+}

@@ -136,6 +136,15 @@ void IPCConnector::onIPCMessage(const IPCProtoMessage& msg)
 	IPCObjectName path(*const_cast<IPCProtoMessage&>(msg).GetMessage()->ipc_path[0]);
 	if(path.GetModuleNameString() == m_id)
 	{
+        Ipc__IPCName sender;
+        Ipc__IPCName* psender = &sender;
+        sender.host_name = (char*)GetModuleName().GetHostName().c_str();
+        sender.module_name = (char*)GetModuleName().GetModuleName().c_str();
+        sender.conn_id = (char*)GetModuleName().GetConnId().c_str();
+        
+        const_cast<IPCProtoMessage&>(msg).GetMessage()->ipc_sender = &psender;
+        const_cast<IPCProtoMessage&>(msg).GetMessage()->n_ipc_sender = 1;
+        
 		toMessage(msg);
 	}
 }

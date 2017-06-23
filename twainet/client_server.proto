@@ -1,0 +1,17 @@
+package client_server;
+
+enum ResultCode {
+	LOGIN_FAILURE							= 1;
+	LOGIN_SUCCESS							= 2;
+}
+
+message Login {
+	required string name					= 1;
+	required string password				= 2;
+	optional ResultCode login_result		= 3;	//for internal usage
+}
+
+message LoginResult {
+	required ResultCode login_result		= 1;
+	required string own_session_id			= 2;
+}

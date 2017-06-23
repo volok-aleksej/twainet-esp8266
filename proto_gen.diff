@@ -1,0 +1,36 @@
+diff --git a/twainet/client_server.pb-c.h b/twainet/client_server.pb-c.h
+--- a/twainet/client_server.pb-c.h
++++ b/twainet/client_server.pb-c.h
+@@ -4,7 +4,7 @@
+ #ifndef PROTOBUF_C_client_5fserver_2eproto__INCLUDED
+ #define PROTOBUF_C_client_5fserver_2eproto__INCLUDED
+ 
+-#include <protobuf-c/protobuf-c.h>
++#include <protobuf-c.h>
+ 
+ PROTOBUF_C__BEGIN_DECLS
+ 
+diff --git a/twainet/ipc.pb-c.h b/twainet/ipc.pb-c.h
+--- a/twainet/ipc.pb-c.h
++++ b/twainet/ipc.pb-c.h
+@@ -4,7 +4,7 @@
+ #ifndef PROTOBUF_C_ipc_2eproto__INCLUDED
+ #define PROTOBUF_C_ipc_2eproto__INCLUDED
+ 
++#include "protobuf-c.h"
+-#include <protobuf-c/protobuf-c.h>
+ 
+ PROTOBUF_C__BEGIN_DECLS
+ 
+diff --git a/twainet/remote_log.pb-c.h b/twainet/remote_log.pb-c.h
+--- a/twainet/remote_log.pb-c.h
++++ b/twainet/remote_log.pb-c.h
+@@ -4,7 +4,7 @@
+ #ifndef PROTOBUF_C_remote_5flog_2eproto__INCLUDED
+ #define PROTOBUF_C_remote_5flog_2eproto__INCLUDED
+ 
++#include <protobuf-c.h>
+-#include <protobuf-c/protobuf-c.h>
+ 
+ PROTOBUF_C__BEGIN_DECLS
+ 

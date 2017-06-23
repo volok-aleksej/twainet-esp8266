@@ -2,9 +2,9 @@
 #define TWAINET_H
 
 #include "ipc_module.h"
-#include "client_module.h"
+#include "twainet_module.h"
 #include "command_line.h"
 
-ClientModule* GetTwainetClient();
+TwainetModule* GetTwainetClient();
 
 #endif/*TWAINET_H*/
