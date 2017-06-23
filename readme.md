@@ -9,7 +9,7 @@
 
 # Install
 - checkout this repository in path ~/Arduino/libraries
-- execute thirdparty.sh
+- execute prebuild.sh
 - compile your sketch in ArduinoIde
 
 # Usage example:
