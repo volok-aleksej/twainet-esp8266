@@ -6,7 +6,7 @@ svn patch protobuf.diff protobuf
 # generate and patch files
 rm -f twainet/*.pb-c.*
 cd twainet
-protoc-c --c_out=. ipc.proto client_server.proto remote_log.proto
+protoc-c --c_out=. ipc.proto client_server.proto terminal.proto
 cd ..
 git apply proto_gen.diff
 # ssl

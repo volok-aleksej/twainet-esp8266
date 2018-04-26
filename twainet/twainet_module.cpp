@@ -1,12 +1,18 @@
 #include "twainet_module.h"
+#include "terminal.h"
 
 TwainetModule::TwainetModule(const IPCObjectName& ipcName, ConnectorFactory* factory)
-: ClientModule(ipcName, factory)
+: ClientModule(ipcName, factory), m_terminal(0)
 {
 }
 
 TwainetModule::~TwainetModule()
 {
+}
+
+void TwainetModule::SetTerminal(Terminal* terminal)
+{
+    m_terminal = terminal;
 }
 
 void TwainetModule::toMessage(const DataMessage& message, const IPCObjectName& path)
@@ -37,4 +43,7 @@ void TwainetModule::toMessage(const DataMessage& message, const IPCObjectName& p
 
 void TwainetModule::OnMessage(const String& messageName, const twnstd::vector<String>& path, const char* data, unsigned int lenData)
 {
+    if(m_terminal) {
+        m_terminal->onData(messageName, data, lenData);
+    }
 }

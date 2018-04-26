@@ -1,6 +1,6 @@
 #include "twainet.h"
 #include "thread_manager.h"
-#include "remote_logger.h"
+#include "terminal.h"
 #include "managers_container.h"
 #include "ipc_connector_factory.h"
 #include "console.h"
@@ -22,7 +22,7 @@ TwainetModule* GetTwainetClient()
 extern "C" void loop()
 {
     RNG_initialize();
-    RemoteLogger console;
+    Terminal console;
     console.Init();
     SetConsole(&console);
     while(true) {

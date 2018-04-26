@@ -1,7 +1,12 @@
-package remote_log;
+package terminal;
 
 message log
 {
     required uint64 time = 1;
     required string log  = 2;
+}
+
+message command
+{
+    required string command  = 1;
 }
