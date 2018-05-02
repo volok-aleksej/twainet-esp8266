@@ -14,6 +14,7 @@ public:
     void SetTerminal(Terminal* terminal);
     void toMessage(const DataMessage& message, const IPCObjectName& path);
 protected:
+    virtual void OnServerConnected();
 	virtual void OnMessage(const String& messageName, const twnstd::vector<String>& path, const char* data, unsigned int lenData);
 private:
     Terminal* m_terminal;

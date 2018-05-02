@@ -93,11 +93,11 @@ void ThreadManager::RemoveThread(Thread* thread)
 
 void ThreadManager::SuspendThread(unsigned int id)
 {
-    if(id < THREAD_START_ID)
-        return;
-    
-    g_threadDesks[id - THREAD_START_ID].m_state = ThreadDescription::SUSPENDED;
-    g_threadDesks[id - THREAD_START_ID].m_thread->m_state = g_threadDesks[id - THREAD_START_ID].m_state;
+    if(id >= THREAD_START_ID) {
+        g_threadDesks[id - THREAD_START_ID].m_state = ThreadDescription::SUSPENDED;
+        g_threadDesks[id - THREAD_START_ID].m_thread->m_state = g_threadDesks[id - THREAD_START_ID].m_state;
+    }
+
     if(g_current_threadId == id) {
         unsigned int nextid = ThreadManager::GetInstance().GetNextSuspendThreadId();
         if(nextid) {
@@ -119,9 +119,6 @@ void ThreadManager::SuspendThread(unsigned int id)
 
 void ThreadManager::ResumeThread(unsigned int id)
 {
-    if(id < THREAD_START_ID)
-        return;
-    
     unsigned int curId = g_current_threadId;
     if(id) {
         ets_post(id, id, 0);
@@ -131,6 +128,8 @@ void ThreadManager::ResumeThread(unsigned int id)
     }
     
     if(curId){
+        g_threadDesks[curId - THREAD_START_ID].m_state = ThreadDescription::WAITING;
+        g_threadDesks[curId - THREAD_START_ID].m_thread->m_state = g_threadDesks[curId - THREAD_START_ID].m_state;
         if(cont_can_yield(&g_threadDesks[curId - THREAD_START_ID].m_cont))
             cont_yield(&g_threadDesks[curId - THREAD_START_ID].m_cont);
     } else {
@@ -140,12 +139,11 @@ void ThreadManager::ResumeThread(unsigned int id)
 
 void ThreadManager::DelayThread(unsigned int id, unsigned long timeout)
 {
-    if(id < THREAD_START_ID)
-        return;
-    
-    g_threadDesks[id - THREAD_START_ID].m_state = ThreadDescription::DELAYED;
-    g_threadDesks[id - THREAD_START_ID].m_thread->m_state = g_threadDesks[id - THREAD_START_ID].m_state;
-    g_threadDesks[id - THREAD_START_ID].m_startTime = millis() + timeout;
+    if(id >= THREAD_START_ID) {    
+        g_threadDesks[id - THREAD_START_ID].m_state = ThreadDescription::DELAYED;
+        g_threadDesks[id - THREAD_START_ID].m_thread->m_state = g_threadDesks[id - THREAD_START_ID].m_state;
+        g_threadDesks[id - THREAD_START_ID].m_startTime = millis() + timeout;
+    }
     if(g_current_threadId == id) {
         unsigned int nextid = ThreadManager::GetInstance().GetNextSuspendThreadId();
         if(nextid) {

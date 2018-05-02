@@ -3,6 +3,7 @@
 #include "ipc_signal_handler.h"
 #include "ipc_module.h"
 #include "thread_manager.h"
+#include "logger.h"
 
 IPCSignalHandler::IPCSignalHandler(IPCModule* module)
 : m_module(module)
@@ -72,7 +73,10 @@ void IPCSignalHandler::onAddIPCObject(const AddIPCObjectMessage& msg)
                                 const_cast<AddIPCObjectMessage&>(msg).GetMessage()->port,
                                 const_cast<AddIPCObjectMessage&>(msg).GetMessage()->access_id);
 	m_module->m_ipcObject.insert(m_module->m_ipcObject.end(), object);
-	m_module->OnIPCObjectsChanged();
+	m_module->OnIPCObjectsChanged();    
+    LOG_INFO("AddIPCObject: name-%s",
+                 object.m_ipcName.GetModuleNameString().c_str());
+
 }
 
 void IPCSignalHandler::onRemoveIPCObject(const RemoveIPCObjectMessage& msg)
@@ -88,7 +92,9 @@ void IPCSignalHandler::onRemoveIPCObject(const RemoveIPCObjectMessage& msg)
         }
     }
     
-    m_module->OnIPCObjectsChanged();
+    m_module->OnIPCObjectsChanged();  
+    LOG_INFO("RemoveIPCObject: name-%s",
+                 ipcName.GetModuleNameString().c_str());
 }
 
 void IPCSignalHandler::onModuleName(const ModuleNameMessage& msg)

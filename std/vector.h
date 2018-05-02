@@ -20,7 +20,7 @@ public:
     
     void push_back(const Object& object)
     {
-        if(m_objectsBuf >= m_objectsLen){
+        if(m_objectsBuf <= m_objectsLen){
             m_objectsBuf += 4;
             Object* newContainer = new Object[m_objectsBuf];
             for(unsigned int i = 0; i < m_objectsLen; i++)

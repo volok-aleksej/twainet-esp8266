@@ -7,6 +7,7 @@
 
 class Terminal;
 
+typedef ProtoMessage<Terminal__TermName, Terminal> TermNameMessage;
 typedef ProtoMessage<Terminal__Log, Terminal> LogMessage;
 typedef ProtoMessage<Terminal__Command, Terminal> CommandMessage;
 
@@ -18,11 +19,16 @@ public:
     
     bool Write(const char* log) override;
 
-    void addMessage(DataMessage* msg);
+    void onConnected();
     bool onData(const String& messageName, const char* data, int len);
     bool toMessage(const DataMessage& msg);
     
+protected:
+    void addMessage(DataMessage* msg);
+    
+    template<typename TMessage, typename THandler> friend class ProtoMessage;
     void onMessage(const Terminal__Log& msg){}
+    void onMessage(const Terminal__TermName& msg){}
     void onMessage(const Terminal__Command& msg);
 private:
     twnstd::vector<DataMessage*> m_messages;

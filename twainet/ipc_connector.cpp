@@ -88,6 +88,10 @@ void IPCConnector::OnStop()
  		OnDisconnected();
  	}
  
+    RemoveIPCObjectMessage msg;
+    msg.GetMessage()->ipc_name = (char*)m_id.c_str();
+    onSignal(msg);
+        
  	if(m_checker)
  	{
         m_checker->Stop();
