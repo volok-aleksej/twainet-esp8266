@@ -59,6 +59,8 @@ TCPSocket::TCPSocket()
 , m_buf(0)
 , m_sentSize(0)
 , m_suspendedThread(0)
+, m_suspendedRecvThread(0)
+, m_suspendedSendThread(0)
 {
 	Initialize();
 }
@@ -160,8 +162,8 @@ bool TCPSocket::Send(char* data, int len)
         m_sentSize = 0;
         tcp_output(m_socket);
         while(m_sentSize != will_send && m_socket != INVALID_SOCKET) {
-            m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
-            ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
+            m_suspendedSendThread = ThreadManager::GetInstance().GetCurrentThreadId();
+            ThreadManager::GetInstance().SuspendThread(m_suspendedSendThread);
         }
     }
 	
@@ -177,8 +179,8 @@ bool TCPSocket::Recv(char* data, int len)
         }
 
         if(!m_buf) {
-            m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
-            ThreadManager::GetInstance().SuspendThread(m_suspendedThread);
+            m_suspendedRecvThread = ThreadManager::GetInstance().GetCurrentThreadId();
+            ThreadManager::GetInstance().SuspendThread(m_suspendedRecvThread);
         }
         
         if(m_buf) {
@@ -308,8 +310,8 @@ int8_t TCPSocket::OnTCPRecv(tcp_pcb* tpcb, pbuf* pb, err_t err)
         }
         ret = ERR_OK;
     }
-    ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
-    m_suspendedThread = 0;
+    ThreadManager::GetInstance().ResumeThread(m_suspendedRecvThread);
+    m_suspendedRecvThread = 0;
     return ret;
 }
 
@@ -317,7 +319,7 @@ int8_t TCPSocket::OnTCPSent(tcp_pcb* tpcb, uint16_t len)
 {
     m_lastError = ERR_OK;
     m_sentSize = len;
-    ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
-    m_suspendedThread = 0;
+    ThreadManager::GetInstance().ResumeThread(m_suspendedSendThread);
+    m_suspendedSendThread = 0;
     return ERR_OK;
 }

@@ -41,6 +41,8 @@ private:
     int8_t m_lastError;
     
     uint32_t m_suspendedThread;
+    uint32_t m_suspendedRecvThread;
+    uint32_t m_suspendedSendThread;
 };
 
 #endif/*TCP_SOCKET_H*/
