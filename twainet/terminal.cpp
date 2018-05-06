@@ -58,7 +58,7 @@ bool Terminal::onData(const String& messageName, const char* data, int len)
     }
     for (unsigned int i = 0; i < m_messages.length(); ++i)
     {
-        if(messageName == m_messages[i]->GetName())
+        if(strcmp(messageName.c_str(),m_messages[i]->GetName()) == 0)
         {
             m_messages[i]->serialize((char*)data, len);
             m_messages[i]->onMessage();

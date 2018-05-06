@@ -111,7 +111,7 @@ bool SecureSocket::Recv(char* data, int len)
 {
     bool bRet;
     int recvlen = 0;
-    unsigned char recvdata[MAX_BUFFER_LEN] = {0};
+    unsigned char* recvdata = (unsigned char*)malloc(MAX_BUFFER_LEN);
  	while(!GetData(data, len))
  	{
  		if(!RecvData((char*)&recvlen, sizeof(int)))
@@ -157,6 +157,7 @@ Recv_end:
     bRet = false;
     
 Recv_finish:
+    free(recvdata);
 	return bRet;
 }
 
@@ -203,7 +204,7 @@ bool SecureSocket::Send(char* data, int len)
 	}
 	
     bool bRet;
-    unsigned char senddata[MAX_BUFFER_LEN];
+    unsigned char* senddata = (unsigned char*)malloc(MAX_BUFFER_LEN);
     int encriptedLen = GetEncriptedDataLen(len);
 	int sendLen = AESEncrypt(m_key, sizeof(m_key), (byte*)data, len, senddata + sizeof(int), encriptedLen);
 	if(sendLen <= 0)
@@ -219,6 +220,7 @@ Send_end:
     bRet = false;
     
 Send_finish:
+    free(senddata);
     return bRet;
 }
 

@@ -1,6 +1,8 @@
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
+#include "logger.h"
+
 namespace twnstd {
 
 template<typename Object>
@@ -13,9 +15,35 @@ public:
         m_objects = new Object[m_objectsBuf];
     }
     
+    vector(const vector<Object>& data)
+    {
+        m_objects = new Object[data.m_objectsBuf];
+        m_objectsBuf = data.m_objectsBuf;
+        m_objectsLen = data.m_objectsLen;
+        for(unsigned int i = 0; i < m_objectsLen; i++)
+        {
+            m_objects[i] = const_cast<vector<Object>&>(data)[i];
+        }
+    }
+    
     ~vector()
     {
+        LOG_INFO("vector destructor %x", m_objects);
+        if(m_objects)
+            delete [] m_objects;
+    }
+    
+    vector<Object>& operator = (const vector<Object>& data)
+    {
         delete [] m_objects;
+        m_objects = new Object[data.m_objectsBuf];
+        m_objectsBuf = data.m_objectsBuf;
+        m_objectsLen = data.m_objectsLen;
+        for(unsigned int i = 0; i < m_objectsLen; i++)
+        {
+            m_objects[i] = const_cast<vector<Object>&>(data)[i];
+        }
+        return *this;
     }
     
     void push_back(const Object& object)
@@ -61,7 +89,7 @@ public:
         return m_objects[m_objectsLen - 1];
     }
     
-    unsigned int length()
+    unsigned int length() const
     {
         return m_objectsLen;
     }

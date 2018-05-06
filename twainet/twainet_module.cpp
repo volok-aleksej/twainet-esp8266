@@ -52,6 +52,7 @@ void TwainetModule::OnServerConnected()
 
 void TwainetModule::OnMessage(const String& messageName, const twnstd::vector<String>& path, const char* data, unsigned int lenData)
 {
+    LOG_INFO("message recv %s, %d", messageName.c_str(), lenData);
     if(m_terminal) {
         m_terminal->onData(messageName, data, lenData);
     }

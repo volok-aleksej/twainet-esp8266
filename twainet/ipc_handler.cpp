@@ -101,35 +101,35 @@ void IPCHandler::onMessage(const _Ipc__IPCMessage& msg)
     newMsg.GetMessage()->message = msg.message;
     newMsg.GetMessage()->ipc_sender = msg.ipc_sender;
     newMsg.GetMessage()->n_ipc_sender = msg.n_ipc_sender;
-    newMsg.GetMessage()->message_name = msg.message_name;        
+    newMsg.GetMessage()->message_name = msg.message_name;
  	if(!isTarget)
  	{
- 		IPCObjectName newPath(*msg.ipc_path[0]);
- 		if(newPath == m_connector->m_moduleName && msg.n_ipc_path > 1)
+        
+        IPCObjectName ipcPath(*msg.ipc_path[0]);
+ 		if(m_connector->m_moduleName == ipcPath && msg.n_ipc_path > 1)
  		{
             newMsg.GetMessage()->n_ipc_path = msg.n_ipc_path - 1;
             namesPath = (Ipc__IPCName**)malloc(sizeof(Ipc__IPCName*) * (msg.n_ipc_path - 1));
             newMsg.GetMessage()->ipc_path = namesPath;
- 			for(int i = 1; i < msg.n_ipc_path; i++)
+ 			for(int i = 1; i <= msg.n_ipc_path; i++)
  			{
  				newMsg.GetMessage()->ipc_path[i - 1] =  msg.ipc_path[i];
  			}
- 		}
+ 		} else {
+            newMsg.GetMessage()->ipc_path = 0;
+            newMsg.GetMessage()->n_ipc_path = 0;
+        }
         
         newMsg.GetMessage()->n_ipc_sender = msg.n_ipc_sender + 1;
-        namesSender = (Ipc__IPCName**)malloc(sizeof(Ipc__IPCName*) * (msg.n_ipc_sender + 1));
+        namesSender = (Ipc__IPCName**)malloc(sizeof(Ipc__IPCName*) * (newMsg.GetMessage()->n_ipc_sender));
         newMsg.GetMessage()->ipc_sender = namesSender;
+        newMsg.GetMessage()->ipc_sender[msg.n_ipc_sender] = msg.ipc_path[0];
         for(int i = 0; i < msg.n_ipc_sender; i++)
         {
             newMsg.GetMessage()->ipc_sender[i] =  msg.ipc_sender[i];
         }
         
-        IPCNameMessage name;
-        name.GetMessage()->module_name = (char*)m_connector->GetIPCName().GetModuleName().c_str();
-        name.GetMessage()->host_name = (char*)m_connector->GetIPCName().GetHostName().c_str();
-        name.GetMessage()->conn_id = (char*)m_connector->GetIPCName().GetConnId().c_str();
-        newMsg.GetMessage()->ipc_sender[msg.n_ipc_sender] = name.GetMessage();
- 		isTarget = (newPath == m_connector->m_moduleName && !newMsg.GetMessage()->n_ipc_path);
+ 		isTarget = (m_connector->m_moduleName == ipcPath && !newMsg.GetMessage()->n_ipc_path);
  	}
  
  	if (isTarget &&
@@ -151,6 +151,7 @@ void IPCHandler::onMessage(const _Ipc__IPCMessage& msg)
     {
         free(namesSender);
     }
+    LOG_INFO("ipc handler processed message");
 }
 
 void IPCHandler::onMessage(const _Ipc__IPCObjectList& msg)
