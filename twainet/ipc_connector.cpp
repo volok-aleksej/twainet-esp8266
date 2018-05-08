@@ -16,7 +16,6 @@ IPCConnector::IPCConnector(AnySocket* socket, const IPCObjectName& moduleName)
 , m_bConnected(false)
 , m_rand(CreateGUID()), m_checker(0)
 {
-	m_ipcSignal = new Signal(static_cast<SignalOwner*>(this));
 	addMessage(new ModuleNameMessage(&m_handler));
 	addMessage(new AddIPCObjectMessage(&m_handler));
 	addMessage(new RemoveIPCObjectMessage(&m_handler));
@@ -28,7 +27,6 @@ IPCConnector::IPCConnector(AnySocket* socket, const IPCObjectName& moduleName)
 
 IPCConnector::~IPCConnector()
 {
-	m_ipcSignal->removeOwner();
 	removeReceiver();
 }
 
@@ -99,17 +97,6 @@ void IPCConnector::OnStop()
  	}
 }
 
-void IPCConnector::SubscribeConnector(const IPCConnector* connector)
-{
-    IPCConnector* conn = const_cast<IPCConnector*>(connector);
-    if(conn)
-    {
-        ipcSubscribe(conn, SIGNAL_FUNC(this, IPCConnector, IPCProtoMessage, onIPCMessage));
-        ipcSubscribe(conn, SIGNAL_FUNC(this, IPCConnector, ModuleNameMessage, onModuleNameMessage));
-        ipcSubscribe(conn, SIGNAL_FUNC(this, IPCConnector, RemoveIPCObjectMessage, onRemoveIPCObjectMessage));
-    }
-}
-
 void IPCConnector::SubscribeModule(::SignalOwner* owner)
 {
 	owner->addSubscriber(this, SIGNAL_FUNC(this, IPCConnector, IPCSignalMessage, onIPCMessage));
@@ -130,29 +117,6 @@ String IPCConnector::GetAccessId()
 	return m_accessId;
 }
 
-void IPCConnector::onIPCMessage(const IPCProtoMessage& msg)
-{
-	if(const_cast<IPCProtoMessage&>(msg).GetMessage()->n_ipc_path == 0)
-	{
-		return;
-	}
-
-	IPCObjectName path(*const_cast<IPCProtoMessage&>(msg).GetMessage()->ipc_path[0]);
-	if(path.GetModuleNameString() == m_id)
-	{
-        Ipc__IPCName sender;
-        Ipc__IPCName* psender = &sender;
-        sender.host_name = (char*)GetModuleName().GetHostName().c_str();
-        sender.module_name = (char*)GetModuleName().GetModuleName().c_str();
-        sender.conn_id = (char*)GetModuleName().GetConnId().c_str();
-        
-        const_cast<IPCProtoMessage&>(msg).GetMessage()->ipc_sender = &psender;
-        const_cast<IPCProtoMessage&>(msg).GetMessage()->n_ipc_sender = 1;
-        
-		toMessage(msg);
-	}
-}
-
 bool IPCConnector::SendData(char* data, int len)
 {
 	char* senddata = (char*)malloc(len + sizeof(int));
@@ -167,11 +131,6 @@ bool IPCConnector::SendData(char* data, int len)
     return ret;
 }
 
-void IPCConnector::onRemoveIPCObjectMessage(const RemoveIPCObjectMessage& msg)
-{
-    toMessage(msg);
-}
-
 void IPCConnector::onIPCMessage(const IPCSignalMessage& msg)
 {
 	IPCObjectName ipcName("");
@@ -184,55 +143,9 @@ void IPCConnector::onIPCMessage(const IPCSignalMessage& msg)
 		ipcName == IPCObjectName::GetIPCName(GetId()))
 	{
         IPCProtoMessage ipmMsg;
-        ipmMsg.GetMessage()->has_message = msg.has_message;
-        ipmMsg.GetMessage()->ipc_path = msg.ipc_path;
-        ipmMsg.GetMessage()->n_ipc_path = msg.n_ipc_path;
-        ipmMsg.GetMessage()->ipc_sender = msg.ipc_sender;
-        ipmMsg.GetMessage()->n_ipc_sender = msg.n_ipc_sender;
-        ipmMsg.GetMessage()->message_name = msg.message_name;
-        ipmMsg.GetMessage()->message = msg.message;
+        *ipmMsg.GetMessage() = msg;
 		toMessage(ipmMsg);
 	}
-}
-
-void IPCConnector::onModuleNameMessage(const ModuleNameMessage& msg)
-{
-	if(m_moduleName == *const_cast<ModuleNameMessage&>(msg).GetMessage()->ipc_name)
-	{
-		return;
-	}
-
-	AddIPCObjectMessage aoMsg;
-	aoMsg.GetMessage()->ip = const_cast<ModuleNameMessage&>(msg).GetMessage()->ip;
-	aoMsg.GetMessage()->port = const_cast<ModuleNameMessage&>(msg).GetMessage()->port;
-	aoMsg.GetMessage()->access_id = const_cast<ModuleNameMessage&>(msg).GetMessage()->access_id;
-	aoMsg.GetMessage()->ipc_name = const_cast<ModuleNameMessage&>(msg).GetMessage()->ipc_name;
-	toMessage(aoMsg);
-}
-
-void IPCConnector::addIPCSubscriber(SignalReceiver* receiver, IReceiverFunc* func)
-{
-	receiver->addSignal(m_ipcSignal, func);
-}
-
-void IPCConnector::onNewConnector(const Connector* connector)
-{
-        IPCConnector* conn = const_cast<IPCConnector*>(static_cast<const IPCConnector*>(connector));
-        if(conn)
-        {
-                SubscribeConnector(conn);
-                conn->SubscribeConnector(this);
-        }
-}
-
-void IPCConnector::ipcSubscribe(IPCConnector* connector, IReceiverFunc* func)
-{
-	connector->addIPCSubscriber(this, func);
-}
-
-void IPCConnector::onIPCSignal(const DataMessage& msg)
-{
-	m_ipcSignal->onSignal(msg);
 }
 
 bool IPCConnector::SetModuleName(const IPCObjectName& moduleName)

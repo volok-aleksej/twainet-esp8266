@@ -39,33 +39,6 @@ void IPCSignalHandler::onIPCMessage(const IPCProtoMessage& msg)
                         const_cast<IPCProtoMessage&>(msg).GetMessage()->message.len);
 }
 
-void IPCSignalHandler::onIPCMessage(const IPCSignalMessage& msg)
-{
-	IPCObjectName newPath(*const_cast<IPCSignalMessage&>(msg).ipc_path[0]);
-	twnstd::vector<IPCObjectName> path = m_module->GetTargetPath(newPath);
-	if(path.length() > 1)
-	{
-        IPCSignalMessage tomsg(msg);
- 		tomsg.n_ipc_path = path.length();
-        tomsg.ipc_path = (Ipc__IPCName**)malloc(sizeof(Ipc__IPCName*) * path.length() + sizeof(Ipc__IPCName) * path.length());
- 		for(unsigned int i = 0; i < path.length(); i++)
- 		{
-            tomsg.ipc_path[i] = (Ipc__IPCName*)(((char*)tomsg.ipc_path) + sizeof(Ipc__IPCName*) * path.length() + sizeof(Ipc__IPCName) * i);
- 		    tomsg.ipc_path[i]->module_name = (char*)path[i].GetModuleName().c_str();
-            tomsg.ipc_path[i]->host_name = (char*)path[i].GetHostName().c_str();
-            tomsg.ipc_path[i]->conn_id = (char*)path[i].GetConnId().c_str();
- 		}
- 		m_module->onSignal(msg);
-        free(tomsg.ipc_path);
-	}
-	else if(path.length() == 0 && m_module->GetModuleName() == newPath)
-	{
- 		IPCProtoMessage protoMsg;
-        *protoMsg.GetMessage() = *(Ipc__IPCMessage*)(&msg);
- 		onIPCMessage(protoMsg);
-	}
-}
-
 void IPCSignalHandler::onAddIPCObject(const AddIPCObjectMessage& msg)
 {
 	IPCModule::IPCObject object(*const_cast<AddIPCObjectMessage&>(msg).GetMessage()->ipc_name,

@@ -93,33 +93,17 @@ void IPCHandler::onMessage(const _Ipc__IPCMessage& msg)
  		return;
  	}
  	
- 	Ipc__IPCName **namesPath = 0, **namesSender = 0;
- 	bool isTarget = (msg.n_ipc_path == 0);
+ 	Ipc__IPCName **namesSender = 0;
  
  	IPCProtoMessage newMsg;
-    newMsg.GetMessage()->has_message = msg.has_message;
-    newMsg.GetMessage()->message = msg.message;
-    newMsg.GetMessage()->ipc_sender = msg.ipc_sender;
-    newMsg.GetMessage()->n_ipc_sender = msg.n_ipc_sender;
-    newMsg.GetMessage()->message_name = msg.message_name;
- 	if(!isTarget)
+    *newMsg.GetMessage() = msg;
+ 	if(msg.n_ipc_path)
  	{
         
         IPCObjectName ipcPath(*msg.ipc_path[0]);
- 		if(m_connector->m_moduleName == ipcPath && msg.n_ipc_path > 1)
- 		{
-            newMsg.GetMessage()->n_ipc_path = msg.n_ipc_path - 1;
-            namesPath = (Ipc__IPCName**)malloc(sizeof(Ipc__IPCName*) * (msg.n_ipc_path - 1));
-            newMsg.GetMessage()->ipc_path = namesPath;
- 			for(int i = 1; i <= msg.n_ipc_path; i++)
- 			{
- 				newMsg.GetMessage()->ipc_path[i - 1] =  msg.ipc_path[i];
- 			}
- 		} else {
-            newMsg.GetMessage()->ipc_path = 0;
-            newMsg.GetMessage()->n_ipc_path = 0;
-        }
-        
+        newMsg.GetMessage()->ipc_path = 0;
+        newMsg.GetMessage()->n_ipc_path = 0;
+         
         newMsg.GetMessage()->n_ipc_sender = msg.n_ipc_sender + 1;
         namesSender = (Ipc__IPCName**)malloc(sizeof(Ipc__IPCName*) * (newMsg.GetMessage()->n_ipc_sender));
         newMsg.GetMessage()->ipc_sender = namesSender;
@@ -128,30 +112,13 @@ void IPCHandler::onMessage(const _Ipc__IPCMessage& msg)
         {
             newMsg.GetMessage()->ipc_sender[i] =  msg.ipc_sender[i];
         }
-        
- 		isTarget = (m_connector->m_moduleName == ipcPath && !newMsg.GetMessage()->n_ipc_path);
- 	}
- 
- 	if (isTarget &&
- 	    !m_connector->onData(msg.message_name, (char*)msg.message.data, (int)msg.message.len))
- 	{
- 		m_connector->onSignal(newMsg);
- 	}
- 	else if(newMsg.GetMessage()->n_ipc_path)
- 	{
- 		IPCSignalMessage sigMsg(*newMsg.GetMessage());
- 		m_connector->onSignal(sigMsg);
- 	}
- 	
- 	if(namesPath)
-    {
-        free(namesPath);
-    }
+  	}
+    m_connector->onSignal(newMsg);
+    
     if(namesSender)
     {
         free(namesSender);
     }
-    LOG_INFO("ipc handler processed message");
 }
 
 void IPCHandler::onMessage(const _Ipc__IPCObjectList& msg)

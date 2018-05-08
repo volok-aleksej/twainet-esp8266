@@ -16,26 +16,16 @@ public:
 	IPCConnector(AnySocket* socket, const IPCObjectName& moduleName);
 	virtual ~IPCConnector();
     
-    virtual void onNewConnector(const Connector* connector);
-    virtual void SubscribeConnector(const IPCConnector* connector);
     virtual void SubscribeModule(::SignalOwner* owner);
         
 	const IPCObjectName& GetModuleName() const;
 	String GetAccessId();
 protected:
  	friend class Signal;
-    void onIPCMessage(const IPCSignalMessage& msg);
- 	void onIPCMessage(const IPCProtoMessage& msg);
- 	void onModuleNameMessage(const ModuleNameMessage& msg);
-    void onRemoveIPCObjectMessage(const RemoveIPCObjectMessage& msg);
-
-// 	
- 	friend class IPCModule;
-// 	friend class PingThread;
  	friend class IPCHandler;
- 	void onIPCSignal(const DataMessage& msg);
- 	void addIPCSubscriber(SignalReceiver* receiver, IReceiverFunc* func);
- 	void ipcSubscribe(IPCConnector* connector, IReceiverFunc* func);
+ 	friend class IPCModule;
+    void onIPCMessage(const IPCSignalMessage& msg);
+ 	
 protected:
  	virtual void ThreadFunc();
  	virtual void OnStart();
@@ -55,7 +45,6 @@ protected:
 private:
 	IPCObjectName m_moduleName;
 	String m_accessId;
-	Signal* m_ipcSignal;
 	String m_rand;
 };
 

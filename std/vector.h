@@ -1,8 +1,6 @@
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
-#include "logger.h"
-
 namespace twnstd {
 
 template<typename Object>
@@ -28,7 +26,6 @@ public:
     
     ~vector()
     {
-        LOG_INFO("vector destructor %x", m_objects);
         if(m_objects)
             delete [] m_objects;
     }

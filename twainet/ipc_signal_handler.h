@@ -17,7 +17,6 @@ public:
 	void onRemoveIPCObject(const RemoveIPCObjectMessage& msg);
 	void onDisconnected(const DisconnectedMessage& msg);
 	void onIPCMessage(const IPCProtoMessage& msg);
-    void onIPCMessage(const IPCSignalMessage& msg);
 	void onConnected(const ConnectedMessage& msg);
 private:
 	IPCModule* m_module;

@@ -16,7 +16,6 @@ public:
 	ClientConnector(AnySocket* socket, const IPCObjectName& moduleName);
 	virtual ~ClientConnector();
 
-	virtual void SubscribeConnector(const IPCConnector* connector);
 	virtual void SubscribeModule(::SignalOwner* owner);
 	virtual void OnConnected();
 

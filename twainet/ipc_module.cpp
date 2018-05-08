@@ -124,7 +124,6 @@ void IPCModule::AddConnector(Connector* conn)
 		connector->addSubscriber(&m_ipcSignalHandler, SIGNAL_FUNC(&m_ipcSignalHandler, IPCSignalHandler, RemoveIPCObjectMessage, onRemoveIPCObject));
 		connector->addSubscriber(&m_ipcSignalHandler, SIGNAL_FUNC(&m_ipcSignalHandler, IPCSignalHandler, ConnectedMessage, onConnected));
 		connector->addSubscriber(&m_ipcSignalHandler, SIGNAL_FUNC(&m_ipcSignalHandler, IPCSignalHandler, IPCProtoMessage, onIPCMessage));
-        connector->addSubscriber(&m_ipcSignalHandler, SIGNAL_FUNC(&m_ipcSignalHandler, IPCSignalHandler, IPCSignalMessage, onIPCMessage));
 		
 		connector->SubscribeModule(dynamic_cast<SignalOwner*>(this));
 		m_manager.AddConnection(conn);

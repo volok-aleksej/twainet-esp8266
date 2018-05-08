@@ -18,21 +18,6 @@ ClientConnector::~ClientConnector()
 	removeReceiver();
 }
 
-void ClientConnector::SubscribeConnector(const IPCConnector* connector)
-{
-	IPCConnector* ipcConn = const_cast<IPCConnector*>(connector);
-	if(ipcConn)
-	{
-		ipcSubscribe(ipcConn, SIGNAL_FUNC(this, ClientConnector, IPCProtoMessage, onIPCMessage));
-	}
-	ClientConnector* conn = static_cast<ClientConnector*>(ipcConn);
-	if(conn)
-	{
-		ipcSubscribe(conn, SIGNAL_FUNC(this, ClientConnector, AddIPCObjectMessage, onAddIPCObjectMessage));
-		ipcSubscribe(ipcConn, SIGNAL_FUNC(this, ClientConnector, RemoveIPCObjectMessage, onRemoveIPCObjectMessage));
-	}
-}
-
 void ClientConnector::SubscribeModule(::SignalOwner* owner)
 {
 	IPCConnector::SubscribeModule(owner);
@@ -75,54 +60,6 @@ IPCObjectName ClientConnector::GetIPCName()
 	IPCObjectName name = IPCObjectName::GetIPCName(GetId());
 	name.SetHostName(m_ownSessionId);
 	return name;
-}
-
-void ClientConnector::onIPCMessage(const IPCProtoMessage& msg)
-{
-	IPCObjectName path(*const_cast<IPCProtoMessage&>(msg).GetMessage()->ipc_path[0]);
-	if(path == GetModuleName())
-	{
-		IPCProtoMessage newMsg;
-        newMsg.GetMessage()->has_message = const_cast<IPCProtoMessage&>(msg).GetMessage()->has_message;
-        newMsg.GetMessage()->message = const_cast<IPCProtoMessage&>(msg).GetMessage()->message;
-        newMsg.GetMessage()->message_name = const_cast<IPCProtoMessage&>(msg).GetMessage()->message_name;
-        newMsg.GetMessage()->n_ipc_sender = const_cast<IPCProtoMessage&>(msg).GetMessage()->n_ipc_sender;
-        newMsg.GetMessage()->ipc_sender = const_cast<IPCProtoMessage&>(msg).GetMessage()->ipc_sender;
- 		IPCObjectName client = IPCObjectName::GetIPCName(m_id);
-        newMsg.GetMessage()->n_ipc_path = const_cast<IPCProtoMessage&>(msg).GetMessage()->n_ipc_path;
-        newMsg.GetMessage()->ipc_path = (Ipc__IPCName**)malloc(sizeof(Ipc__IPCName*)*newMsg.GetMessage()->n_ipc_path);
-        IPCNameMessage names;
-        names.GetMessage()->module_name = (char*)client.GetModuleName().c_str();
-        names.GetMessage()->host_name = (char*)client.GetHostName().c_str();
-        names.GetMessage()->conn_id = (char*)client.GetConnId().c_str();
-        newMsg.GetMessage()->ipc_path[0] = names.GetMessage();
- 		for(int i = 1; i < const_cast<IPCProtoMessage&>(msg).GetMessage()->n_ipc_path; i++)
- 		{
-            newMsg.GetMessage()->ipc_path[i] = const_cast<IPCProtoMessage&>(msg).GetMessage()->ipc_path[i];
- 		}
- 		toMessage(newMsg);
-        free(newMsg.GetMessage()->ipc_path);
-	}
-	else if(path.GetModuleNameString() == m_id)
-	{
-		toMessage(msg);
-	}
-	  
-}
-
-void ClientConnector::onAddIPCObjectMessage(const AddIPCObjectMessage& msg)
-{
-	IPCObjectName idName = IPCObjectName::GetIPCName(m_id);
-	if (idName.GetModuleName() == ClientModule::m_clientIPCName &&
-        GetAccessId() == const_cast<AddIPCObjectMessage&>(msg).GetMessage()->access_id)
-	{
-		toMessage(msg);
-	}
-}
-
-void ClientConnector::onRemoveIPCObjectMessage(const RemoveIPCObjectMessage& msg)
-{
-	IPCConnector::onRemoveIPCObjectMessage(msg);
 }
 
 void ClientConnector::onMessage(const ClientServer__LoginResult& msg)
