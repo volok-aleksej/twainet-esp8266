@@ -6,6 +6,8 @@
 5. protobuf
 6. communication
 7. twainet
+8. json
+9. utils
 
 # Install
 - checkout this repository in path ~/Arduino/libraries
