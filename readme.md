@@ -23,8 +23,6 @@
 
 # Usage example:
 ``` cpp
-#include <ESP8266WiFi.h>
-#include <SPI.h>
 #include <twainet.h>
 
 void mainloop() {
