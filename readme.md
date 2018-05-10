@@ -11,6 +11,13 @@
 - checkout this repository in path ~/Arduino/libraries
 - execute prebuild.sh
 - compile your sketch in ArduinoIde
+- flash board
+
+# Set parameters after flasing
+- in console set parameters(wifi.ssid, wifi.pass, server.user, server.pass, server.ip, server.port)<br>
+    sample:
+    config set wifi.ssid myssid
+- reset board
 
 # Usage example:
 ``` cpp
@@ -18,31 +25,12 @@
 #include <SPI.h>
 #include <twainet.h>
 
-char* ssid = "<wifi name>";
-char* pass = "<wifi password>";
-
 void mainloop() {
     //TODO(): your code
-
-    if(WiFi.status() == WL_CONNECTED && !status) {
-      GetTwainetClient()->SetUserName("<user name>");
-      GetTwainetClient()->SetPassword("<user password>");
-      GetTwainetClient()->Connect("<server ip>", 0/*<server port>*/);
-      status = true;
-    }
-    delay(150);
 }
 
-void setup() {
-  Serial.begin(115200);
-  while (!Serial);
-  
-  if (WiFi.status() == WL_NO_SHIELD) {
-    while (true);
-  }
-
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.begin(ssid, pass);
+void usersetup() {
+    //TODO(): your code
 }
 
 ```
