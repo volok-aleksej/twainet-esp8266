@@ -4,6 +4,8 @@
 #include "client_signal_handler.h"
 #include "ipc_module.h"
 
+class ConnectThread;
+
 class ClientModule : public IPCModule
 {
 	class UserPassword
@@ -70,6 +72,7 @@ private:
 	bool m_isStopConnect;
 	UserPassword m_userPassword;
 	ClientSignalHandler m_signalHandler;
+    ConnectThread* m_connectThread;
 };
 
 

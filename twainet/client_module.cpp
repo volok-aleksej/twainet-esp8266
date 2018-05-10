@@ -13,6 +13,7 @@ const String ClientModule::m_clientIPCName = "Client";
 ClientModule::ClientModule(const IPCObjectName& ipcName, ConnectorFactory* factory)
 : IPCModule(ipcName, factory)
 , m_isStopConnect(true), m_signalHandler(this)
+, m_connectThread(0)
 {
 }
 
@@ -43,10 +44,10 @@ void ClientModule::Connect(const String& ip, int port)
 	address.m_socketFactory = factory;
 	address.m_ip = ip;
 	address.m_port = port;
-	ConnectThread* thread = new ConnectThread(address);
-	thread->addSubscriber(&m_signalHandler, SIGNAL_FUNC(&m_signalHandler, ClientSignalHandler, ConnectorMessage, onAddClientConnector));
-	thread->addSubscriber(&m_signalHandler, SIGNAL_FUNC(&m_signalHandler, ClientSignalHandler, ConnectErrorMessage, onErrorConnect));
-	thread->StartThread();
+	m_connectThread = new ConnectThread(address);
+	m_connectThread->addSubscriber(&m_signalHandler, SIGNAL_FUNC(&m_signalHandler, ClientSignalHandler, ConnectorMessage, onAddClientConnector));
+	m_connectThread->addSubscriber(&m_signalHandler, SIGNAL_FUNC(&m_signalHandler, ClientSignalHandler, ConnectErrorMessage, onErrorConnect));
+	m_connectThread->StartThread();
 }
 
 void ClientModule::OnConnectFailed(const String& moduleName)
@@ -116,6 +117,8 @@ void ClientModule::Disconnect()
 	IPCObjectName ipcName(m_serverIPCName, m_ownSessionId);
 	m_manager.StopConnection(ipcName.GetModuleNameString());
 	m_isStopConnect = true;
+    m_connectThread->StopThread();
+    m_connectThread = 0;
 }
 
 void ClientModule::SetUserName(const String& userName)

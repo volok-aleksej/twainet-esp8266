@@ -9,6 +9,9 @@ cd twainet
 protoc-c --c_out=. ipc.proto client_server.proto terminal.proto
 cd ..
 git apply proto_gen.diff
+# arduino json
+rm -rf ArduinoJson
+svn checkout https://github.com/bblanchon/ArduinoJson/tags/v5.13.1 json
 # ssl
 rm -rf ssl
 svn checkout https://github.com/willemwouters/ESP8266/trunk/sdk/esp_iot_sdk_v0.9.1/examples/IoT_Demo/include/ssl --depth empty
