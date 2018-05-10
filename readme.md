@@ -13,7 +13,7 @@
 - compile your sketch in ArduinoIde
 - flash board
 
-# Set parameters after flasing
+# Set parameters after flashing
 - in console set parameters(wifi.ssid, wifi.pass, server.user, server.pass, server.ip, server.port)<br>
     sample:
     config set wifi.ssid myssid
