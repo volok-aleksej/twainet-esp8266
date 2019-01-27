@@ -2,6 +2,7 @@
 #define COMMAND_H
 
 #include <WString.h>
+#include <vector.h>
 
 class ICommand
 {
@@ -11,12 +12,32 @@ public:
     virtual void doCommand(const String& params) = 0;
 };
 
-template <typename Func>
-class Command : public ICommand
+class CommandBase
 {
 public:
-    Command(const String& command, Func func)
-        : m_command(command), m_func(func){}
+    CommandBase(){}
+    CommandBase(const String& command, const twnstd::vector<String>& args = twnstd::vector<String>())
+    : m_command(command), m_args(args){}
+    CommandBase(const CommandBase& cmd)
+    : m_command(cmd.m_command), m_args(cmd.m_args){}
+    virtual ~CommandBase(){}
+    
+    void operator = (const CommandBase& cmd)
+    {
+        m_command = cmd.m_command;
+        m_args = cmd.m_args;
+    }
+    
+    String m_command;
+    twnstd::vector<String> m_args;
+};
+
+template <typename Func>
+class Command : public ICommand, public CommandBase
+{
+public:
+    Command(Func func, const String& command, const twnstd::vector<String>& args = twnstd::vector<String>())
+        : CommandBase(command, args), m_func(func){}
     virtual ~Command(){}
     
     bool IsCommand(const String& command) override
@@ -30,13 +51,12 @@ public:
     }
     
 private:
-    String m_command;
     Func m_func;
 };
 
 template<typename Func>
-Command<Func>* CreateCommand(const String& command, Func func) {
-    return new Command<Func>(command, func);
+Command<Func>* CreateCommand(Func func, const String& command, const twnstd::vector<String>& args = twnstd::vector<String>()) {
+    return new Command<Func>(func, command, args);
 }
 
 #endif/*COMMAND_H*/

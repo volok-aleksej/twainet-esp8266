@@ -4,11 +4,14 @@
 template<> const ProtobufCMessageDescriptor& LogMessage::descriptor = terminal__log__descriptor;
 template<> const ProtobufCMessageDescriptor& CommandMessage::descriptor = terminal__command__descriptor;
 template<> const ProtobufCMessageDescriptor& TermNameMessage::descriptor = terminal__term_name__descriptor;
+template<> const ProtobufCMessageDescriptor& GetCommandListMessage::descriptor = terminal__get_command_list__descriptor;
+template<> const ProtobufCMessageDescriptor& CommandListMessage::descriptor = terminal__command_list__descriptor;
 
 Terminal::Terminal()
 {
     GetTwainetClient()->SetTerminal(this);
     addMessage(new CommandMessage(this));
+    addMessage(new GetCommandListMessage(this));
 }
 
 Terminal::~Terminal()
@@ -22,7 +25,7 @@ bool Terminal::Write(const char* log)
     }
 
     LogMessage logMsg;
-    logMsg.GetMessage()->log = (char*)log;
+    logMsg.GetMessage()->data = (char*)log;
     logMsg.GetMessage()->time = millis();
     toMessage(logMsg);
     return true;
@@ -31,7 +34,8 @@ bool Terminal::Write(const char* log)
 void Terminal::onConnected()
 {
     TermNameMessage msg;
-    msg.GetMessage()->name = "pump";
+    String terminal_name = GetConfig()->getValue("name");
+    msg.GetMessage()->name = (char*)terminal_name.c_str();
     toMessage(msg);
 }
 
@@ -70,5 +74,31 @@ bool Terminal::onData(const String& messageName, const char* data, int len)
 
 void Terminal::onMessage(const Terminal__Command& msg)
 {
-    CommandLine::GetInstance().DoCommand(msg.command, strlen(msg.command));
+    String command = msg.cmd;
+    for(int i = 0; i < msg.n_args; i++) {
+        command += " ";
+        command += msg.args[i];
+    }
+    CommandLine::GetInstance().DoCommand((char*)command.c_str(), command.length());
+}
+
+void Terminal::onMessage(const Terminal__GetCommandList& msg)
+{
+    twnstd::vector<CommandBase*> commands;
+    CommandLine::GetInstance().GetCommandList(commands);
+    CommandListMessage clMsg;
+    clMsg.GetMessage()->n_cmd = commands.length();
+    clMsg.GetMessage()->cmd = (Terminal__Command**)(malloc(commands.length()*(sizeof(Terminal__Command) + sizeof(Terminal__Command*))));
+    for(int i = 0; i < commands.length(); i++) {
+        clMsg.GetMessage()->cmd[i] = (Terminal__Command*)(((char*)clMsg.GetMessage()->cmd) + 
+                                         sizeof(Terminal__Command*)*commands.length() + i*sizeof(Terminal__Command));
+        clMsg.GetMessage()->cmd[i]->cmd = (char*)commands[i]->m_command.c_str();
+        clMsg.GetMessage()->cmd[i]->n_args = commands[i]->m_args.length();
+        clMsg.GetMessage()->cmd[i]->args = (char**)commands[i]->m_args.data();
+    }
+    
+    LOG_INFO("send answer message %s", clMsg.GetMessageName());
+    toMessage(clMsg);
+    
+    free(clMsg.GetMessage()->cmd);
 }

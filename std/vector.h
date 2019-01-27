@@ -96,6 +96,11 @@ public:
         return m_objects[i];
     }
     
+    const Object* data()
+    {
+        return m_objects;
+    }
+    
 private:
     Object* m_objects;
     unsigned int m_objectsLen;

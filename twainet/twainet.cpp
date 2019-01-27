@@ -28,6 +28,9 @@ char sportKey[] = "server.port";
 char commandSet[] = "set";
 char commandGet[] = "get";
 char commandWrite[] = "write";
+char commandValue[] = "value";
+char warn_abs_key[] = "absent key name in command";
+char warn_abs_value[] = "absent value in command";
 
 TwainetModule* GetTwainetClient()
 {
@@ -35,6 +38,11 @@ TwainetModule* GetTwainetClient()
   static IPCConnectorFactory<ClientConnector> factory(moduleName);
   static TwainetModule module(moduleName, &factory);
   return &module;
+}
+
+Config* GetConfig()
+{
+    return &g_config;
 }
 
 void ipcInfo(const String& params)
@@ -49,21 +57,34 @@ void ipcInfo(const String& params)
 void config(const String& params)
 {
     twnstd::vector<String> params_ = getSubstrings(params, " ");
-    twnstd::vector<String> keys;
     if(!params_.length()) {
-        LOG_WARNING("use %s|%s|%s", commandSet, commandGet, commandWrite);
-    } else if(params_.length() == 1 && 
-       (params_[0] == commandSet || params_[0] == commandGet)) {
-        LOG_WARNING("absent key in command");
-    } else if(params_.length() == 2 && params_[0] == commandSet) {
-        LOG_WARNING("absent value in command");
+        LOG_WARNING("use %s=<param name>|%s=<param name>|%s|%s=<value>", commandSet, commandGet, commandWrite, commandValue);
     }
-    if(params_[0] == commandSet) {
-        g_config.setValue(params_[1], params_[2]);
-    } else if(params_[0] == commandGet) {
-        LOG_INFO("%s", g_config.getValue(params_[1]).c_str());
-    } else if(params_[0] == commandWrite) {
+    
+    twnstd::vector<String> keys = getSubstrings(params_[0], "=");
+    if(keys.length() == 1 &&
+       (keys[0] == commandSet || keys[0] == commandGet) ||
+       keys[0] == commandValue) {
+        LOG_WARNING(warn_abs_key);
+        return;
+    } else if(params_.length() == 1 && keys[0] == commandSet) {
+        LOG_WARNING(warn_abs_value);
+        return;
+    }
+    
+    if(keys[0] == commandGet) {
+        LOG_INFO("%s", g_config.getValue(keys[1]).c_str());
+    } else if(keys[0] == commandWrite) {
         g_config.Write();
+    }
+    
+    if(params_.length() == 2 && keys[0] == commandSet) {
+        String param_name = keys[1];
+        keys = getSubstrings(params_[1], "=");
+        if(keys.length() == 1 || keys[0] != commandValue)
+            LOG_WARNING(warn_abs_value);
+        else
+            g_config.setValue(param_name, keys[1]);  
     }
 }
 
@@ -85,8 +106,13 @@ extern "C" void setup()
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid.c_str(), pass.c_str());
     
-    CommandLine::GetInstance().AddCommand(CreateCommand("ipcinfo", &ipcInfo));
-    CommandLine::GetInstance().AddCommand(CreateCommand("config", &config));
+    twnstd::vector<String> args;
+    args.push_back(commandGet);
+    args.push_back(commandSet);
+    args.push_back(commandWrite);
+    args.push_back(commandValue);
+    CommandLine::GetInstance().AddCommand(CreateCommand(&ipcInfo, "ipcinfo", args));
+    CommandLine::GetInstance().AddCommand(CreateCommand(&config, "config"));
     usersetup();
 }
 

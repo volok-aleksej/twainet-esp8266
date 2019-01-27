@@ -8,10 +8,20 @@ message term_name
 message log
 {
     required uint64 time = 1;
-    required string log  = 2;
+    required string data = 2;
+}
+
+message get_command_list
+{
+}
+
+message command_list
+{
+    repeated command cmd = 1;
 }
 
 message command
 {
-    required string command  = 1;
+    required string cmd  = 1;
+    repeated string args = 2;
 }
