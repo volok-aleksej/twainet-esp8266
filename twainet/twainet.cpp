@@ -96,14 +96,14 @@ extern "C" void setup()
     g_config.Read();
     
     // check for the presence of the shield:
-    if (WiFi.status() == WL_NO_SHIELD) {
-        while (true);
-    }
+    while (WiFi.status() == WL_NO_SHIELD) {}
     
     String ssid = g_config.getValue(wssidKey);
     String pass = g_config.getValue(wpassKey);
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid.c_str(), pass.c_str());
+    if(ssid.length()) {
+        WiFi.mode(WIFI_STA);
+        WiFi.begin(ssid.c_str(), pass.c_str());
+    }
     
     twnstd::vector<String> args;
     args.push_back(commandGet);

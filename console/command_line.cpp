@@ -37,6 +37,6 @@ void CommandLine::DoCommand(char* command, int len)
 void CommandLine::GetCommandList(twnstd::vector<CommandBase*>& commands)
 {
     for(int i = 0; i < m_commands.length(); i++) {
-        commands.push_back((CommandBase*)m_commands[i]);
+        commands.push_back(m_commands[i]->toCommandBase());
     }
 }

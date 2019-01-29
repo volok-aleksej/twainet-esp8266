@@ -20,20 +20,39 @@ err_t RSA_new(uint8_t* data, int len, RSA_CTX **ctx)
         return ERR_VAL;
     }
     
-    uint8_t *modules, *pub_exp;
-    int mod_len = asn1_get_int(data, &offset, &modules);
-    if(mod_len < 0)
+    int modlen = asn1_next_obj(data, &offset, ASN1_INTEGER);
+    if (modlen < 0)
     {
         return ERR_VAL;
     }
     
-    int pub_len = asn1_get_int(data, &offset, &pub_exp);
-    if(pub_len < 0)
+    uint8_t *modules;
+    if (modlen > 1 && data[offset] == 0x00)    /* ignore the negative byte */
+    {
+        modlen--;
+        (offset)++;
+    }
+    modules = (uint8_t *)malloc(modlen);
+    memcpy(modules, &data[offset], modlen);
+    offset += modlen;
+    
+    int publen = asn1_next_obj(data, &offset, ASN1_INTEGER);
+    if (publen < 0)
     {
         return ERR_VAL;
     }
     
-    RSA_pub_key_new(ctx, modules, mod_len, pub_exp, pub_len);
+    uint8_t *pub_exp;
+    if (publen > 1 && data[offset] == 0x00)    /* ignore the negative byte */
+    {
+        modlen--;
+        (offset)++;
+    }
+    pub_exp = (uint8_t *)malloc(publen);
+    memcpy(pub_exp, &data[offset], publen);
+    offset += publen;
+
+    RSA_pub_key_new(ctx, modules, modlen, pub_exp, publen);
     
     return ERR_OK;
 }
@@ -55,6 +74,7 @@ bool SecureSocket::PerformSslVerify()
     RSA_CTX *ctx = 0;
     unsigned char* data = 0;
     int len = 0;
+    
     //send STARTTLS to and receive it from other side
     unsigned char sslHeader[SSL_HEADER_SIZE] = {0};
     if (!Send((char*)expecTls, SSL_HEADER_SIZE) ||
@@ -63,8 +83,8 @@ bool SecureSocket::PerformSslVerify()
     {
         goto PerformSslVerify_end;
     }
-    
-     //receive RSA public key
+
+    //receive RSA public key
     if(!Recv((char*)&len, sizeof(int)))
     {
         goto PerformSslVerify_end;

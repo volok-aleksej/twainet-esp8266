@@ -93,18 +93,22 @@ void Terminal::onMessage(const Terminal__GetCommandList& msg)
         clMsg.GetMessage()->cmd[i] = (Terminal__Command*)(((char*)clMsg.GetMessage()->cmd) + 
                                          sizeof(Terminal__Command*)*commands.length() + i*sizeof(Terminal__Command));
         clMsg.GetMessage()->cmd[i]->cmd = (char*)commands[i]->m_command.c_str();
-        clMsg.GetMessage()->cmd[i]->n_args = commands[i]->m_args.length();
-        clMsg.GetMessage()->cmd[i]->args = (char**)malloc(commands[i]->m_args.length());
+        clMsg.GetMessage()->cmd[i]->n_args = 0;//commands[i]->m_args.length();
+        if(commands[i]->m_args.length()) {
+//            clMsg.GetMessage()->cmd[i]->args = (char**)malloc(commands[i]->m_args.length()*sizeof(char*));
+        } else {
+            clMsg.GetMessage()->cmd[i]->args = 0;
+        }
         for(int j = 0; j < commands[i]->m_args.length(); j++) {
             clMsg.GetMessage()->cmd[i]->args[j] = (char*)commands[i]->m_args[j].c_str();
         }
     }
     
-    LOG_INFO("send answer message %s", clMsg.GetMessageName());
     toMessage(clMsg);
 
     for(int i = 0; i < commands.length(); i++) {
-        free(clMsg.GetMessage()->cmd[i]->args);
+        if(clMsg.GetMessage()->cmd[i]->args)
+            free(clMsg.GetMessage()->cmd[i]->args);
     }
     free(clMsg.GetMessage()->cmd);
 }

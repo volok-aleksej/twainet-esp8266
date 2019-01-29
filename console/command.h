@@ -4,12 +4,15 @@
 #include <WString.h>
 #include <vector.h>
 
+class CommandBase;
+
 class ICommand
 {
 public:
     virtual ~ICommand(){}
     virtual bool IsCommand(const String& command) = 0;
     virtual void doCommand(const String& params) = 0;
+    virtual CommandBase* toCommandBase() = 0;
 };
 
 class CommandBase
@@ -48,6 +51,11 @@ public:
     void doCommand(const String& params) override
     {
         m_func(params);
+    }
+    
+    CommandBase* toCommandBase() override
+    {
+        return static_cast<CommandBase*>(this);
     }
     
 private:

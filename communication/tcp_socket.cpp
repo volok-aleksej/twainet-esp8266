@@ -128,12 +128,7 @@ bool TCPSocket::Connect(const String& host, int port)
         
         ipaddr.addr = ipaddress;
     }
-    
-    netif* interface = ip_route(&ipaddr);
-    if (!interface) {
-        return false;
-    }
-    
+ 
     err_t err = tcp_connect(m_socket, &ipaddr, port, &onTcpConnect);
     if(err == ERR_OK || err == ERR_INPROGRESS) {
         m_suspendedThread = ThreadManager::GetInstance().GetCurrentThreadId();
