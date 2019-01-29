@@ -7,7 +7,6 @@
 #include "ssl_crypto.h"
 #include "logger.h"
 #include "ESP8266WiFi.h"
-#include "config.h"
 #include "utils.h"
 #include "FS.h"
 

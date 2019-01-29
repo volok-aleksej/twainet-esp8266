@@ -59,7 +59,6 @@ protected:
 	virtual bool CheckFireConnector(const String& moduleName);
 	virtual void OnServerConnected();
 	virtual void OnAuthFailed();
-	virtual void FillIPCObjectList(twnstd::list<IPCObject>& ipcList);
 	
 protected:
 	//for client

@@ -7,7 +7,7 @@
 #include <lwip/dns.h>
 #include <lwip/err.h>
 
-void onError(void* arg, int8_t err)
+void onError(void* arg, err_t err)
 {
     TCPSocket* socket = reinterpret_cast<TCPSocket*>(arg);
     if(socket) {
@@ -15,7 +15,7 @@ void onError(void* arg, int8_t err)
     }
 }
 
-void dnsFoundCallback(const char *name, ip_addr_t *ipaddr, void *callback_arg)
+void dnsFoundCallback(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
 {
     uint32_t threadId = (uint32_t)(*reinterpret_cast<IPAddress*>(callback_arg));
     if(ipaddr) {
@@ -24,7 +24,7 @@ void dnsFoundCallback(const char *name, ip_addr_t *ipaddr, void *callback_arg)
     ThreadManager::GetInstance().ResumeThread(threadId);
 }
 
-int8_t onTcpConnect(void* arg, tcp_pcb* tpcb, int8_t err)
+err_t onTcpConnect(void* arg, tcp_pcb* tpcb,  err_t err)
 {
     TCPSocket* socket = reinterpret_cast<TCPSocket*>(arg);
     if(socket) {
@@ -34,7 +34,7 @@ int8_t onTcpConnect(void* arg, tcp_pcb* tpcb, int8_t err)
     return ERR_VAL;
 }
 
-int8_t onTCPRecv(void *arg, struct tcp_pcb *tpcb, struct pbuf *pb, err_t err)
+err_t onTCPRecv(void *arg, struct tcp_pcb *tpcb, struct pbuf *pb, err_t err)
 {
     TCPSocket* socket = reinterpret_cast<TCPSocket*>(arg);
     if(socket) {
@@ -44,7 +44,7 @@ int8_t onTCPRecv(void *arg, struct tcp_pcb *tpcb, struct pbuf *pb, err_t err)
     return ERR_VAL;
 }
 
-int8_t onTCPSent(void *arg, struct tcp_pcb *tpcb, uint16_t len)
+err_t onTCPSent(void *arg, struct tcp_pcb *tpcb, uint16_t len)
 {
     TCPSocket* socket = reinterpret_cast<TCPSocket*>(arg);
     if(socket) {
@@ -264,7 +264,7 @@ int TCPSocket::GetMaxBufferSize()
 	return m_socket->snd_buf;
 }
 
-void TCPSocket::OnError(uint8_t err)
+void TCPSocket::OnError(err_t err)
 {
     m_lastError = err;
     tcp_arg(m_socket, NULL);
@@ -276,7 +276,7 @@ void TCPSocket::OnError(uint8_t err)
     m_suspendedThread = 0;
 }
 
-int8_t TCPSocket::OnConnect(tcp_pcb* tpcb, int8_t err)
+err_t TCPSocket::OnConnect(tcp_pcb* tpcb, err_t err)
 {
     m_lastError = ERR_OK;
     m_socket = tpcb;
@@ -290,9 +290,9 @@ int8_t TCPSocket::OnConnect(tcp_pcb* tpcb, int8_t err)
     return ERR_OK;
 }
 
-int8_t TCPSocket::OnTCPRecv(tcp_pcb* tpcb, pbuf* pb, err_t err)
+err_t TCPSocket::OnTCPRecv(tcp_pcb* tpcb, pbuf* pb, err_t err)
 {
-    int8_t ret;
+    err_t ret;
     if(!pb) {
         tcp_arg(m_socket, NULL);
         tcp_sent(m_socket, NULL);
@@ -315,7 +315,7 @@ int8_t TCPSocket::OnTCPRecv(tcp_pcb* tpcb, pbuf* pb, err_t err)
     return ret;
 }
 
-int8_t TCPSocket::OnTCPSent(tcp_pcb* tpcb, uint16_t len)
+err_t TCPSocket::OnTCPSent(tcp_pcb* tpcb, uint16_t len)
 {
     m_lastError = ERR_OK;
     m_sentSize = len;

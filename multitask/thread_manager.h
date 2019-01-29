@@ -3,8 +3,6 @@
 
 #include "managers_container.h"
 #include "singleton.h"
-#include "list.h"
-#include "vector.h"
 
 extern "C" {
 #include <ets_sys.h>

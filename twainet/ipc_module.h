@@ -48,16 +48,13 @@ public:
 	void CreateInternalConnection(const IPCObjectName& moduleName, const std::string& ip, int port);
 	const IPCObjectName& GetModuleName();
  	twnstd::vector<IPCObjectName> GetIPCObjects();
-	twnstd::vector<IPCObjectName> GetConnectedModules();
 protected:
-	virtual twnstd::vector<IPCObjectName> GetTargetPath(const IPCObjectName& target);
 	virtual void OnNewConnector(Connector* connector);
 	virtual void OnFireConnector(const String& moduleName);
 	virtual void OnConnected(const String& moduleName);
 	virtual void OnConnectFailed(const String& moduleName);
 	virtual void OnMessage(const String& messageName, const twnstd::vector<String>& path, const char* data, unsigned int lenData);
 	virtual bool CheckFireConnector(const String& moduleName);
-	virtual void FillIPCObjectList(twnstd::list<IPCObject>& ipcList);
 	virtual void OnIPCObjectsChanged();
 protected:
 	void ipcSubscribe(IPCConnector* connector, SignalReceiver* receiver, IReceiverFunc* func);
@@ -65,7 +62,6 @@ protected:
 protected:
 	IPCObjectName m_moduleName;
 	twnstd::list<IPCObject> m_ipcObject;	// available modules
-	twnstd::list<IPCObject> m_modules;		// connected modules
 	ConnectorManager m_manager;
     ConnectorFactory *m_factory;
 	bool m_isExit;

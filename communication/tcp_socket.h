@@ -25,14 +25,14 @@ protected:
 	void Initialize();
     void Consume(size_t size);
 protected:
-    friend void onError(void* arg, int8_t err);
-    friend int8_t onTcpConnect(void* arg, tcp_pcb* tpcb, int8_t err);
-    friend int8_t onTCPRecv(void *arg, struct tcp_pcb *tpcb, struct pbuf *pb, err_t err);
-    friend int8_t onTCPSent(void *arg, struct tcp_pcb *tpcb, uint16_t len);
-    void OnError(uint8_t err);
-    int8_t OnConnect(tcp_pcb* tpcb, int8_t err);
-    int8_t OnTCPRecv(tcp_pcb* tpcb, pbuf* pb, err_t err);
-    int8_t OnTCPSent(tcp_pcb* tpcb, uint16_t len);
+    friend void onError(void* arg, err_t err);
+    friend err_t onTcpConnect(void* arg, tcp_pcb* tpcb, err_t err);
+    friend err_t onTCPRecv(void *arg, struct tcp_pcb *tpcb, struct pbuf *pb, err_t err);
+    friend err_t onTCPSent(void *arg, struct tcp_pcb *tpcb, uint16_t len);
+    void OnError(err_t err);
+    err_t OnConnect(tcp_pcb* tpcb, err_t err);
+    err_t OnTCPRecv(tcp_pcb* tpcb, pbuf* pb, err_t err);
+    err_t OnTCPSent(tcp_pcb* tpcb, uint16_t len);
 private:
 	tcp_pcb* m_socket;
     uint32_t m_sentSize;

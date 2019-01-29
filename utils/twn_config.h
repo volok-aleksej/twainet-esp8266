@@ -1,5 +1,5 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+// #ifndef CONFIG_H
+// #define CONFIG_H
 
 #include "WString.h"
 #include "ArduinoJson.h"
@@ -20,4 +20,4 @@ private:
     StaticJsonBuffer<500> jsonBuffer;
 };
 
-#endif/*CONFIG_H*/
+// #endif/*CONFIG_H*/

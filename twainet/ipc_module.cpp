@@ -96,10 +96,6 @@ bool IPCModule::CheckFireConnector(const String& moduleName)
 	return false;
 }
 
-void IPCModule::FillIPCObjectList(twnstd::list<IPCObject>& ipcList)
-{
-}
-
 void IPCModule::OnIPCObjectsChanged()
 {
 }
@@ -163,36 +159,4 @@ twnstd::vector<IPCObjectName> IPCModule::GetIPCObjects()
         retVal.push_back(it->m_ipcName);
     }
 	return retVal;
-}
-
-twnstd::vector<IPCObjectName> IPCModule::GetTargetPath(const IPCObjectName& target)
-{
-    twnstd::vector<IPCObjectName> retpath;
-    if(m_moduleName == target)
-    {
-      return retpath;
-    }
-    
-    for(twnstd::list<IPCObject>::iterator it = m_modules.begin();
-        it != m_modules.end(); ++it)
-    {
-        if (target == it->m_ipcName)
-        {
-            retpath.push_back(target);
-            return retpath;
-        }
-    }
-        
-    return retpath;
-}
-
-twnstd::vector<IPCObjectName> IPCModule::GetConnectedModules()
-{
-    twnstd::vector<IPCObjectName> retVal;
-    for(twnstd::list<IPCObject>::iterator it = m_modules.begin();
-        it != m_modules.end(); ++it)
-    {
-        retVal.push_back(it->m_ipcName);
-    }
-    return retVal;
 }

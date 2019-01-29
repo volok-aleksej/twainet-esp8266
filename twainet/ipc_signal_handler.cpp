@@ -72,21 +72,7 @@ void IPCSignalHandler::onRemoveIPCObject(const RemoveIPCObjectMessage& msg)
 
 void IPCSignalHandler::onModuleName(const ModuleNameMessage& msg)
 {
- 	IPCModule::IPCObject module(IPCObjectName(*const_cast<ModuleNameMessage&>(msg).GetMessage()->ipc_name),
-                                const_cast<ModuleNameMessage&>(msg).GetMessage()->ip,
-                                const_cast<ModuleNameMessage&>(msg).GetMessage()->port,
-                                const_cast<ModuleNameMessage&>(msg).GetMessage()->access_id);
-    bool isexist = false;
-    for(twnstd::list<IPCModule::IPCObject>::iterator it = m_module->m_modules.begin();
-        it != m_module->m_modules.end(); ++it)
-    {
-        if(*it == module)
-        {
-            isexist = true;
-            break;
-        }
-    }
- 	const_cast<ModuleNameMessage&>(msg).GetMessage()->is_exist = isexist;
+ 	const_cast<ModuleNameMessage&>(msg).GetMessage()->is_exist = false;
 }
 
 void IPCSignalHandler::onDisconnected(const DisconnectedMessage& msg)
@@ -95,17 +81,6 @@ void IPCSignalHandler::onDisconnected(const DisconnectedMessage& msg)
 	{
 		return;
 	}
-
-	IPCModule::IPCObject module = IPCObjectName::GetIPCName(msg.m_id);
-    for(twnstd::list<IPCModule::IPCObject>::iterator it = m_module->m_modules.begin();
-        it != m_module->m_modules.end(); ++it)
-    {
-        if(*it == module)
-        {
-            m_module->m_modules.erase(it);
-            break;
-        }
-    }
     
 	m_module->OnFireConnector(msg.m_id);
 }
