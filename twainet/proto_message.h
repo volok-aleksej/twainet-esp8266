@@ -29,6 +29,21 @@ public:
         FreeMessage();
     }
 
+	void operator = (const ProtoMessage<TMessage, THandler>& msg)
+    {
+        m_handler = msg.m_handler;
+        unpacked = msg.unpacked;
+        if(unpacked) {
+            int size = protobuf_c_message_get_packed_size((ProtobufCMessage*)message);
+            char* data = (char*)malloc(size);
+            protobuf_c_message_pack((ProtobufCMessage*)message, (uint8_t*)data);
+            message = (TMessage*)protobuf_c_message_unpack(&descriptor, 0, size, (const uint8_t*)data);
+        } else {
+            message = (TMessage*)malloc(descriptor.sizeof_message);
+            *message = *msg.message;
+        }
+    }
+
 	virtual void onMessage()
 	{
         if(m_handler && message)

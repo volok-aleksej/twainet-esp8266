@@ -86,16 +86,20 @@ void Terminal::onMessage(const Terminal__GetCommandList& msg)
 {
     twnstd::vector<CommandBase*> commands;
     CommandLine::GetInstance().GetCommandList(commands);
+
+    twnstd::vector<CommandMessage> msgcommands;
+    msgcommands.resize(commands.length());
+
     CommandListMessage clMsg;
     clMsg.GetMessage()->n_cmd = commands.length();
-    clMsg.GetMessage()->cmd = (Terminal__Command**)(malloc(commands.length()*(sizeof(Terminal__Command) + sizeof(Terminal__Command*))));
+    clMsg.GetMessage()->cmd = (Terminal__Command**)(malloc(commands.length()*sizeof(Terminal__Command*)));
     for(int i = 0; i < commands.length(); i++) {
-        clMsg.GetMessage()->cmd[i] = (Terminal__Command*)(((char*)clMsg.GetMessage()->cmd) + 
-                                         sizeof(Terminal__Command*)*commands.length() + i*sizeof(Terminal__Command));
+        msgcommands.push_back(CommandMessage());
+        clMsg.GetMessage()->cmd[i] = msgcommands[i]->GetMessage();
         clMsg.GetMessage()->cmd[i]->cmd = (char*)commands[i]->m_command.c_str();
-        clMsg.GetMessage()->cmd[i]->n_args = 0;//commands[i]->m_args.length();
+        clMsg.GetMessage()->cmd[i]->n_args = commands[i]->m_args.length();
         if(commands[i]->m_args.length()) {
-//            clMsg.GetMessage()->cmd[i]->args = (char**)malloc(commands[i]->m_args.length()*sizeof(char*));
+            clMsg.GetMessage()->cmd[i]->args = (char**)malloc(commands[i]->m_args.length()*sizeof(char*));
         } else {
             clMsg.GetMessage()->cmd[i]->args = 0;
         }
