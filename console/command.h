@@ -11,7 +11,7 @@ class ICommand
 public:
     virtual ~ICommand(){}
     virtual bool IsCommand(const String& command) = 0;
-    virtual void doCommand(const String& params) = 0;
+    virtual void doCommand(const twnstd::vector<String>& params) = 0;
     virtual CommandBase* toCommandBase() = 0;
 };
 
@@ -48,7 +48,7 @@ public:
         return m_command == command;
     }
     
-    void doCommand(const String& params) override
+    void doCommand(const twnstd::vector<String>& params) override
     {
         m_func(params);
     }

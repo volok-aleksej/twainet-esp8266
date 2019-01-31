@@ -44,7 +44,7 @@ Config* GetConfig()
     return &g_config;
 }
 
-void ipcInfo(const String& params)
+void ipcInfo(const twnstd::vector<String>& params)
 {
     twnstd::vector<IPCObjectName> objects = GetTwainetClient()->GetIPCObjects();
     LOG_INFO("ipc objects size %d:", objects.length());
@@ -53,20 +53,19 @@ void ipcInfo(const String& params)
     }
 }
 
-void config(const String& params)
+void config(const twnstd::vector<String>& params)
 {
-    twnstd::vector<String> params_ = getSubstrings(params, " ");
-    if(!params_.length()) {
+    if(!params.length()) {
         LOG_WARNING("use %s=<param name>|%s=<param name>|%s|%s=<value>", commandSet, commandGet, commandWrite, commandValue);
     }
-    
-    twnstd::vector<String> keys = getSubstrings(params_[0], "=");
-    if(keys.length() == 1 &&
-       (keys[0] == commandSet || keys[0] == commandGet) ||
+
+    twnstd::vector<String> keys = getSubstrings(const_cast<twnstd::vector<String>&>(params)[0], "=");
+    if((keys.length() == 1 &&
+       (keys[0] == commandSet || keys[0] == commandGet)) ||
        keys[0] == commandValue) {
         LOG_WARNING(warn_abs_key);
         return;
-    } else if(params_.length() == 1 && keys[0] == commandSet) {
+    } else if(params.length() == 1 && keys[0] == commandSet) {
         LOG_WARNING(warn_abs_value);
         return;
     }
@@ -77,9 +76,9 @@ void config(const String& params)
         g_config.Write();
     }
     
-    if(params_.length() == 2 && keys[0] == commandSet) {
+    if(params.length() == 2 && keys[0] == commandSet) {
         String param_name = keys[1];
-        keys = getSubstrings(params_[1], "=");
+        keys = getSubstrings(const_cast<twnstd::vector<String>&>(params)[1], "=");
         if(keys.length() == 1 || keys[0] != commandValue)
             LOG_WARNING(warn_abs_value);
         else
@@ -144,7 +143,13 @@ extern "C" void loop()
         delay(150);
         
         if(console.Read(command, commandSize)) {
-            CommandLine::GetInstance().DoCommand(command, strlen(command));
+            String commandStr;
+            twnstd::vector<String> params = getSubstrings(command, " ");
+            if(params.length()) {
+                commandStr = params[0];
+                params.erase(0);
+                CommandLine::GetInstance().DoCommand(commandStr, params);
+            }
         }
         ManagersContainer::GetInstance().CheckManagers();
         ThreadManager::GetInstance().SwitchThread();

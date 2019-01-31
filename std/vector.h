@@ -6,6 +6,9 @@ namespace twnstd {
 template<typename Object>
 class vector
 {
+    Object* m_objects;
+    unsigned int m_objectsLen;
+    unsigned int m_objectsBuf;
 public:
     vector()
     : m_objectsLen(0), m_objectsBuf(4)
@@ -59,6 +62,18 @@ public:
         m_objectsLen++;
     }
     
+    void erase(unsigned int index) {
+        if(m_objectsLen == 0) {
+            return;
+        }
+        if(m_objectsLen == index + 1) {
+            pop_back();
+        } else {
+            memcpy(m_objects + index*sizeof(Object), m_objects + (index + 1)*sizeof(Object), (m_objectsLen - index - 1)*sizeof(Object));
+            m_objectsLen--;
+        }
+    }
+
     bool resize(unsigned int len)
     {
         if(m_objectsLen <= len)
@@ -78,7 +93,9 @@ public:
     
     void pop_back()
     {
-        m_objectsLen--;
+        if(m_objectsLen != 0) {
+            m_objectsLen--;
+        }
     }
     
     Object& back()
@@ -100,11 +117,6 @@ public:
     {
         return m_objects;
     }
-    
-private:
-    Object* m_objects;
-    unsigned int m_objectsLen;
-    unsigned int m_objectsBuf;
 };
 
 }

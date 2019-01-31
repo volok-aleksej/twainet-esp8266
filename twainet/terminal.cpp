@@ -75,11 +75,11 @@ bool Terminal::onData(const String& messageName, const char* data, int len)
 void Terminal::onMessage(const Terminal__Command& msg)
 {
     String command = msg.cmd;
+    twnstd::vector<String> args;
     for(int i = 0; i < msg.n_args; i++) {
-        command += " ";
-        command += msg.args[i];
+        args.push_back(msg.args[i]);
     }
-    CommandLine::GetInstance().DoCommand((char*)command.c_str(), command.length());
+    CommandLine::GetInstance().DoCommand(command, args);
 }
 
 void Terminal::onMessage(const Terminal__GetCommandList& msg)
@@ -95,7 +95,7 @@ void Terminal::onMessage(const Terminal__GetCommandList& msg)
     clMsg.GetMessage()->cmd = (Terminal__Command**)(malloc(commands.length()*sizeof(Terminal__Command*)));
     for(int i = 0; i < commands.length(); i++) {
         msgcommands.push_back(CommandMessage());
-        clMsg.GetMessage()->cmd[i] = msgcommands[i]->GetMessage();
+        clMsg.GetMessage()->cmd[i] = msgcommands[i].GetMessage();
         clMsg.GetMessage()->cmd[i]->cmd = (char*)commands[i]->m_command.c_str();
         clMsg.GetMessage()->cmd[i]->n_args = commands[i]->m_args.length();
         if(commands[i]->m_args.length()) {

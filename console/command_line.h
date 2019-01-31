@@ -13,7 +13,7 @@ protected:
     ~CommandLine();
 public:
     void AddCommand(ICommand* command);
-    void DoCommand(char* command, int len);
+    void DoCommand(const String& command, const twnstd::vector<String>& params);
     void GetCommandList(twnstd::vector<CommandBase*>& commands);
 private:
     twnstd::vector<ICommand*> m_commands;
