@@ -31,13 +31,15 @@ public:
 
 	void operator = (const ProtoMessage<TMessage, THandler>& msg)
     {
+	FreeMessage();
         m_handler = msg.m_handler;
         unpacked = msg.unpacked;
         if(unpacked) {
-            int size = protobuf_c_message_get_packed_size((ProtobufCMessage*)message);
+            int size = protobuf_c_message_get_packed_size((ProtobufCMessage*)msg.message);
             char* data = (char*)malloc(size);
-            protobuf_c_message_pack((ProtobufCMessage*)message, (uint8_t*)data);
+            protobuf_c_message_pack((ProtobufCMessage*)msg.message, (uint8_t*)data);
             message = (TMessage*)protobuf_c_message_unpack(&descriptor, 0, size, (const uint8_t*)data);
+	    free(data);
         } else {
             message = (TMessage*)malloc(descriptor.sizeof_message);
             *message = *msg.message;
