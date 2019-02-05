@@ -69,7 +69,9 @@ public:
         if(m_objectsLen == index + 1) {
             pop_back();
         } else {
-            memcpy(m_objects + index*sizeof(Object), m_objects + (index + 1)*sizeof(Object), (m_objectsLen - index - 1)*sizeof(Object));
+            for(int i = index; i < m_objectsLen-1; i++) {
+                m_objects[i] = m_objects[i+1];
+            }
             m_objectsLen--;
         }
     }
