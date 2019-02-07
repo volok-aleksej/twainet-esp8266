@@ -24,7 +24,6 @@ char suserKey[] = "server.user";
 char spassKey[] = "server.pass";
 char sipKey[] = "server.ip";
 char sportKey[] = "server.port";
-char nameKey[] = "name";
 char commandSet[] = "set";
 char commandGet[] = "get";
 char commandWrite[] = "write";
@@ -76,22 +75,17 @@ struct ConfigCommand
 
     twnstd::vector<String> getNextCommandArgs(const twnstd::vector<String>& params)
     {
-        if(!params.length()) {
+        if(params.length() == 1 && (const_cast<twnstd::vector<String>&>(params)[0] == commandSet ||
+                                            const_cast<twnstd::vector<String>&>(params)[0] == commandGet)) {
+            return g_config.GetKeys();
+        } else if(params.length() == 1 && const_cast<twnstd::vector<String>&>(params)[0] == commandWrite) {
+            return twnstd::vector<String>();
+        } else if(params.length() <= 1) {
             twnstd::vector<String> args;
             args.push_back(commandSet);
             args.push_back(commandGet);
             args.push_back(commandWrite);
             return args;
-        } else if(params.length() == 1 && (const_cast<twnstd::vector<String>&>(params)[0] == commandSet ||
-                                            const_cast<twnstd::vector<String>&>(params)[0] == commandGet)) {
-            twnstd::vector<String> args;
-            args.push_back(wssidKey);
-            args.push_back(wpassKey);
-            args.push_back(suserKey);
-            args.push_back(spassKey);
-            args.push_back(sipKey);
-            args.push_back(sportKey);
-            args.push_back(nameKey);
         } else {
             return twnstd::vector<String>();
         }
@@ -118,6 +112,12 @@ extern "C" void setup()
         WiFi.begin(ssid.c_str(), pass.c_str());
     }
     
+    g_config.AddKey(wssidKey);
+    g_config.AddKey(wpassKey);
+    g_config.AddKey(suserKey);
+    g_config.AddKey(spassKey);
+    g_config.AddKey(sipKey);
+    g_config.AddKey(sportKey);
     CommandLine::GetInstance().AddCommand(CreateCommand(&ipcInfo, "ipcinfo"));
     CommandLine::GetInstance().AddCommand(CreateCommand(&config, "config"));
     usersetup();

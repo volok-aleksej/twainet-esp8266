@@ -1,6 +1,8 @@
 #include "terminal.h"
 #include "vector.h"
 
+char nameKey[] = "name";
+
 template<> const ProtobufCMessageDescriptor& LogMessage::descriptor = terminal__log__descriptor;
 template<> const ProtobufCMessageDescriptor& CommandMessage::descriptor = terminal__command__descriptor;
 template<> const ProtobufCMessageDescriptor& TermNameMessage::descriptor = terminal__term_name__descriptor;
@@ -12,6 +14,7 @@ Terminal::Terminal()
     GetTwainetClient()->SetTerminal(this);
     addMessage(new CommandMessage(this));
     addMessage(new GetNextCommandArgsMessage(this));
+    GetConfig()->AddKey(nameKey);
 }
 
 Terminal::~Terminal()

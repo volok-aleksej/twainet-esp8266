@@ -37,6 +37,16 @@ void Config::Write()
     
 }
 
+void Config::AddKey(const String& key)
+{
+    keys.push_back(key);
+}
+
+twnstd::vector<String> Config::GetKeys()
+{
+    return keys;
+}
+
 bool Config::setValue(const String& key, const String& value)
 {
     if(!m_root) {
