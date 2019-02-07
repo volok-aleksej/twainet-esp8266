@@ -14,7 +14,7 @@ protected:
 public:
     void AddCommand(ICommand* command);
     void DoCommand(const String& command, const twnstd::vector<String>& params);
-    void GetCommandList(twnstd::vector<CommandBase*>& commands);
+    twnstd::vector<String> GetNextCommandArgs(const twnstd::vector<String>& args);
 private:
     twnstd::vector<ICommand*> m_commands;
 };

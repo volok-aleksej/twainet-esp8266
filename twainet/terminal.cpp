@@ -4,14 +4,14 @@
 template<> const ProtobufCMessageDescriptor& LogMessage::descriptor = terminal__log__descriptor;
 template<> const ProtobufCMessageDescriptor& CommandMessage::descriptor = terminal__command__descriptor;
 template<> const ProtobufCMessageDescriptor& TermNameMessage::descriptor = terminal__term_name__descriptor;
-template<> const ProtobufCMessageDescriptor& GetCommandListMessage::descriptor = terminal__get_command_list__descriptor;
-template<> const ProtobufCMessageDescriptor& CommandListMessage::descriptor = terminal__command_list__descriptor;
+template<> const ProtobufCMessageDescriptor& GetNextCommandArgsMessage::descriptor = terminal__get_next_command_args__descriptor;
+template<> const ProtobufCMessageDescriptor& NextCommandArgsMessage::descriptor = terminal__next_command_args__descriptor;
 
 Terminal::Terminal()
 {
     GetTwainetClient()->SetTerminal(this);
     addMessage(new CommandMessage(this));
-    addMessage(new GetCommandListMessage(this));
+    addMessage(new GetNextCommandArgsMessage(this));
 }
 
 Terminal::~Terminal()
@@ -34,7 +34,7 @@ bool Terminal::Write(const char* log)
 void Terminal::onConnected()
 {
     TermNameMessage msg;
-    String terminal_name = GetConfig()->getValue("name");
+    String terminal_name = GetConfig()->getValue(nameKey);
     msg.GetMessage()->name = (char*)terminal_name.c_str();
     toMessage(msg);
 }
@@ -82,37 +82,22 @@ void Terminal::onMessage(const Terminal__Command& msg)
     CommandLine::GetInstance().DoCommand(command, args);
 }
 
-void Terminal::onMessage(const Terminal__GetCommandList& msg)
+void Terminal::onMessage(const Terminal__GetNextCommandArgs& msg)
 {
-    twnstd::vector<CommandBase*> commands;
-    CommandLine::GetInstance().GetCommandList(commands);
-
-    twnstd::vector<CommandMessage> msgcommands;
-    msgcommands.resize(commands.length());
-
-    CommandListMessage clMsg;
-    clMsg.GetMessage()->n_cmd = commands.length();
-    clMsg.GetMessage()->cmd = (Terminal__Command**)(malloc(commands.length()*sizeof(Terminal__Command*)));
-    for(int i = 0; i < commands.length(); i++) {
-        msgcommands.push_back(CommandMessage());
-        clMsg.GetMessage()->cmd[i] = msgcommands[i].GetMessage();
-        clMsg.GetMessage()->cmd[i]->cmd = (char*)commands[i]->m_command.c_str();
-        clMsg.GetMessage()->cmd[i]->n_args = commands[i]->m_args.length();
-        if(commands[i]->m_args.length()) {
-            clMsg.GetMessage()->cmd[i]->args = (char**)malloc(commands[i]->m_args.length()*sizeof(char*));
-        } else {
-            clMsg.GetMessage()->cmd[i]->args = 0;
-        }
-        for(int j = 0; j < commands[i]->m_args.length(); j++) {
-            clMsg.GetMessage()->cmd[i]->args[j] = (char*)commands[i]->m_args[j].c_str();
-        }
+    twnstd::vector<String> args;
+    for(int i = 0; i < const_cast<Terminal__GetNextCommandArgs&>(msg).n_args; i++) {
+        args.push_back(const_cast<Terminal__GetNextCommandArgs&>(msg).args[i]);
     }
-    
-    toMessage(clMsg);
+    twnstd::vector<String> commands = CommandLine::GetInstance().GetNextCommandArgs(args);
 
+    NextCommandArgsMessage ncaMsg;
+    ncaMsg.GetMessage()->n_args = commands.length();
+    ncaMsg.GetMessage()->args = (char**)(malloc(commands.length()*sizeof(char*)));
     for(int i = 0; i < commands.length(); i++) {
-        if(clMsg.GetMessage()->cmd[i]->args)
-            free(clMsg.GetMessage()->cmd[i]->args);
+        ncaMsg.GetMessage()->args[i] = (char*)commands[i].c_str();
     }
-    free(clMsg.GetMessage()->cmd);
+
+    toMessage(ncaMsg);
+
+    free(ncaMsg.GetMessage()->args);
 }
