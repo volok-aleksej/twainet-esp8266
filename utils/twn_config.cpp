@@ -4,6 +4,8 @@
 #include "vector.h"
 #include "utils.h"
 
+char config_file[] = "/config.txt";
+
 Config::Config() : m_root(0){}
 
 Config::~Config(){}
@@ -11,8 +13,8 @@ Config::~Config(){}
 void Config::Read()
 {
     //DynamicJsonBuffer jsonBuffer;
-    if(SPIFFS.exists("/config.txt")) {
-        File fp = SPIFFS.open("/config.txt", "r");
+    if(SPIFFS.exists(config_file)) {
+        File fp = SPIFFS.open(config_file, "r");
         String line = fp.readStringUntil('\n');
         m_root = &jsonBuffer.parseObject( line );
         fp.close();
@@ -31,7 +33,7 @@ void Config::Write()
     String data;
     m_root->printTo(data);
     LOG_INFO("%s", data.c_str());
-    File fp = SPIFFS.open("/config.txt", "w");
+    File fp = SPIFFS.open(config_file, "w");
     fp.write((uint8_t*)data.c_str(), data.length());
     fp.close();
     

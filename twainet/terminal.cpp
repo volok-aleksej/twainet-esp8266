@@ -88,9 +88,11 @@ void Terminal::onMessage(const Terminal__GetNextCommandArgs& msg)
     for(int i = 0; i < const_cast<Terminal__GetNextCommandArgs&>(msg).n_args; i++) {
         args.push_back(const_cast<Terminal__GetNextCommandArgs&>(msg).args[i]);
     }
-    twnstd::vector<String> commands = CommandLine::GetInstance().GetNextCommandArgs(args);
+    bool new_word = false;
+    twnstd::vector<String> commands = CommandLine::GetInstance().GetNextCommandArgs(args, new_word);
 
     NextCommandArgsMessage ncaMsg;
+    ncaMsg.GetMessage()->new_word = new_word ? 1 : 0;
     ncaMsg.GetMessage()->n_args = commands.length();
     ncaMsg.GetMessage()->args = (char**)(malloc(commands.length()*sizeof(char*)));
     for(int i = 0; i < commands.length(); i++) {

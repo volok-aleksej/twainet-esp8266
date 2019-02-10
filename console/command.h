@@ -12,7 +12,7 @@ public:
     virtual ~ICommand(){}
     virtual bool IsCommand(const String& command) = 0;
     virtual void doCommand(const twnstd::vector<String>& params) = 0;
-    virtual twnstd::vector<String> getNextCommandArgs(const twnstd::vector<String>& params) = 0;
+    virtual twnstd::vector<String> getNextCommandArgs(const twnstd::vector<String>& params, bool& new_word) = 0;
     virtual CommandBase* toCommandBase() = 0;
 };
 
@@ -54,9 +54,9 @@ public:
         m_func->doCommand(params);
     }
     
-    twnstd::vector<String> getNextCommandArgs(const twnstd::vector<String>& params) override
+    twnstd::vector<String> getNextCommandArgs(const twnstd::vector<String>& params, bool& new_word) override
     {
-        return m_func->getNextCommandArgs(params);
+        return m_func->getNextCommandArgs(params, new_word);
     }
 
     CommandBase* toCommandBase() override
@@ -86,7 +86,7 @@ public:
         m_func(params);
     }
 
-    twnstd::vector<String> getNextCommandArgs(const twnstd::vector<String>& params) override
+    twnstd::vector<String> getNextCommandArgs(const twnstd::vector<String>& params, bool& new_word) override
     {
         return twnstd::vector<String>();
     }

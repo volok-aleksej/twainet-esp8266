@@ -74,13 +74,14 @@ struct ConfigCommand
         }
     }
 
-    twnstd::vector<String> getNextCommandArgs(const twnstd::vector<String>& params)
+    twnstd::vector<String> getNextCommandArgs(const twnstd::vector<String>& params, bool& new_word)
     {
         if(!params.length()) {
             twnstd::vector<String> args;
             args.push_back(commandSet);
             args.push_back(commandGet);
             args.push_back(commandWrite);
+            new_word = true;
             return args;
         } else if(params.length() == 1 && (const_cast<twnstd::vector<String>&>(params)[0] == commandSet ||
                                             const_cast<twnstd::vector<String>&>(params)[0] == commandGet)) {
@@ -92,6 +93,13 @@ struct ConfigCommand
             args.push_back(sipKey);
             args.push_back(sportKey);
             args.push_back(nameKey);
+            new_word = true;
+        } else if(params.length() == 1 && const_cast<twnstd::vector<String>&>(params)[0] != commandWrite) {
+            twnstd::vector<String> args;
+            args.push_back(commandSet);
+            args.push_back(commandGet);
+            args.push_back(commandWrite);
+            return args;
         } else {
             return twnstd::vector<String>();
         }
