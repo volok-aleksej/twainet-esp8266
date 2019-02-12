@@ -27,6 +27,7 @@ char sportKey[] = "server.port";
 char nameKey[] = "name";
 char commandSet[] = "set";
 char commandGet[] = "get";
+char commandRemove[] = "remove";
 char commandWrite[] = "write";
 char warn_abs_key[] = "absent key name in command";
 char warn_abs_value[] = "absent value in command";
@@ -60,7 +61,9 @@ struct ConfigCommand
         if(!params.length()) {
             LOG_WARNING("use %s|%s|%s", commandSet, commandGet, commandWrite);
         } else if(params.length() == 1 &&
-            (const_cast<twnstd::vector<String>&>(params)[0] == commandSet || const_cast<twnstd::vector<String>&>(params)[0] == commandGet)) {
+            (const_cast<twnstd::vector<String>&>(params)[0] == commandSet ||
+             const_cast<twnstd::vector<String>&>(params)[0] == commandGet ||
+             const_cast<twnstd::vector<String>&>(params)[0] == commandRemove)) {
             LOG_WARNING("absent key in command");
         } else if(params.length() == 2 && const_cast<twnstd::vector<String>&>(params)[0] == commandSet) {
             LOG_WARNING("absent value in command");
@@ -69,6 +72,8 @@ struct ConfigCommand
             g_config.setValue(const_cast<twnstd::vector<String>&>(params)[1], const_cast<twnstd::vector<String>&>(params)[2]);
         } else if(const_cast<twnstd::vector<String>&>(params)[0] == commandGet) {
             LOG_INFO("%s", g_config.getValue(const_cast<twnstd::vector<String>&>(params)[1]).c_str());
+        } else if(const_cast<twnstd::vector<String>&>(params)[0] == commandRemove) {
+            g_config.removeValue(const_cast<twnstd::vector<String>&>(params)[1]);
         } else if(const_cast<twnstd::vector<String>&>(params)[0] == commandWrite) {
             g_config.Write();
         }
@@ -80,6 +85,7 @@ struct ConfigCommand
             twnstd::vector<String> args;
             args.push_back(commandSet);
             args.push_back(commandGet);
+            args.push_back(commandRemove);
             args.push_back(commandWrite);
             new_word = true;
             return args;

@@ -83,3 +83,26 @@ String Config::getValue(const String& key)
     }
     return "";
 }
+
+bool Config::removeValue(const String& key)
+{
+    if(!m_root) {
+        return false;
+    }
+    
+    twnstd::vector<String> keys = getSubstrings(key, ".");
+    JsonObject* obj = m_root;
+    for(int i = 0; i < keys.length(); i++) {
+        if(i + 1 < keys.length() && obj->containsKey(keys[i])) {
+            JsonObject& newobj = obj->get<JsonVariant>(keys[i]);
+            obj = &newobj;
+        } else if(obj->containsKey(keys[i])){
+            obj->remove(keys[i]);
+            return true;
+        } else {
+            LOG_INFO("absent key");
+            break;
+        }
+    }
+    return false;
+}

@@ -14,6 +14,7 @@ public:
     void Write();
     
     bool setValue(const String& key, const String& value);
+    bool removeValue(const String& key);
     String getValue(const String& key);
 private:
     JsonObject* m_root;
