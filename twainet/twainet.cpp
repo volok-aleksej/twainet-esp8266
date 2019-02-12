@@ -89,13 +89,14 @@ struct ConfigCommand
             args.push_back(commandRemove);
             args.push_back(commandWrite);
             new_word = true;
-        } else if(params.length() == 1 && (const_cast<twnstd::vector<String>&>(params)[0] == commandSet ||
-                                            const_cast<twnstd::vector<String>&>(params)[0] == commandGet)) {
+        } else if(params.length() >= 1 && params.length() <= 2 &&
+                  (const_cast<twnstd::vector<String>&>(params)[0] == commandSet ||
+                   const_cast<twnstd::vector<String>&>(params)[0] == commandGet)) {
             twnstd::vector<const char*> cmdargs = g_config.getKeys();
             for(int i= 0; i < cmdargs.length(); i++) {
                 args.push_back(cmdargs[i]);
             }
-            new_word = true;
+            new_word = (params.length() == 1);
         } else if(params.length() == 1 && const_cast<twnstd::vector<String>&>(params)[0] != commandWrite) {
             args.push_back(commandSet);
             args.push_back(commandGet);
