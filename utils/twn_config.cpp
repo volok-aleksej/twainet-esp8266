@@ -64,7 +64,7 @@ bool Config::setValue(const char* key, const char* value)
         } else if(i + 1 < keys.length() && !obj->containsKey(keys[i])) {
             obj = &(obj->createNestedObject(keys[i]));
         } else {
-            return obj->set(keys[i], value);
+            return obj->set(keys[i], String(value));
         }
     }
     
