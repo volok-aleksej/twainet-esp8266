@@ -9,7 +9,17 @@ char config_file[] = "/config.txt";
 Config::Config() : m_root(0){}
 
 Config::~Config(){}
-    
+
+void Config::addKey(const char* key)
+{
+    keys.push_back(key);
+}
+
+twnstd::vector<const char*> Config::getKeys()
+{
+    return keys;
+}
+
 void Config::Read()
 {
     //DynamicJsonBuffer jsonBuffer;
@@ -39,7 +49,7 @@ void Config::Write()
     
 }
 
-bool Config::setValue(const String& key, const String& value)
+bool Config::setValue(const char* key, const char* value)
 {
     if(!m_root) {
         return false;
@@ -61,7 +71,7 @@ bool Config::setValue(const String& key, const String& value)
     return false;
 }
 
-String Config::getValue(const String& key)
+const char* Config::getValue(const char* key)
 {
     if(!m_root) {
         return "";
@@ -84,7 +94,7 @@ String Config::getValue(const String& key)
     return "";
 }
 
-bool Config::removeValue(const String& key)
+bool Config::removeValue(const char* key)
 {
     if(!m_root) {
         return false;

@@ -3,6 +3,7 @@
 
 #include "WString.h"
 #include "ArduinoJson.h"
+#include "vector.h"
 
 class Config
 {
@@ -13,12 +14,16 @@ public:
     void Read();
     void Write();
     
-    bool setValue(const String& key, const String& value);
-    bool removeValue(const String& key);
-    String getValue(const String& key);
+    void addKey(const char* key);
+    twnstd::vector<const char*> getKeys();
+    
+    bool setValue(const char* key, const char* value);
+    bool removeValue(const char* key);
+    const char* getValue(const char* key);
 private:
     JsonObject* m_root;
     StaticJsonBuffer<500> jsonBuffer;
+    twnstd::vector<const char*> keys;
 };
 
 // #endif/*CONFIG_H*/

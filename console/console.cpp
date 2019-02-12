@@ -47,7 +47,7 @@ bool Console::Read(char* buf, int bufLen)
             m_command = "";
         } else if(ch == '\t'){
         } else if(ch == '\r'){
-        } else if(ch == 127 && m_command.length()){ // '\b'
+        } else if(ch == '\b' && m_command.length()){
             m_command.remove(m_command.length() - 1);
             m_stream->print("\b \b");
         } else if(ch > 31 && ch < 127){

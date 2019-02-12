@@ -24,7 +24,6 @@ char suserKey[] = "server.user";
 char spassKey[] = "server.pass";
 char sipKey[] = "server.ip";
 char sportKey[] = "server.port";
-char nameKey[] = "name";
 char commandSet[] = "set";
 char commandGet[] = "get";
 char commandRemove[] = "remove";
@@ -59,21 +58,23 @@ struct ConfigCommand
     void doCommand(const twnstd::vector<String>& params)
     {
         if(!params.length()) {
-            LOG_WARNING("use %s|%s|%s", commandSet, commandGet, commandWrite);
+            LOG_WARNING("use %s|%s|%s|%s <key> <value>", commandSet, commandGet, commandWrite, commandRemove);
         } else if(params.length() == 1 &&
             (const_cast<twnstd::vector<String>&>(params)[0] == commandSet ||
              const_cast<twnstd::vector<String>&>(params)[0] == commandGet ||
              const_cast<twnstd::vector<String>&>(params)[0] == commandRemove)) {
-            LOG_WARNING("absent key in command");
+            LOG_WARNING(warn_abs_key);
+            return;
         } else if(params.length() == 2 && const_cast<twnstd::vector<String>&>(params)[0] == commandSet) {
-            LOG_WARNING("absent value in command");
+            LOG_WARNING(warn_abs_value);
+            return;
         }
         if(const_cast<twnstd::vector<String>&>(params)[0] == commandSet) {
-            g_config.setValue(const_cast<twnstd::vector<String>&>(params)[1], const_cast<twnstd::vector<String>&>(params)[2]);
+            g_config.setValue(const_cast<twnstd::vector<String>&>(params)[1].c_str(), const_cast<twnstd::vector<String>&>(params)[2].c_str());
         } else if(const_cast<twnstd::vector<String>&>(params)[0] == commandGet) {
-            LOG_INFO("%s", g_config.getValue(const_cast<twnstd::vector<String>&>(params)[1]).c_str());
+            LOG_INFO("%s", g_config.getValue(const_cast<twnstd::vector<String>&>(params)[1].c_str()));
         } else if(const_cast<twnstd::vector<String>&>(params)[0] == commandRemove) {
-            g_config.removeValue(const_cast<twnstd::vector<String>&>(params)[1]);
+            g_config.removeValue(const_cast<twnstd::vector<String>&>(params)[1].c_str());
         } else if(const_cast<twnstd::vector<String>&>(params)[0] == commandWrite) {
             g_config.Write();
         }
@@ -81,34 +82,26 @@ struct ConfigCommand
 
     twnstd::vector<String> getNextCommandArgs(const twnstd::vector<String>& params, bool& new_word)
     {
+        twnstd::vector<String> args;
         if(!params.length()) {
-            twnstd::vector<String> args;
             args.push_back(commandSet);
             args.push_back(commandGet);
             args.push_back(commandRemove);
             args.push_back(commandWrite);
             new_word = true;
-            return args;
         } else if(params.length() == 1 && (const_cast<twnstd::vector<String>&>(params)[0] == commandSet ||
                                             const_cast<twnstd::vector<String>&>(params)[0] == commandGet)) {
-            twnstd::vector<String> args;
-            args.push_back(wssidKey);
-            args.push_back(wpassKey);
-            args.push_back(suserKey);
-            args.push_back(spassKey);
-            args.push_back(sipKey);
-            args.push_back(sportKey);
-            args.push_back(nameKey);
+            twnstd::vector<const char*> cmdargs = g_config.getKeys();
+            for(int i= 0; i < cmdargs.length(); i++) {
+                args.push_back(cmdargs[i]);
+            }
             new_word = true;
         } else if(params.length() == 1 && const_cast<twnstd::vector<String>&>(params)[0] != commandWrite) {
-            twnstd::vector<String> args;
             args.push_back(commandSet);
             args.push_back(commandGet);
             args.push_back(commandWrite);
-            return args;
-        } else {
-            return twnstd::vector<String>();
         }
+        return args;
     }
 };
 
@@ -131,6 +124,13 @@ extern "C" void setup()
         WiFi.mode(WIFI_STA);
         WiFi.begin(ssid.c_str(), pass.c_str());
     }
+    
+    g_config.addKey(wssidKey);
+    g_config.addKey(wpassKey);
+    g_config.addKey(suserKey);
+    g_config.addKey(spassKey);
+    g_config.addKey(sipKey);
+    g_config.addKey(sportKey);
     
     CommandLine::GetInstance().AddCommand(CreateCommand(&ipcInfo, "ipcinfo"));
     CommandLine::GetInstance().AddCommand(CreateCommand(&config, "config"));
