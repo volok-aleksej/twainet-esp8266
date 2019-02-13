@@ -83,24 +83,25 @@ struct ConfigCommand
     twnstd::vector<String> getNextCommandArgs(const twnstd::vector<String>& params, bool& new_word)
     {
         twnstd::vector<String> args;
-        if(!params.length()) {
+        if(!params.length() || (params.length() == 1 && 
+                const_cast<twnstd::vector<String>&>(params)[0] != commandWrite &&
+                const_cast<twnstd::vector<String>&>(params)[0] != commandSet &&
+                const_cast<twnstd::vector<String>&>(params)[0] != commandGet &&
+                const_cast<twnstd::vector<String>&>(params)[0] != commandRemove)) {
             args.push_back(commandSet);
             args.push_back(commandGet);
             args.push_back(commandRemove);
             args.push_back(commandWrite);
-            new_word = true;
-        } else if(params.length() >= 1 && params.length() <= 2 &&
+            new_word = (params.length() == 0);
+        } else if((params.length() == 1 || params.length() == 2) &&
                   (const_cast<twnstd::vector<String>&>(params)[0] == commandSet ||
-                   const_cast<twnstd::vector<String>&>(params)[0] == commandGet)) {
+                   const_cast<twnstd::vector<String>&>(params)[0] == commandGet ||
+                   const_cast<twnstd::vector<String>&>(params)[0] == commandRemove)) {
             twnstd::vector<const char*> cmdargs = g_config.getKeys();
             for(int i= 0; i < cmdargs.length(); i++) {
                 args.push_back(cmdargs[i]);
             }
             new_word = (params.length() == 1);
-        } else if(params.length() == 1 && const_cast<twnstd::vector<String>&>(params)[0] != commandWrite) {
-            args.push_back(commandSet);
-            args.push_back(commandGet);
-            args.push_back(commandWrite);
         }
         return args;
     }

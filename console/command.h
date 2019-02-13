@@ -20,33 +20,31 @@ class CommandBase
 {
 public:
     CommandBase(){}
-    CommandBase(const String& command, const twnstd::vector<String>& args = twnstd::vector<String>())
-    : m_command(command), m_args(args){}
+    CommandBase(const char* command)
+    : m_command(command){}
     CommandBase(const CommandBase& cmd)
-    : m_command(cmd.m_command), m_args(cmd.m_args){}
+    : m_command(cmd.m_command){}
     virtual ~CommandBase(){}
     
     void operator = (const CommandBase& cmd)
     {
         m_command = cmd.m_command;
-        m_args = cmd.m_args;
     }
     
-    String m_command;
-    twnstd::vector<String> m_args;
+    const char* m_command;
 };
 
 template <typename Func>
 class Command : public ICommand, public CommandBase
 {
 public:
-    Command(Func func, const String& command)
+    Command(Func func, const char* command)
         : CommandBase(command), m_func(func){}
     virtual ~Command(){}
     
     bool IsCommand(const String& command) override
     {
-        return m_command == command;
+        return command == m_command;
     }
     
     void doCommand(const twnstd::vector<String>& params) override
@@ -72,13 +70,13 @@ typedef void (*Func)(const twnstd::vector<String>&);
 template <> class Command<Func> : public ICommand, public CommandBase
 {
 public:
-    Command(Func func, const String& command)
+    Command(Func func, const char* command)
         : CommandBase(command), m_func(func){}
     virtual ~Command(){}
 
     bool IsCommand(const String& command) override
     {
-        return m_command == command;
+        return command == m_command;
     }
 
     void doCommand(const twnstd::vector<String>& params) override
@@ -101,7 +99,7 @@ private:
 };
 
 template<typename Func>
-Command<Func>* CreateCommand(Func func, const String& command) {
+Command<Func>* CreateCommand(Func func, const char* command) {
     return new Command<Func>(func, command);
 }
 

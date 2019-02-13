@@ -4,8 +4,9 @@
 #include <WString.h>
 #include <Stream.h>
 #include "logger.h"
+#include "autoCompleteHelper.h"
 
-class Console : public IConsole
+class Console : public IConsole, public AutoCompleteHelper
 {
 public:
     Console();

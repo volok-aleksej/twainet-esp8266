@@ -29,16 +29,18 @@ void CommandLine::DoCommand(const String& command, const twnstd::vector<String>&
 
 twnstd::vector<String> CommandLine::GetNextCommandArgs(const twnstd::vector<String>& args, bool& new_word)
 {
+    twnstd::vector<String> args_= args;
     twnstd::vector<String> commandlist;
-    String command = (args.length() == 0) ? "" : const_cast<twnstd::vector<String>&>(args)[0];
+    String command = (args_.length() == 0) ? "" : const_cast<twnstd::vector<String>&>(args_)[0];
     for(int i = 0; i < m_commands.length(); i++) {
         if(m_commands[i]->IsCommand(command)) {
-            const_cast<twnstd::vector<String>&>(args).erase(0);
-            return m_commands[i]->getNextCommandArgs(args, new_word);
+            const_cast<twnstd::vector<String>&>(args_).erase(0);
+            return m_commands[i]->getNextCommandArgs(args_, new_word);
         }
         commandlist.push_back(m_commands[i]->toCommandBase()->m_command);
     }
-    if(args.length() <= 1) {
+    new_word = (args_.length() == 0);
+    if(args_.length() <= 1) {
         return commandlist;
     }
     return twnstd::vector<String>();

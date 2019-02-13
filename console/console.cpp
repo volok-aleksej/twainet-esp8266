@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include "console.h"
+#include "command_line.h"
+#include "utils.h"
 
 Console::Console()
 : m_stream(0){}
@@ -46,6 +48,31 @@ bool Console::Read(char* buf, int bufLen)
             m_stream->print("#");
             m_command = "";
         } else if(ch == '\t'){
+            bool new_word;
+            twnstd::vector<String> params = getSubstrings(m_command, " ");
+            twnstd::vector<String> args = CommandLine::GetInstance().GetNextCommandArgs(params, new_word);
+            if(new_word) {
+                params.push_back("");
+            }
+            args = autoCompleteHelper(params.length() ? params.back() : "", args);
+            ClearLine();
+            if(args.length() == 1) {
+                params.pop_back();
+                params.push_back(args[0]);
+                m_command = "";
+                for(int i = 0; i < params.length(); i++) {
+                    m_command += params[i];
+                    m_command += " ";
+                }
+            } else {
+                for(int i = 0; i < args.length(); i++) {
+                    m_stream->print(args[i].c_str());
+                    m_stream->print(" ");
+                }
+                m_stream->println();
+            }
+            m_stream->print("#");
+            m_stream->print(m_command);
         } else if(ch == '\r'){
         } else if(ch == '\b' && m_command.length()){
             m_command.remove(m_command.length() - 1);
