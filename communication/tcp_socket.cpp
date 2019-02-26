@@ -147,6 +147,14 @@ bool TCPSocket::Send(char* data, int len)
         
         size_t room = tcp_sndbuf(m_socket);
         size_t will_send = (room < len) ? room : len;
+        
+        // tcp buffer is full
+        if(!will_send) {
+            m_suspendedSendThread = ThreadManager::GetInstance().GetCurrentThreadId();
+            ThreadManager::GetInstance().SuspendThread(m_suspendedSendThread);
+            continue;
+        }
+        
         err_t err = tcp_write(m_socket, data, will_send, 0);
         if(err != ERR_OK) {
             return false;
@@ -156,6 +164,8 @@ bool TCPSocket::Send(char* data, int len)
         len -= will_send;
         m_sentSize = 0;
         tcp_output(m_socket);
+        
+        // waiting to send tcp data
         while(m_sentSize != will_send && m_socket != INVALID_SOCKET) {
             m_suspendedSendThread = ThreadManager::GetInstance().GetCurrentThreadId();
             ThreadManager::GetInstance().SuspendThread(m_suspendedSendThread);
