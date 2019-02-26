@@ -58,9 +58,9 @@ TCPSocket::TCPSocket()
 : m_buf_offset(0)
 , m_buf(0)
 , m_sentSize(0)
-, m_suspendedThread(0)
-, m_suspendedRecvThread(0)
-, m_suspendedSendThread(0)
+, m_suspendedThread(-1)
+, m_suspendedRecvThread(-1)
+, m_suspendedSendThread(-1)
 {
 	Initialize();
 }
@@ -139,6 +139,11 @@ bool TCPSocket::Connect(const String& host, int port)
 
 bool TCPSocket::Send(char* data, int len)
 {
+    //wait until other thread will send data
+    while(m_suspendedSendThread > -1) {
+        ThreadManager::GetInstance().DelayThread(ThreadManager::GetInstance().GetCurrentThreadId(), 100);
+    }
+    
     while(len) {
         if(m_socket == INVALID_SOCKET)
         {
@@ -277,8 +282,16 @@ void TCPSocket::OnError(err_t err)
     tcp_recv(m_socket, NULL);
     tcp_err(m_socket, NULL);
     m_socket = INVALID_SOCKET;
-    ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
-    m_suspendedThread = 0;
+    if(m_suspendedThread != -1) {
+        ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
+        m_suspendedThread = -1;
+    } else if(m_suspendedRecvThread != -1) {
+        ThreadManager::GetInstance().ResumeThread(m_suspendedRecvThread);
+        m_suspendedRecvThread = -1;
+    } else if(m_suspendedSendThread != -1) {
+        ThreadManager::GetInstance().ResumeThread(m_suspendedSendThread);
+        m_suspendedSendThread = -1;
+    }
 }
 
 err_t TCPSocket::OnConnect(tcp_pcb* tpcb, err_t err)
@@ -290,8 +303,10 @@ err_t TCPSocket::OnConnect(tcp_pcb* tpcb, err_t err)
     tcp_recv(m_socket, (tcp_recv_fn)&onTCPRecv);
     tcp_sent(m_socket, &onTCPSent);
     tcp_err(m_socket, &onError);
-    ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
-    m_suspendedThread = 0;
+    if(m_suspendedThread != -1) {
+        ThreadManager::GetInstance().ResumeThread(m_suspendedThread);
+        m_suspendedThread = -1;
+    }
     return ERR_OK;
 }
 
@@ -315,8 +330,10 @@ err_t TCPSocket::OnTCPRecv(tcp_pcb* tpcb, pbuf* pb, err_t err)
         }
         ret = ERR_OK;
     }
-    ThreadManager::GetInstance().ResumeThread(m_suspendedRecvThread);
-    m_suspendedRecvThread = 0;
+    if(m_suspendedRecvThread != -1) {
+        ThreadManager::GetInstance().ResumeThread(m_suspendedRecvThread);
+        m_suspendedRecvThread = -1;
+    }
     return ret;
 }
 
@@ -324,7 +341,9 @@ err_t TCPSocket::OnTCPSent(tcp_pcb* tpcb, uint16_t len)
 {
     m_lastError = ERR_OK;
     m_sentSize = len;
-    ThreadManager::GetInstance().ResumeThread(m_suspendedSendThread);
-    m_suspendedSendThread = 0;
+    if(m_suspendedSendThread != -1) {
+        ThreadManager::GetInstance().ResumeThread(m_suspendedSendThread);
+        m_suspendedSendThread = -1;
+    }
     return ERR_OK;
 }

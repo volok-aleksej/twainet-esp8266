@@ -40,9 +40,9 @@ private:
     uint32_t m_buf_offset;
     int8_t m_lastError;
     
-    uint32_t m_suspendedThread;
-    uint32_t m_suspendedRecvThread;
-    uint32_t m_suspendedSendThread;
+    int32_t m_suspendedThread;
+    int32_t m_suspendedRecvThread;
+    int32_t m_suspendedSendThread;
 };
 
 #endif/*TCP_SOCKET_H*/
