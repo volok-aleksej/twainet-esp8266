@@ -4,7 +4,7 @@
 #include "any_socket.h"
 
 #include <WString.h>
-#include <lwip/netif.h>
+#include <ets_sys.h>
 #include <lwip/tcp.h>
 
 class TCPSocket : public AnySocket
@@ -29,6 +29,7 @@ protected:
     friend err_t onTcpConnect(void* arg, tcp_pcb* tpcb, err_t err);
     friend err_t onTCPRecv(void *arg, struct tcp_pcb *tpcb, struct pbuf *pb, err_t err);
     friend err_t onTCPSent(void *arg, struct tcp_pcb *tpcb, uint16_t len);
+    friend void onSendError(void *arg);
     void OnError(err_t err);
     err_t OnConnect(tcp_pcb* tpcb, err_t err);
     err_t OnTCPRecv(tcp_pcb* tpcb, pbuf* pb, err_t err);
@@ -43,6 +44,7 @@ private:
     int32_t m_suspendedThread;
     int32_t m_suspendedRecvThread;
     int32_t m_suspendedSendThread;
+    ETSTimer m_sendErrorTimer;
 };
 
 #endif/*TCP_SOCKET_H*/

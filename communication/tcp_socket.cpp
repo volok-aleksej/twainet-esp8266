@@ -7,6 +7,8 @@
 #include <lwip/dns.h>
 #include <lwip/err.h>
 
+#define ONCE 0
+
 void onError(void* arg, err_t err)
 {
     TCPSocket* socket = reinterpret_cast<TCPSocket*>(arg);
@@ -52,6 +54,14 @@ err_t onTCPSent(void *arg, struct tcp_pcb *tpcb, uint16_t len)
     }
     
     return ERR_VAL;
+}
+
+void onSendError(void *arg)
+{
+    TCPSocket* socket = reinterpret_cast<TCPSocket*>(arg);
+    if(socket) {
+        return socket->OnError(ERR_ABRT);
+    }
 }
 
 TCPSocket::TCPSocket()
@@ -153,13 +163,6 @@ bool TCPSocket::Send(char* data, int len)
         size_t room = tcp_sndbuf(m_socket);
         size_t will_send = (room < len) ? room : len;
         
-        // tcp buffer is full
-        if(!will_send) {
-            m_suspendedSendThread = ThreadManager::GetInstance().GetCurrentThreadId();
-            ThreadManager::GetInstance().SuspendThread(m_suspendedSendThread);
-            continue;
-        }
-        
         err_t err = tcp_write(m_socket, data, will_send, 0);
         if(err != ERR_OK) {
             return false;
@@ -172,6 +175,9 @@ bool TCPSocket::Send(char* data, int len)
         
         // waiting to send tcp data
         while(m_sentSize != will_send && m_socket != INVALID_SOCKET) {
+            os_timer_disarm(&m_sendErrorTimer);
+            os_timer_setfn(&m_sendErrorTimer, &onSendError, this);
+            os_timer_arm(&m_sendErrorTimer, 1500, ONCE);
             m_suspendedSendThread = ThreadManager::GetInstance().GetCurrentThreadId();
             ThreadManager::GetInstance().SuspendThread(m_suspendedSendThread);
         }
@@ -341,6 +347,7 @@ err_t TCPSocket::OnTCPSent(tcp_pcb* tpcb, uint16_t len)
 {
     m_lastError = ERR_OK;
     m_sentSize = len;
+    os_timer_disarm(&m_sendErrorTimer);
     if(m_suspendedSendThread != -1) {
         ThreadManager::GetInstance().ResumeThread(m_suspendedSendThread);
         m_suspendedSendThread = -1;
